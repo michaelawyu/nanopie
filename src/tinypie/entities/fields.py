@@ -24,6 +24,7 @@ class StringField(Field):
                  min_length: Optional[int] = None,
                  pattern: Optional[int] = None,
                  required: bool = False,
+                 default: Optional[str] = None,
                  description: str = '',
                  resource_identifier: bool = False):
         """
@@ -33,7 +34,9 @@ class StringField(Field):
         self.min_length = min_length
         self.pattern = pattern
         self.required = required
+        self.default = default
         self.description = description
+        self.resource_identifier = resource_identifier
 
     @property
     def field_type(self) -> type:
@@ -51,6 +54,7 @@ class FloatField(Field):
                  minimum: Optional[float] = None,
                  exclusive_minimum: Optional[float] = None,
                  required: bool = False,
+                 default: Optional[float] = None,
                  description: str = ''):
         """
         """
@@ -78,6 +82,7 @@ class IntField(Field):
                  exclusive_minimum: Optional[float] = None,
                  multiple_of: Optional[int] = None,
                  required: bool = False,
+                 default: Optional[int] = None,
                  description: str = '',
                  resource_identifier: bool = False):
         """
@@ -104,6 +109,7 @@ class BoolField(Field):
     """
     def __init__(self,
                  required: bool = False,
+                 default: Optional[bool] = None,
                  description: str = ''):
         """
         """
