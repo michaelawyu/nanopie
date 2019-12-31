@@ -1,4 +1,5 @@
 from .fields import Field
+from ..misc.field_errors import RequiredFieldMissingError
 
 class ResourceMetaKls(type):
     """
@@ -41,17 +42,28 @@ class Resource(metaclass=ResourceMetaKls):
     def __init__(self, bypass_validation: bool = False, **kwargs):
         """
         """
-        if bypass_validation:
-            for k in kwargs:
-                if self._fields.get(k): # pylint: disable=no-member
-                    mask = '_' + k
-                    setattr(self, mask, kwargs[k])
-        else:
-            for k in kwargs:
-                if self._fields.get(k): # pylint: disable=no-member
-                    setattr(self, k, kwargs[k])
+        for k in self._fields: # pylint: disable=no-member
+            v = kwargs.get(k)
+            mask = '_' + k
+            if not v:
+                default_v = self._fields[k].default
+                if not default_v and v.required:
+                    raise RequiredFieldMissingError(self._fields[k], k)
+                else:
+                    setattr(self, mask, v)
+            if bypass_validation:
+                setattr(self, mask, v)
+            else:
+                setattr(k, v)
+        
+    @classmethod
+    def field_type(cls) -> type:
+        return cls 
 
-    def validate(self, v):
+    @classmethod
+    def validate(cls, v):
         """
         """
         raise NotImplementedError
+
+Field.register(Resource)
