@@ -1,6 +1,6 @@
 from typing import Any, Optional, Union
 
-from .errors import ErrorBase, FieldValidationError
+from .error_bases import ErrorBase, FieldValidationError
 from ..entities.fields import (
     Field,
     StringField,
