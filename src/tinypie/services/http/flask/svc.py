@@ -1,62 +1,61 @@
-from abc import ABC, abstractmethod
-from typing import Any, Callable
+from typing import Callable
 
-from ...entities.model import Model
+try:
+    import flask
+except ImportError:
+    raise ImportError(
+        "The Flask (https://pypi.org/project/Flask/) package is required to "
+        "set up a Flask service. To install this package, run"
+        "`pip install Flask`."
+    )
 
-class HTTPServiceAbstract(ABC):
+from ..base import HTTPServiceAbstract
+from ....entities.model import Model
+
+class FlaskService(HTTPServiceAbstract):
     """
     """
+    def __init__(self, app: flask.Flask):
+        """
+        """
+        self._app = app
 
-    @abstractmethod
-    def endpoint(self,
-                 resource: Model,
-                 func: Callable) -> Callable:
-        """
-        """
-        return func
-    
-    @abstractmethod
     def create(self,
                resource: Model,
                func: Callable) -> Callable:
         """
         """
-        return func
-    
-    @abstractmethod
+        raise NotImplementedError
+
     def get(self,
             resource: Model,
             func: Callable) -> Callable:
         """
         """
-        return func
+        raise NotImplementedError
 
-    @abstractmethod
     def update(self,
                resource: Model,
                func: Callable) -> Callable:
         """
         """
-        return func
-    
-    @abstractmethod
+        raise NotImplementedError
+
     def delete(self,
                resource: Model,
                func: Callable) -> Callable:
         """
         """
-        return func
-    
-    @abstractmethod
+        raise NotImplementedError
+
     def list(self,
              resource: Model,
              func: Callable) -> Callable:
         """
         """
-        return func
+        raise NotImplementedError
 
-    @abstractmethod
     def add_resource(self, resource: Model):
         """
         """
-        pass
+        raise NotImplementedError

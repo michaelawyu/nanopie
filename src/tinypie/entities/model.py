@@ -1,7 +1,10 @@
 from .fields import Field
-from ..misc.field_errors import RequiredFieldMissingError
+from ..misc.field_errors import (
+    RequiredFieldMissingError,
+    FieldTypeNotMatchedError
+)
 
-class ResourceMetaKls(type):
+class ModelMetaKls(type):
     """
     """
     def __new__(cls, clsname, superclses, attribute_dict):
@@ -36,7 +39,7 @@ class ResourceMetaKls(type):
         attribute_dict['_fields'] = fields
         return type.__new__(cls, clsname, superclses, attribute_dict)
 
-class Resource(metaclass=ResourceMetaKls):
+class Model(metaclass=ModelMetaKls):
     """
     """
     def __init__(self, bypass_validation: bool = False, **kwargs):
@@ -61,9 +64,15 @@ class Resource(metaclass=ResourceMetaKls):
         return cls 
 
     @classmethod
-    def validate(cls, v):
+    def validate(cls, v: Resource):
         """
         """
-        raise NotImplementedError
+        if type(v) != cls:
+            raise FieldTypeNotMatchedError(cls, v, v.field_type.__name__)
 
-Field.register(Resource)
+        for k in v._fields:
+            field = v._fields[k]
+            val = getattr(v, k)
+            field.validate(val)
+
+Field.register(Model)
