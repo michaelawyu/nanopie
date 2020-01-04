@@ -1,19 +1,12 @@
-from typing import Any, Optional, Union
+from typing import Any, List, Optional, Union
 
 from .error_bases import ErrorBase, FieldValidationError
-from ..entities.fields import (
-    Field,
-    StringField,
-    FloatField,
-    IntField,
-    ArrayField
-)
 
 class RequiredFieldMissingError(ErrorBase):
     """
     """
     def __init__(self,
-                 field: Field,
+                 field: 'Field',
                  field_assigned_name: str,
                  message: Optional[str]):
         self.field = field
@@ -26,34 +19,33 @@ class FieldTypeNotMatchedError(FieldValidationError):
     """
     """
     def __init__(self,
-                 field: Field,
+                 field: 'Field',
                  value: Any,
-                 expected_type_name: str,
                  message: Optional[str] = None):
         """
         """
         if not message:
             message = '{} is not of the type {}.'.format(
-                value, expected_type_name)
+                value, field.get_value_type().__name__)
         super().__init__(field, value, message)
 
 class ListItemTypeNotMatchedError(FieldValidationError):
     """
     """
     def __init__(self,
-                 field: ArrayField,
+                 field: 'ArrayField',
                  value: Any,
                  message: Optional[str] = None):
         if not message:
             message = 'One or more items in {} is not of the type {}.'.format(
-                value, field.item_type.field_type)
+                value, field.item_field.get_value_type())
         super().__init__(field, value, message)
 
 class StringMaxLengthExceededError(FieldValidationError):
     """
     """
     def __init__(self,
-                 field: StringField,
+                 field: 'StringField',
                  value: str,
                  message: Optional[str] = None):
         """
@@ -67,7 +59,7 @@ class StringMinLengthBelowError(FieldValidationError):
     """
     """
     def __init__(self,
-                 field: StringField,
+                 field: 'StringField',
                  value: str,
                  message: Optional[str] = None):
         """
@@ -81,7 +73,7 @@ class StringPatternNotMatchedError(FieldValidationError):
     """
     """
     def __init__(self,
-                 field: StringField,
+                 field: 'StringField',
                  value: str,
                  message: Optional[str] = None):
         """
@@ -95,7 +87,7 @@ class NumberMaxExceededError(FieldValidationError):
     """
     """
     def __init__(self,
-                 field: Union[FloatField, IntField],
+                 field: Union['FloatField', 'IntField'],
                  value: Union[float, int],
                  message: Optional[str] = None):
         if not message:
@@ -107,7 +99,7 @@ class NumberMinBelowError(FieldValidationError):
     """
     """
     def __init__(self,
-                 field: Union[FloatField, IntField],
+                 field: Union['FloatField', 'IntField'],
                  value: Union[float, int],
                  message: Optional[str] = None):
         if not message:
@@ -119,7 +111,7 @@ class ListTooManyItemsError(FieldValidationError):
     """
     """
     def __init__(self,
-                 field: ArrayField,
+                 field: 'ArrayField',
                  value: List[Any],
                  message: Optional[str] = None):
         if not message:
@@ -131,7 +123,7 @@ class ListTooLittleItemsError(FieldValidationError):
     """
     """
     def __init__(self,
-                 field: ArrayField,
+                 field: 'ArrayField',
                  value: List[Any],
                  message: Optional[str] = None):
         if not message:

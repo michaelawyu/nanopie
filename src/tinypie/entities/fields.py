@@ -18,9 +18,8 @@ from ..misc.field_errors import (
 class Field(ABC):
     """
     """
-    @property
     @abstractmethod
-    def field_type(self) -> type:
+    def get_value_type(self) -> type:
         return type(None)
 
     @abstractmethod
@@ -61,7 +60,7 @@ class StringField(Field):
         self.default = default
 
     @property
-    def field_type(self) -> type:
+    def get_value_type(self) -> type:
         """
         """
         return str
@@ -70,7 +69,7 @@ class StringField(Field):
         """
         """
         if type(v) != str:
-            raise FieldTypeNotMatchedError(self, v, 'str')
+            raise FieldTypeNotMatchedError(self, v)
 
         if self.max_length and len(v) > self.max_length:
             raise StringMaxLengthExceededError(self, v)
@@ -122,7 +121,7 @@ class FloatField(Field):
         self.default = default
 
     @property
-    def field_type(self) -> type:
+    def get_value_type(self) -> type:
         """
         """
         return float
@@ -131,7 +130,7 @@ class FloatField(Field):
         """
         """
         if type(v) != float:
-            raise FieldTypeNotMatchedError(self, v, 'float')
+            raise FieldTypeNotMatchedError(self, v)
 
         if self.maximum and v >= self.maximum:
             if self.exclusive_maximum and v == self.maximum:
@@ -178,7 +177,7 @@ class IntField(Field):
         self.default = default
 
     @property
-    def field_type(self) -> type:
+    def get_value_type(self) -> type:
         """
         """
         return int
@@ -187,7 +186,7 @@ class IntField(Field):
         """
         """
         if type(v) != int:
-            raise FieldTypeNotMatchedError(self, v, 'int')
+            raise FieldTypeNotMatchedError(self, v)
 
         if self.maximum and v >= self.maximum:
             if self.exclusive_maximum and v == self.maximum:
@@ -223,7 +222,7 @@ class BoolField(Field):
         self.default = default
 
     @property
-    def field_type(self) -> type:
+    def get_value_type(self) -> type:
         """
         """
         return bool
@@ -232,14 +231,14 @@ class BoolField(Field):
         """
         """
         if type(v) != bool:
-            raise FieldTypeNotMatchedError(self, v, 'bool')
+            raise FieldTypeNotMatchedError(self, v)
 
 
 class ArrayField(Field):
     """
     """
     def __init__(self,
-                 item_type: Field,
+                 item_field: Field,
                  name: Optional[str] = None,
                  min_items: Optional[int] = None,
                  max_items: Optional[int] = None,
@@ -249,7 +248,7 @@ class ArrayField(Field):
         """
         """
         self.name = name if name else 'Anonymous'
-        self.item_type = item_type
+        self.item_field = item_field
         self.min_items = min_items
         self.max_items = max_items
         self.required = required
@@ -263,16 +262,16 @@ class ArrayField(Field):
         self.default = default
 
     @property
-    def field_type(self) -> type:
+    def get_value_type(self) -> type:
         """
         """
-        return List[self.item_type]
+        return List
 
     def validate(self, v: List[Any]):
         """
         """
         if type(v) != list:
-            raise FieldTypeNotMatchedError(self, v, 'list')
+            raise FieldTypeNotMatchedError(self, v)
 
         if self.min_items and len(v) < self.min_items:
             raise ListTooLittleItemsError(self, v)
@@ -281,6 +280,6 @@ class ArrayField(Field):
             raise ListTooManyItemsError(self, v)
 
         for item in v:
-            if type(item) != self.item_type:
+            if type(item) != self.item_field.get_value_type():
                 raise ListItemTypeNotMatchedError(self, v)
-            self.item_type.validate(item)
+            self.item_field.validate(item)

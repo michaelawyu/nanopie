@@ -7,12 +7,16 @@ class SerializerAbstract(ABC):
     """
 
     @abstractmethod
-    def serialize(self, entity: Model) -> str:
+    def serialize(self, entity: Model, skip_validation: bool = False) -> str:
         """
         """
         return ''
     
-    def deserialize(self, data: str) -> Model:
+    @abstractmethod
+    def deserialize(self,
+                    kls: type,
+                    data_str: str,
+                    skip_validation: bool = True) -> Model:
         """
         """
         return None

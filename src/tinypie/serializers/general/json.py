@@ -1,8 +1,7 @@
 import json
-import typing
+from typing import Any, Dict, List, Union
 
 from ..base import SerializerAbstract
-from ...entities.fields import Field
 from ...entities.model import Model
 from ...misc.serialization_errors import (
     UnrecognizedTypeError,
@@ -12,45 +11,69 @@ from ...misc.serialization_errors import (
 class JSONSerializer(SerializerAbstract):
     """
     """
-    def to_object(self,
-                  field: Field,
-                  data: typing.Union[str, int, float, bool, typing.List, Model]) -> object:
+    def serialize(self,
+                  value: Union[str, int, float, bool, List, Model],
+                  field: Optional[Union['Field', 'ModelMetaKls']] = None) -> str:
         """
         """
-        data_type = field.field_type
+        def to_object(value: Union[str, int, float, bool, List, Model],
+                      field: Union['Field', 'ModelMetaKls']):
+            """
+            """
+            value_type = field.get_value_type()
 
-        if data_type in [str, int, float, bool]:
-            return data
+            if value_type in [str, int, float, bool]:
+                return value
+            
+            if value_type == List:
+                item_field = field.item_field
+                return [ to_object(item, item_field) for item in value ]
+
+            if issubclass(value_type, Model):
+                dikt = {}
+                for k in value_type._fields:
+                    child_value = getattr(value, k)
+                    child_field = value_type._fields[k]
+                    dikt[k] = to_object(child_value, child_field)
+                return dikt
+            
+            raise UnrecognizedTypeError(field)
         
-        if type(data_type) == typing._GenericAlias and data_type._name == 'List':
-            i_type = data_type.__args__[0]
-            return [ self.to_object(i, i_type) for i in data ]
+        if not field:
+            dikt = to_object(value, value.__class__)
+        else:
+            dikt = to_object(value, field)
         
-        if issubclass(data_type, Model):
-            d = {}
-            for k in data._fields:
-                k_data = getattr(data, k)
-                k_type = data._fields[k]
-                d[k] = self.to_object(k_data, k_type)
-            return d
-
-        raise UnrecognizedTypeError(field)
-
-    def serialize(self, entity: Model) -> str:
+        return json.dumps(dikt)
+    
+    def deserialize(self,
+                    value_str: str,
+                    field: Union['Field', 'ModelMetaKls']) -> Union[str, int, float, bool, List, Model]:
         """
         """
-        d = self.to_object(entity.__class__, entity)
-        return json.dumps(d)
+        value = json.loads(value_str)
 
-    def deserialize(self, kls: type, json_str: str) -> Model:
-        """
-        """
-        d = json.loads(json_str)
-        if type(d) is not dict:
-            raise NotAnObjectError(d)
+        def from_object(value: object,
+                        field: Union['Field', 'ModelMetaKls']):
+            """
+            """
+            value_type = field.get_value_type()
 
-        init_params = {}
-        for k in d:
-            pass
+            if value_type in [str, int, float, bool]:
+                return value
+            
+            if value_type == List:
+                item_field = field.item_field
+                return [ from_object(item, item_field) for item in value ]
+            
+            if issubclass(value_type, Model):
+                instance = value_type(skip_validation=True)
+                for k in value_type._fields:
+                    mask = '_' + k
+                    child_value = value.get(k)
+                    child_field = value_type._fields[k]
+                    setattr(instance, mask, from_object(child_value, child_field))
+            
+            raise UnrecognizedTypeError(field)
 
-        raise NotImplementedError
+        return from_object(value, field)
