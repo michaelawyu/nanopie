@@ -1,7 +1,8 @@
 from .fields import Field
-from ..misc.field_errors import (
-    RequiredFieldMissingError,
-    FieldTypeNotMatchedError
+from ..misc.validation_errors import (
+    ModelTypeNotMatchedError,
+    FieldTypeNotMatchedError,
+    RequiredFieldMissingError
 )
 
 class ModelMetaKls(type):
@@ -17,6 +18,8 @@ class ModelMetaKls(type):
                 user_defined_fields.append((k, v))
         fields = {}
         for (name, field) in user_defined_fields:
+            # TO-DO: The following field names are reserved:
+            # 'fields'
             fields[name] = field
             mask = '_' + name
             
@@ -40,6 +43,16 @@ class ModelMetaKls(type):
         attribute_dict['_fields'] = fields
         return type.__new__(cls, clsname, superclses, attribute_dict)
 
+class ResourceMetaKls(ModelMetaKls):
+    """
+    """
+    def __new__(cls, clsname, superclses, attribute_dict):
+        # TO-DO: The following field names are reserved:
+        # 'parent_resource', 'identifier_field_name', and 'fields'
+        attribute_dict['_parent_resource'] = None
+        attribute_dict['_identifier_field_name'] = None
+        return super().__new__(cls, clsname, superclses, attribute_dict)
+
 class Model(metaclass=ModelMetaKls):
     """
     """
@@ -47,34 +60,59 @@ class Model(metaclass=ModelMetaKls):
         """
         """
         for k in self._fields: # pylint: disable=no-member
-            v = kwargs.get(k)
+            p = kwargs.get(k)
             mask = '_' + k
-            if not v:
+            if not p:
                 required = self._fields[k].required
                 default = self._fields[k].default
-                if not default and required:
-                    raise RequiredFieldMissingError(self._fields[k], k)
+                if default:
+                    p = default
                 else:
-                    setattr(self, mask, v)
+                    if required:
+                        raise RequiredFieldMissingError(self._fields[k], k)
+
             if skip_validation:
-                setattr(self, mask, v)
+                setattr(self, mask, p)
             else:
-                setattr(k, v)
-    
-    @classmethod
-    def get_value_type(cls) -> type:
-        return cls 
+                setattr(self, k, p)
 
     @classmethod
     def validate(cls, v: 'Model'):
         """
         """
         if type(v) != cls:
-            raise FieldTypeNotMatchedError(cls, v)
+            raise ModelTypeNotMatchedError(cls, v)
 
         for k in v._fields:
             field = v._fields[k]
             val = getattr(v, k)
             field.validate(val)
 
-Field.register(Model)
+class Resource(Model, metaclass=ResourceMetaKls):
+    """
+    """
+    @classmethod
+    def set_parent_resource(cls, resource: 'ResourceMetaKls'):
+        if not cls._parent_resource:
+            raise
+        
+        cls._parent_resource = resource
+
+    @classmethod
+    def get_parent_resource(cls):
+        return cls._parent_resource
+    
+    @classmethod
+    def set_identifier_field_name(cls, field_name: str):
+        if not cls._identifier_field_name:
+            raise
+        
+        if not cls._fields.get(field_name):
+            raise
+
+        cls._identifier_field_name = field_name
+    
+    @classmethod
+    def get_identifier_field_name(cls):
+        return cls._identifier_field_name
+    
