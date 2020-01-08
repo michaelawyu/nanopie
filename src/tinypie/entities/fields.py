@@ -83,7 +83,11 @@ class StringField(Field):
     def __str__(self):
         """
         """
+<<<<<<< HEAD
         print('StringField Description: {}'.format(self.description))
+=======
+        print('StringField {}: {}').format(self.name, self.description)
+>>>>>>> Minor fixes.
         print('This StringField has the following constraints specified:')
         print('\tFormat: {}'.format(self.format))
         print('\tMax Length: {}'.format(self.max_length))
@@ -144,9 +148,17 @@ class FloatField(Field):
             if self.exclusive_minimum and v == self.minimum:
                 pass
             else:
+<<<<<<< HEAD
                 raise NumberMinBelowError(self, v, name)
     
     def __str__(self):
+=======
+                raise NumberMinBelowError(self, v)
+    
+    def __str__(self):
+        """
+        """
+>>>>>>> Minor fixes.
         raise NotImplementedError
 
 class IntField(Field):
@@ -203,9 +215,17 @@ class IntField(Field):
             if self.exclusive_minimum and v == self.minimum:
                 pass
             else:
+<<<<<<< HEAD
                 raise NumberMinBelowError(self, v, name)
     
     def __str__(self):
+=======
+                raise NumberMinBelowError(self, v)
+    
+    def __str__(self):
+        """
+        """
+>>>>>>> Minor fixes.
         raise NotImplementedError
 
 class BoolField(Field):
@@ -237,10 +257,19 @@ class BoolField(Field):
         """
         """
         if type(v) != bool:
+<<<<<<< HEAD
             if not self.required and v == None:
                 pass
             else:
                 raise FieldTypeNotMatchedError(self, v, name)
+=======
+            raise FieldTypeNotMatchedError(self, v, 'bool')
+    
+    def __str__(self):
+        """
+        """
+        raise NotImplementedError
+>>>>>>> Minor fixes.
 
     def __str__(self):
         raise NotImplementedError
@@ -292,6 +321,7 @@ class ArrayField(Field):
             raise ListTooManyItemsError(self, v, name)
 
         for item in v:
+<<<<<<< HEAD
             if type(item) != self.item_field.get_value_type():
                 raise ListItemTypeNotMatchedError(self, v, name)
             self.item_field.validate(item)
@@ -342,3 +372,13 @@ class ObjectField(Field):
 
     def __str__(self):
         raise NotImplementedError
+=======
+            if type(item) != self.item_type:
+                raise ListItemTypeNotMatchedError(self, v)
+            self.item_type.validate(item)
+    
+    def __str__(self):
+        """
+        """
+        raise NotImplementedError
+>>>>>>> Minor fixes.
