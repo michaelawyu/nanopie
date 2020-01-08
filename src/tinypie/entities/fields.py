@@ -2,6 +2,7 @@ from abc import ABC, abstractmethod
 import re
 from typing import Any, List, Optional
 
+from .model import Model
 from ..misc.error_bases import ValidationError
 from ..misc.validation_errors import (
     RequiredFieldMissingError,
@@ -69,25 +70,28 @@ class StringField(Field):
             if not self.required and v == None:
                 pass
             else:
-                raise FieldTypeNotMatchedError(self, v, name)
+                raise FieldTypeNotMatchedError(field=self,
+                                               assigned_name=name,
+                                               value=v)
 
         if self.max_length and len(v) > self.max_length:
-            raise StringMaxLengthExceededError(self, v)
+            raise StringMaxLengthExceededError(field=self,
+                                               assigned_name=name,
+                                               value=v)
         
         if self.min_length and len(v) < self.min_length:
-            raise StringMinLengthBelowError(self, v)
+            raise StringMinLengthBelowError(field=self,
+                                            assigned_name=name,
+                                            value=v)
         
         if self.pattern and not re.match(self.pattern, v):
-            raise StringPatternNotMatchedError(self, v)
-
+            raise StringPatternNotMatchedError(field=self,
+                                               assigned_name=name,
+                                               value=v)
     def __str__(self):
         """
         """
-<<<<<<< HEAD
-        print('StringField Description: {}'.format(self.description))
-=======
-        print('StringField {}: {}').format(self.name, self.description)
->>>>>>> Minor fixes.
+        print('Field Description: {}'.format(self.description))
         print('This StringField has the following constraints specified:')
         print('\tFormat: {}'.format(self.format))
         print('\tMax Length: {}'.format(self.max_length))
@@ -136,29 +140,29 @@ class FloatField(Field):
             if not self.required and v == None:
                 pass
             else:
-                raise FieldTypeNotMatchedError(self, v, name)
+                raise FieldTypeNotMatchedError(field=self,
+                                               assigned_name=name,
+                                               value=v)
 
         if self.maximum and v >= self.maximum:
             if self.exclusive_maximum and v == self.maximum:
                 pass
             else:
-                raise NumberMaxExceededError(self, v, name)
+                raise NumberMaxExceededError(field=self,
+                                             assigned_name=name,
+                                             value=v)
         
         if self.minimum and v <= self.minimum:
             if self.exclusive_minimum and v == self.minimum:
                 pass
             else:
-<<<<<<< HEAD
-                raise NumberMinBelowError(self, v, name)
-    
-    def __str__(self):
-=======
-                raise NumberMinBelowError(self, v)
+                raise NumberMinBelowError(field=self,
+                                          assigned_name=name,
+                                          value=v)
     
     def __str__(self):
         """
         """
->>>>>>> Minor fixes.
         raise NotImplementedError
 
 class IntField(Field):
@@ -203,29 +207,29 @@ class IntField(Field):
             if not self.required and v == None:
                 pass
             else:
-                raise FieldTypeNotMatchedError(self, v, name)
+                raise FieldTypeNotMatchedError(field=self,
+                                               assigned_name=name,
+                                               value=v)
 
         if self.maximum and v >= self.maximum:
             if self.exclusive_maximum and v == self.maximum:
                 pass
             else:
-                raise NumberMaxExceededError(self, v, name)
+                raise NumberMaxExceededError(field=self,
+                                             assigned_name=name,
+                                             value=v)
         
         if self.minimum and v <= self.minimum:
             if self.exclusive_minimum and v == self.minimum:
                 pass
             else:
-<<<<<<< HEAD
-                raise NumberMinBelowError(self, v, name)
-    
-    def __str__(self):
-=======
-                raise NumberMinBelowError(self, v)
+                raise NumberMinBelowError(field=self,
+                                          assigned_name=name,
+                                          value=v)
     
     def __str__(self):
         """
         """
->>>>>>> Minor fixes.
         raise NotImplementedError
 
 class BoolField(Field):
@@ -257,21 +261,11 @@ class BoolField(Field):
         """
         """
         if type(v) != bool:
-<<<<<<< HEAD
-            if not self.required and v == None:
-                pass
-            else:
-                raise FieldTypeNotMatchedError(self, v, name)
-=======
             raise FieldTypeNotMatchedError(self, v, 'bool')
     
     def __str__(self):
         """
         """
-        raise NotImplementedError
->>>>>>> Minor fixes.
-
-    def __str__(self):
         raise NotImplementedError
 
 class ArrayField(Field):
@@ -312,20 +306,27 @@ class ArrayField(Field):
             if not self.required and v == None:
                 pass
             else:
-                raise FieldTypeNotMatchedError(self, v, name)
+                raise FieldTypeNotMatchedError(field=self,
+                                               assigned_name=name,
+                                               value=v)
 
         if self.min_items and len(v) < self.min_items:
-            raise ListTooLittleItemsError(self, v, name)
+            raise ListTooLittleItemsError(field=self,
+                                          assigned_name=name,
+                                          value=v)
         
         if self.max_items and len(v) > self.max_items:
-            raise ListTooManyItemsError(self, v, name)
+            raise ListTooManyItemsError(field=self,
+                                        assigned_name=name,
+                                        value=v)
 
         for item in v:
-<<<<<<< HEAD
             if type(item) != self.item_field.get_value_type():
-                raise ListItemTypeNotMatchedError(self, v, name)
+                raise ListItemTypeNotMatchedError(field=self,
+                                                  assigned_name=name,
+                                                  value=v)
             self.item_field.validate(item)
-    
+
     def __str__(self):
         raise NotImplementedError
 
@@ -359,11 +360,13 @@ class ObjectField(Field):
     def validate(self, v: 'Model', name: str = 'unnamed'):
         """
         """
-        if v.__class__ is not model:
+        if not issubclass(v.__class__, Model):
             if not self.required and v == None:
                 pass
             else:
-                raise FieldTypeNotMatchedError(self, name, v)
+                raise FieldTypeNotMatchedError(field=self,
+                                               assigned_name=name,
+                                               value=v)
 
         for k in self.model._fields:
             child_field = self.model._fields[k]
@@ -372,13 +375,3 @@ class ObjectField(Field):
 
     def __str__(self):
         raise NotImplementedError
-=======
-            if type(item) != self.item_type:
-                raise ListItemTypeNotMatchedError(self, v)
-            self.item_type.validate(item)
-    
-    def __str__(self):
-        """
-        """
-        raise NotImplementedError
->>>>>>> Minor fixes.
