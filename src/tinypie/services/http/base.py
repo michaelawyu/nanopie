@@ -1,7 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import Any, Callable
-
-from ...entities.model import Model
+from typing import Any, Callable, Optional
 
 class HTTPServiceAbstract(ABC):
     """
@@ -9,54 +7,54 @@ class HTTPServiceAbstract(ABC):
 
     @abstractmethod
     def endpoint(self,
-                 resource: Model,
-                 func: Callable) -> Callable:
+                 resource: 'Resource',
+                 path: Optional[str] = None):
         """
         """
         return func
     
     @abstractmethod
     def create(self,
-               resource: Model,
-               func: Callable) -> Callable:
+               resource: 'Resource',
+               path: Optional[str] = None):
         """
         """
         return func
     
     @abstractmethod
     def get(self,
-            resource: Model,
-            func: Callable) -> Callable:
+            resource: 'Resource',
+            path: Optional[str] = None):
         """
         """
         return func
 
     @abstractmethod
     def update(self,
-               resource: Model,
-               func: Callable) -> Callable:
+               resource: 'Resource',
+               path: Optional[str] = None):
         """
         """
         return func
     
     @abstractmethod
     def delete(self,
-               resource: Model,
-               func: Callable) -> Callable:
+               resource: 'Resource',
+               path: Optional[str] = None):
         """
         """
         return func
     
     @abstractmethod
     def list(self,
-             resource: Model,
-             func: Callable) -> Callable:
+             resource: 'Resource',
+             path: Optional[str] = None):
         """
         """
         return func
 
     @abstractmethod
-    def add_resource(self, resource: Model):
+    def add_resource(self, resource: 'Resource'):
         """
         """
         pass

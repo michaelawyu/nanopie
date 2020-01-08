@@ -1,4 +1,4 @@
-from typing import Callable
+from typing import Callable, Optional
 
 try:
     import flask
@@ -10,7 +10,6 @@ except ImportError:
     )
 
 from ..base import HTTPServiceAbstract
-from ....entities.model import Model
 
 class FlaskService(HTTPServiceAbstract):
     """
@@ -21,41 +20,41 @@ class FlaskService(HTTPServiceAbstract):
         self._app = app
 
     def create(self,
-               resource: Model,
-               func: Callable) -> Callable:
+               resource: 'Resource',
+               path: Optional[str]):
         """
         """
         raise NotImplementedError
 
     def get(self,
-            resource: Model,
-            func: Callable) -> Callable:
+            resource: 'Resource',
+            path: Optional[str]):
         """
         """
         raise NotImplementedError
 
     def update(self,
-               resource: Model,
-               func: Callable) -> Callable:
+               resource: 'Resource',
+               path: Optional[str]):
         """
         """
         raise NotImplementedError
 
     def delete(self,
-               resource: Model,
-               func: Callable) -> Callable:
+               resource: 'Resource',
+               path: Optional[str]):
         """
         """
         raise NotImplementedError
 
     def list(self,
-             resource: Model,
-             func: Callable) -> Callable:
+             resource: 'Resource',
+             path: Optional[str]):
         """
         """
         raise NotImplementedError
 
-    def add_resource(self, resource: Model):
+    def add_resource(self, resource: 'Resource'):
         """
         """
         raise NotImplementedError

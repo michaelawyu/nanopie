@@ -48,8 +48,8 @@ class ResourceMetaKls(ModelMetaKls):
     """
     def __new__(cls, clsname, superclses, attribute_dict):
         # TO-DO: The following field names are reserved:
-        # 'parent_resource', 'identifier_field_name', and 'fields'
-        attribute_dict['_parent_resource'] = None
+        # 'parent_resource_kls', 'identifier_field_name', and 'fields'
+        attribute_dict['_parent_resource_kls'] = None
         attribute_dict['_identifier_field_name'] = None
         return super().__new__(cls, clsname, superclses, attribute_dict)
 
@@ -92,15 +92,15 @@ class Resource(Model, metaclass=ResourceMetaKls):
     """
     """
     @classmethod
-    def set_parent_resource(cls, resource: 'ResourceMetaKls'):
-        if not cls._parent_resource:
+    def set_parent_resource_kls(cls, resource_kls: 'ResourceMetaKls'):
+        if not cls._parent_resource_kls:
             raise
         
-        cls._parent_resource = resource
+        cls._parent_resource_kls = resource_kls
 
     @classmethod
-    def get_parent_resource(cls):
-        return cls._parent_resource
+    def get_parent_resource_kls(cls):
+        return cls._parent_resource_kls
     
     @classmethod
     def set_identifier_field_name(cls, field_name: str):
