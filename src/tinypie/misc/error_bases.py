@@ -21,7 +21,17 @@ class ValidationError(ErrorBase):
 class SerializationError(ErrorBase):
     """
     """
-    def __init__(self, field: 'Field', value: Any, message: Optional[str]):
-        self.field = field
-        self.value = value
+    def __init__(self,
+                 source: Union['Field', 'Model'],
+                 message: Optional[str]):
+        self.source = source
+        super().__init__(message)
+
+class ModelError(ErrorBase):
+    """
+    """
+    def __init__(self,
+                 source: 'Model',
+                 message: Optional[str]):
+        self.source = source
         super().__init__(message)

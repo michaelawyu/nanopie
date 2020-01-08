@@ -1,4 +1,9 @@
 from .fields import Field
+from ..misc.model_errors import (
+    ResourceParentKlsAlreadyExistsError,
+    ResourceIdentifierFieldAlreadyExistsError,
+    ResourceIdentifierFieldNotExists
+)
 from ..misc.validation_errors import (
     ModelTypeNotMatchedError,
     FieldTypeNotMatchedError,
@@ -63,18 +68,24 @@ class Model(metaclass=ModelMetaKls):
             p = kwargs.get(k)
             mask = '_' + k
             if not p:
-                required = self._fields[k].required
-                default = self._fields[k].default
+                required = self._fields[k].required # pylint: disable=no-member
+                default = self._fields[k].default # pylint: disable=no-member
                 if default:
                     p = default
                 else:
                     if required:
-                        raise RequiredFieldMissingError(self._fields[k], k)
+                        raise RequiredFieldMissingError(self._fields[k], k) # pylint: disable=no-member
 
             if skip_validation:
                 setattr(self, mask, p)
             else:
                 setattr(self, k, p)
+    
+    @classmethod
+    def get_value_type(cls):
+        """
+        """
+        return cls
 
     @classmethod
     def validate(cls, v: 'Model'):
@@ -93,8 +104,8 @@ class Resource(Model, metaclass=ResourceMetaKls):
     """
     @classmethod
     def set_parent_resource_kls(cls, resource_kls: 'ResourceMetaKls'):
-        if not cls._parent_resource_kls:
-            raise
+        if cls._parent_resource_kls:
+            raise ResourceParentKlsAlreadyExistsError(source=cls)
         
         cls._parent_resource_kls = resource_kls
 
@@ -104,11 +115,13 @@ class Resource(Model, metaclass=ResourceMetaKls):
     
     @classmethod
     def set_identifier_field_name(cls, field_name: str):
-        if not cls._identifier_field_name:
-            raise
+        if cls._identifier_field_name:
+            raise ResourceIdentifierFieldAlreadyExistsError(source=cls,
+                identifier_field_name=field_name)
         
-        if not cls._fields.get(field_name):
-            raise
+        if not cls._fields.get(field_name): # pylint: disable=no-member
+            raise ResourceIdentifierFieldNotExists(source=cls,
+                identifier_field_name=field_name)
 
         cls._identifier_field_name = field_name
     

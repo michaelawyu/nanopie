@@ -1,32 +1,29 @@
 import json
-from typing import Any, Dict, List, Union
+from typing import Any, Dict, List, Optional, Union
 
 from ..base import SerializerAbstract
 from ...entities.model import Model
-from ...misc.serialization_errors import (
-    UnrecognizedTypeError,
-    NotAnObjectError
-)
+from ...misc.serialization_errors import UnrecognizedTypeError
 
 class JSONSerializer(SerializerAbstract):
     """
     """
     def serialize(self,
-                  value: Union[str, int, float, bool, List, Model],
-                  field: Optional[Union['Field', 'ModelMetaKls']] = None) -> str:
+                  value: Union[str, int, float, bool, List, 'Model'],
+                  ref: Optional[Union['Field', 'ModelMetaKls']] = None) -> str:
         """
         """
-        def to_object(value: Union[str, int, float, bool, List, Model],
-                      field: Union['Field', 'ModelMetaKls']):
+        def to_object(value: Union[str, int, float, bool, List, 'Model'],
+                      ref: Union['Field', 'ModelMetaKls']):
             """
             """
-            value_type = field.get_value_type()
+            value_type = ref.get_value_type()
 
             if value_type in [str, int, float, bool]:
                 return value
             
             if value_type == List:
-                item_field = field.item_field
+                item_field = ref.item_field
                 return [ to_object(item, item_field) for item in value ]
 
             if issubclass(value_type, Model):
@@ -37,33 +34,33 @@ class JSONSerializer(SerializerAbstract):
                     dikt[k] = to_object(child_value, child_field)
                 return dikt
             
-            raise UnrecognizedTypeError(field)
+            raise UnrecognizedTypeError(ref)
         
-        if not field:
+        if not ref:
             dikt = to_object(value, value.__class__)
         else:
-            dikt = to_object(value, field)
+            dikt = to_object(value, ref)
         
         return json.dumps(dikt)
     
     def deserialize(self,
                     value_str: str,
-                    field: Union['Field', 'ModelMetaKls']) -> Union[str, int, float, bool, List, Model]:
+                    ref: Union['Field', 'ModelMetaKls']) -> Union[str, int, float, bool, List, 'Model']:
         """
         """
         value = json.loads(value_str)
 
         def from_object(value: object,
-                        field: Union['Field', 'ModelMetaKls']):
+                        ref: Union['Field', 'ModelMetaKls']):
             """
             """
-            value_type = field.get_value_type()
+            value_type = ref.get_value_type()
 
             if value_type in [str, int, float, bool]:
                 return value
             
             if value_type == List:
-                item_field = field.item_field
+                item_field = ref.item_field
                 return [ from_object(item, item_field) for item in value ]
             
             if issubclass(value_type, Model):
@@ -74,6 +71,6 @@ class JSONSerializer(SerializerAbstract):
                     child_field = value_type._fields[k]
                     setattr(instance, mask, from_object(child_value, child_field))
             
-            raise UnrecognizedTypeError(field)
+            raise UnrecognizedTypeError(ref)
 
-        return from_object(value, field)
+        return from_object(value, ref)
