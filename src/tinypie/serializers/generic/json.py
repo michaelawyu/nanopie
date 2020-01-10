@@ -2,7 +2,7 @@ import json
 from typing import Any, Dict, List, Optional, Union
 
 from ..base import SerializerAbstract
-from ...entities.model import Model
+from ...models.base import Model
 from ...misc.serialization_errors import UnrecognizedTypeError
 
 class JSONSerializer(SerializerAbstract):
@@ -10,7 +10,8 @@ class JSONSerializer(SerializerAbstract):
     """
     def serialize(self,
                   value: Union[str, int, float, bool, List, 'Model'],
-                  ref: Optional[Union['Field', 'ModelMetaKls']] = None) -> str:
+                  ref: Optional[Union['Field', 'ModelMetaKls']] = None,
+                  skip_validation: bool = True) -> str:
         """
         """
         def to_object(value: Union[str, int, float, bool, List, 'Model'],
@@ -45,7 +46,8 @@ class JSONSerializer(SerializerAbstract):
     
     def deserialize(self,
                     value_str: str,
-                    ref: Union['Field', 'ModelMetaKls']) -> Union[str, int, float, bool, List, 'Model']:
+                    ref: Union['Field', 'ModelMetaKls'],
+                    skip_validation: bool = True) -> Union[str, int, float, bool, List, 'Model']:
         """
         """
         value = json.loads(value_str)

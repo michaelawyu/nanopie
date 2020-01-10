@@ -1,12 +1,14 @@
 from abc import ABC, abstractmethod
-from typing import Any, Callable, Optional
+from typing import Any, Callable, Dict, Optional
 
 class HTTPServiceAbstract(ABC):
     """
     """
     @abstractmethod
     def endpoint(self,
-                 resource: 'Resource',
+                 resource_cls: 'ResourceMetaKls',
+                 query_param_cls: 'ModelMetaKls',
+                 header_param_cls: 'ModelMetaKls',
                  rule: Optional[str] = None):
         """
         """
@@ -14,46 +16,74 @@ class HTTPServiceAbstract(ABC):
     
     @abstractmethod
     def create(self,
-               resource: 'Resource',
-               rule: Optional[str] = None):
+               resource_cls: 'ResourceMetaKls',
+               query_param_cls: 'ModelMetaKls',
+               header_param_cls: 'ModelMetaKls',
+               rule: Optional[str] = None,
+               **options):
         """
         """
         return None
     
     @abstractmethod
     def get(self,
-            resource: 'Resource',
-            rule: Optional[str] = None):
+            resource_cls: 'ResourceMetaKls',
+            query_param_cls: 'ModelMetaKls',
+            header_param_cls: 'ModelMetaKls',
+            rule: Optional[str] = None,
+            **options):
         """
         """
         return None
 
     @abstractmethod
     def update(self,
-               resource: 'Resource',
-               rule: Optional[str] = None):
+               resource_cls: 'ResourceMetaKls',
+               query_param_cls: 'ModelMetaKls',
+               header_param_cls: 'ModelMetaKls',
+               rule: Optional[str] = None,
+               **options):
         """
         """
         return None
     
     @abstractmethod
     def delete(self,
-               resource: 'Resource',
-               rule: Optional[str] = None):
+               resource_cls: 'ResourceMetaKls',
+               query_param_cls: 'ModelMetaKls',
+               header_param_cls: 'ModelMetaKls',
+               rule: Optional[str] = None,
+               **options):
         """
         """
         return None
     
     @abstractmethod
     def list(self,
-             resource: 'Resource',
-             rule: Optional[str] = None):
+             resource_cls: 'ResourceMetaKls',
+             query_param_cls: 'ModelMetaKls',
+             header_param_cls: 'ModelMetaKls',
+             rule: Optional[str] = None,
+             **options):
+        """
+        """
+        return None
+    
+    @abstractmethod
+    def custom(self,
+               resource_cls: 'ResourceMetaKls',
+               verb: str,
+               method: str,
+               query_param_cls: 'ModelMetaKls',
+               header_param_cls: 'ModelMetaKls',
+               rule: Optional[str] = None,
+               **options):
         """
         """
         return None
 
     @abstractmethod
-    def add_resource(self, resource: 'Resource'):
+    def add_resource(self, resource_cls: 'ResourceMetaKls'):
         """
         """
         pass
@@ -63,5 +93,25 @@ class HTTPInputParametersAbstract(ABC):
     """
     @abstractmethod
     def get_resource(self) -> 'Resource':
-        pass
+        """
+        """
+        return None
+
+    @abstractmethod
+    def get_query_parameters(self) -> 'QueryParameters':
+        """
+        """
+        return None
+
+    @abstractmethod
+    def get_header_parameters(self) -> 'HeaderParameters':
+        """
+        """
+        return None
+
+    @abstractmethod
+    def get_path_parameters(self) -> Dict:
+        """
+        """
+        return {}
 

@@ -17,19 +17,6 @@ from ..misc.validation_errors import (
     StringPatternNotMatchedError
 )
 
-class Field(ABC):
-    """
-    """
-    @abstractmethod
-    def get_value_type(self) -> type:
-        return type(None)
-
-    @abstractmethod
-    def validate(self, v: Any, name: str = 'unnamed'):
-        """
-        """
-        return False
-
 class StringField(Field):
     """
     """
@@ -360,6 +347,7 @@ class ObjectField(Field):
     def validate(self, v: 'Model', name: str = 'unnamed'):
         """
         """
+
         if not issubclass(v.__class__, Model):
             if not self.required and v == None:
                 pass
