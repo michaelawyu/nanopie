@@ -9,29 +9,22 @@ class ValidationError(ErrorBase):
     """
     """
     def __init__(self,
-                 source: Union['Field', 'Model'],
-                 value: Any,
+                 source: Union['Field', 'ModelMetaKls'],
+                 data: Any,
                  message: Optional[str]):
         """
         """
         self.source = source
-        self.value = value
+        self.data = data
         super().__init__(message)
 
 class SerializationError(ErrorBase):
     """
     """
     def __init__(self,
-                 source: Union['Field', 'Model'],
+                 source: Union['Field', 'ModelMetaKls'],
+                 data: Any,
                  message: Optional[str]):
         self.source = source
-        super().__init__(message)
-
-class ModelError(ErrorBase):
-    """
-    """
-    def __init__(self,
-                 source: 'Model',
-                 message: Optional[str]):
-        self.source = source
+        self.data = data
         super().__init__(message)

@@ -1,2 +1,4 @@
 class HandlerMixin:
+    """
+    """
     pass

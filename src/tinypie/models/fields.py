@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 import re
 from typing import Any, List, Optional
 
-from .model import Model
+from .base import Field, Model
 from ..misc.error_bases import ValidationError
 from ..misc.validation_errors import (
     RequiredFieldMissingError,
@@ -45,7 +45,7 @@ class StringField(Field):
         self.default = default
 
     @property
-    def get_value_type(self) -> type:
+    def get_data_type(self) -> type:
         """
         """
         return str
@@ -115,7 +115,7 @@ class FloatField(Field):
         self.default = default
 
     @property
-    def get_value_type(self) -> type:
+    def get_data_type(self) -> type:
         """
         """
         return float
@@ -182,7 +182,7 @@ class IntField(Field):
         self.default = default
 
     @property
-    def get_value_type(self) -> type:
+    def get_data_type(self) -> type:
         """
         """
         return int
@@ -239,7 +239,7 @@ class BoolField(Field):
         self.default = default
 
     @property
-    def get_value_type(self) -> type:
+    def get_data_type(self) -> type:
         """
         """
         return bool
@@ -281,7 +281,7 @@ class ArrayField(Field):
         self.default = default
 
     @property
-    def get_value_type(self) -> type:
+    def get_data_type(self) -> type:
         """
         """
         return List
@@ -308,7 +308,7 @@ class ArrayField(Field):
                                         value=v)
 
         for item in v:
-            if type(item) != self.item_field.get_value_type():
+            if type(item) != self.item_field.get_data_type():
                 raise ListItemTypeNotMatchedError(field=self,
                                                   assigned_name=name,
                                                   value=v)
@@ -339,7 +339,7 @@ class ObjectField(Field):
         self.default = default
 
     @property
-    def get_value_type(self) -> type:
+    def get_data_type(self) -> type:
         """
         """
         return self.model

@@ -1,22 +1,44 @@
 from abc import ABC, abstractmethod
-class SerializerAbstract(ABC):
-    """
-    """
+from typing import Any
 
+class Serializer(ABC):
+    """
+    """
     @abstractmethod
     def serialize(self,
-                  value: Union[str, int, float, bool, List, 'Model'],
-                  ref: Optional[Union['Field', 'ModelMetaKls']] = None,
-                  skip_validation: bool = False) -> str:
+                  data: 'Model',
+                  ref: Optional['ModelMetaKls'] = None) -> Any:
+        """
+        """
+        return None
+    
+    @abstractmethod
+    def deserialize(self,
+                    data: Any,
+                    ref: 'ModelMetaKls') -> 'Model':
+        """
+        """
+        return None
+
+class MediaTypeSerializer(Serializer):
+    """
+    """
+    @abstractmethod
+    def serialize(self,
+                  data: 'Model',
+                  ref: Optional['ModelMetaKls'] = None) -> str:
         """
         """
         return ''
     
     @abstractmethod
     def deserialize(self,
-                    value_str: str,
-                    ref: Union['Field', 'ModelMetaKls'],
-                    skip_validation: bool = True) -> 'Model':
+                    data: str,
+                    ref: 'ModelMetaKls') -> 'Model':
         """
         """
         return None
+    
+    @property
+    def mime_type(self) -> str:
+        return ''

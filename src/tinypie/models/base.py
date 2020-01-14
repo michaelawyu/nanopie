@@ -1,3 +1,6 @@
+from abc import ABC, abstractmethod
+from typing import Any
+
 from ..misc.validation_errors import (
     ModelTypeNotMatchedError,
     RequiredFieldMissingError
@@ -7,7 +10,7 @@ class Field(ABC):
     """
     """
     @abstractmethod
-    def get_value_type(self) -> type:
+    def get_data_type(self) -> type:
         return type(None)
 
     @abstractmethod
@@ -78,7 +81,7 @@ class Model(metaclass=ModelMetaKls):
                 setattr(self, k, p)
     
     @classmethod
-    def get_value_type(cls):
+    def get_data_type(cls):
         """
         """
         return cls

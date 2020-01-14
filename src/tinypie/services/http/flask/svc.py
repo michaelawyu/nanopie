@@ -11,18 +11,31 @@ except ImportError:
     )
 
 from ..base import HTTPServiceAbstract
-from .inputs import HTTPInputParameters
+from .inputs import FlaskInputParameters
 from ..methods import HTTPMethods
 from ....misc.utils import prepare_url_rule_from_resource
+from ....serializers.generic import JSONSerializer
+from ....serializers.http import (
+    URLEncodingQueryStringSerializer,
+    StandardHeaderSerializer
+)
+
 
 class FlaskService(HTTPServiceAbstract):
     """
     """
-    def __init__(self, app: flask.Flask):
+    def __init__(self,
+                 app: flask.Flask,
+                 body_serializer: 'SerializerAbstract' = JSONSerializer(),
+                 query_str_serializer: 'SerializerAbstract' = URLEncodingQueryStringSerializer(),
+                 header_serialzier: 'SerializerAbstract' = StandardHeaderSerializer()):
         """
         """
         self._app = app
         self.rules = []
+        self.body_serializer = body_serializer
+        self.query_str_serializer = query_str_serializer
+        self.header_serializer = header_serialzier
 
     def _common_rest_endpoint(self,
                               resource_cls: 'ResourceMetaKls',
@@ -39,7 +52,11 @@ class FlaskService(HTTPServiceAbstract):
             self.rules.append((rule, methods))
 
         def wrapped(func):
-            view_func = self._view_func_wrapper(func)
+            view_func = self._view_func_wrapper(
+                func,
+                resource_cls=resource_cls,
+                query_param_cls=query_param_cls,
+                header_param_cls=header_param_cls)
             self._app.add_url_rule(rule=rule,
                                    endpoint=func.__name__,
                                    view_func=view_func,
@@ -141,11 +158,21 @@ class FlaskService(HTTPServiceAbstract):
         """
         raise NotImplementedError
 
-    @staticmethod
-    def _view_func_wrapper(func):
+    def _view_func_wrapper(self,
+                           func: Callable,
+                           resource_cls: 'ResourceMetaKls',
+                           query_param_cls: 'ModelMetaKls',
+                           header_param_cls: 'ModelMetaKls'):
         """
         """
         def wrapped(*args, **kwargs):
-            pass
+            inputs = FlaskInputParameters(request=flask.request,
+                                          resource_cls=resource_cls,
+                                          query_param_cls=query_param_cls,
+                                          header_param_cls=header_param_cls,
+                                          body_serializer=self.body_serializer,
+                                          query_str_serializer=self.query_str_serializer,
+                                          header_serializer=self.header_serializer)
+            return func(inputs)
 
         return wrapped
