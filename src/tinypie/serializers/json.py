@@ -1,15 +1,15 @@
 import json
 from typing import Any, Dict, List, Optional, Union
 
-from ..base import MediaTypeSerializer
-from ...models.base import Model
-from ...misc.serialization_errors import (
+from .base import Serializer
+from ..models.base import Model
+from ..misc.serialization_errors import (
     UnrecognizedTypeError,
     NoRefModelError,
     NoInputDataError
 )
 
-class JSONSerializer(MediaTypeSerializer):
+class JSONSerializer(Serializer):
     """
     """
     def serialize(self,
@@ -54,7 +54,7 @@ class JSONSerializer(MediaTypeSerializer):
                     ref: Union['Field', 'ModelMetaKls']) -> Union[str, int, float, bool, List, 'Model']:
         """
         """
-        dikt = json.loads(value_str)
+        dikt = json.loads(data)
 
         def from_object(data: Union[str, int, float, bool, List, Dict],
                         ref: Union['Field', 'ModelMetaKls']):

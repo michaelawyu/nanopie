@@ -57,24 +57,24 @@ class StringField(Field):
             if not self.required and v == None:
                 pass
             else:
-                raise FieldTypeNotMatchedError(field=self,
+                raise FieldTypeNotMatchedError(source=self,
                                                assigned_name=name,
-                                               value=v)
+                                               data=v)
 
         if self.max_length and len(v) > self.max_length:
-            raise StringMaxLengthExceededError(field=self,
+            raise StringMaxLengthExceededError(source=self,
                                                assigned_name=name,
-                                               value=v)
+                                               data=v)
         
         if self.min_length and len(v) < self.min_length:
-            raise StringMinLengthBelowError(field=self,
+            raise StringMinLengthBelowError(source=self,
                                             assigned_name=name,
-                                            value=v)
+                                            data=v)
         
         if self.pattern and not re.match(self.pattern, v):
-            raise StringPatternNotMatchedError(field=self,
+            raise StringPatternNotMatchedError(source=self,
                                                assigned_name=name,
-                                               value=v)
+                                               data=v)
     def __str__(self):
         """
         """
@@ -127,25 +127,25 @@ class FloatField(Field):
             if not self.required and v == None:
                 pass
             else:
-                raise FieldTypeNotMatchedError(field=self,
+                raise FieldTypeNotMatchedError(source=self,
                                                assigned_name=name,
-                                               value=v)
+                                               data=v)
 
         if self.maximum and v >= self.maximum:
             if self.exclusive_maximum and v == self.maximum:
                 pass
             else:
-                raise NumberMaxExceededError(field=self,
+                raise NumberMaxExceededError(source=self,
                                              assigned_name=name,
-                                             value=v)
+                                             data=v)
         
         if self.minimum and v <= self.minimum:
             if self.exclusive_minimum and v == self.minimum:
                 pass
             else:
-                raise NumberMinBelowError(field=self,
+                raise NumberMinBelowError(source=self,
                                           assigned_name=name,
-                                          value=v)
+                                          data=v)
     
     def __str__(self):
         """
@@ -194,25 +194,25 @@ class IntField(Field):
             if not self.required and v == None:
                 pass
             else:
-                raise FieldTypeNotMatchedError(field=self,
+                raise FieldTypeNotMatchedError(source=self,
                                                assigned_name=name,
-                                               value=v)
+                                               data=v)
 
         if self.maximum and v >= self.maximum:
             if self.exclusive_maximum and v == self.maximum:
                 pass
             else:
-                raise NumberMaxExceededError(field=self,
+                raise NumberMaxExceededError(source=self,
                                              assigned_name=name,
-                                             value=v)
+                                             data=v)
         
         if self.minimum and v <= self.minimum:
             if self.exclusive_minimum and v == self.minimum:
                 pass
             else:
-                raise NumberMinBelowError(field=self,
+                raise NumberMinBelowError(source=self,
                                           assigned_name=name,
-                                          value=v)
+                                          data=v)
     
     def __str__(self):
         """
@@ -293,25 +293,25 @@ class ArrayField(Field):
             if not self.required and v == None:
                 pass
             else:
-                raise FieldTypeNotMatchedError(field=self,
+                raise FieldTypeNotMatchedError(source=self,
                                                assigned_name=name,
-                                               value=v)
+                                               data=v)
 
         if self.min_items and len(v) < self.min_items:
-            raise ListTooLittleItemsError(field=self,
+            raise ListTooLittleItemsError(source=self,
                                           assigned_name=name,
-                                          value=v)
+                                          data=v)
         
         if self.max_items and len(v) > self.max_items:
-            raise ListTooManyItemsError(field=self,
+            raise ListTooManyItemsError(source=self,
                                         assigned_name=name,
-                                        value=v)
+                                        data=v)
 
         for item in v:
             if type(item) != self.item_field.get_data_type():
-                raise ListItemTypeNotMatchedError(field=self,
+                raise ListItemTypeNotMatchedError(source=self,
                                                   assigned_name=name,
-                                                  value=v)
+                                                  data=v)
             self.item_field.validate(item)
 
     def __str__(self):
@@ -352,9 +352,9 @@ class ObjectField(Field):
             if not self.required and v == None:
                 pass
             else:
-                raise FieldTypeNotMatchedError(field=self,
+                raise FieldTypeNotMatchedError(source=self,
                                                assigned_name=name,
-                                               value=v)
+                                               data=v)
 
         for k in self.model._fields:
             child_field = self.model._fields[k]
