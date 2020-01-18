@@ -23,12 +23,14 @@ class QueryParametersMetaKls(ModelMetaKls):
 class QueryParameters(Model, metaclass=QueryParametersMetaKls):
     """
     """
-    def parse_from_dict(self, query_params: Dict):
+    @classmethod
+    def parse_from_dict(cls, dikt: Dict):
         """
         """
         raise NotImplementedError
 
-    def parse_from_query_str(self, query_str: str):
+    @classmethod
+    def parse_from_query_str(cls, query_str: str):
         """
         """
         raise NotImplementedError
