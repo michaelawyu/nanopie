@@ -18,7 +18,7 @@ class QueryParametersMetaKls(ModelMetaKls):
                    v.item_field.get_data_type() not in [str, int, float, bool]:
                     raise NoNestedObjectInQueryParametersError(source=cls)
 
-        return super().__new__(cls, clsname, super, attribute_dict)
+        return super().__new__(cls, clsname, superclses, attribute_dict)
 
 class QueryParameters(Model, metaclass=QueryParametersMetaKls):
     """

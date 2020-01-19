@@ -14,7 +14,7 @@ from ..base import HTTPServiceAbstract
 from .inputs import FlaskInputParameters
 from ..methods import HTTPMethods
 from ....serializers import JSONSerializer
-
+from ....globals import svc_ctx, loop_up_ctx
 
 class FlaskService(HTTPServiceAbstract):
     """
@@ -22,17 +22,18 @@ class FlaskService(HTTPServiceAbstract):
     def __init__(self,
                  app: flask.Flask,
                  serializer: 'Serializer',
-                 max_content_length: int):
+                 max_content_length: int=6000):
         """
         """
         self._app = app
         self.rules = []
         self.serializer = serializer
+        _svc_ctx.set_func(partial(_loop_up_ctx, flask.g, '_svc_ctx'))
 
     def _common_rest_endpoint(self,
-                              resource_cls: 'ModelMetaKls',
                               rule: str,
                               method: str,
+                              body_params_cls: 'ModelMetaKls',
                               query_params_cls: 'QueryParametersMetaKls',
                               header_params_cls: 'HeaderParametersMetaKls',
                               **options):
@@ -43,7 +44,7 @@ class FlaskService(HTTPServiceAbstract):
         def wrapped(func):
             view_func = self._view_func_wrapper(
                 func,
-                resource_cls=resource_cls,
+                body_params_cls=body_params_cls,
                 query_params_cls=query_params_cls,
                 header_params_cls=header_params_cls)
             self._app.add_url_rule(rule=rule,
@@ -56,14 +57,14 @@ class FlaskService(HTTPServiceAbstract):
         return wrapped
     
     def create(self,
-               resource_cls: 'ModelMetaKls',
                rule: str,
+               body_params_cls: 'ModelMetaKls',
                query_params_cls: 'QueryParametersMetaKls',
                header_params_cls: 'HeaderParametersMetaKls',
                **options):
         """
         """
-        return self._common_rest_endpoint(resource_cls=resource_cls,
+        return self._common_rest_endpoint(body_params_cls=body_params_cls,
                                           rule=rule,
                                           method=HTTPMethods.POST,
                                           query_params_cls=query_params_cls,
@@ -71,14 +72,14 @@ class FlaskService(HTTPServiceAbstract):
                                           options=options)
     
     def get(self,
-            resource_cls: 'ModelMetaKls',
             rule: str,
             query_params_cls: 'QueryParametersMetaKls',
             header_params_cls: 'HeaderParametersMetaKls',
+            body_params_cls: Optional['ModelMetaKls'] = None,
             **options):
         """
         """
-        return self._common_rest_endpoint(resource_cls=resource_cls,
+        return self._common_rest_endpoint(body_params_cls=body_params_cls,
                                           rule=rule,
                                           method=HTTPMethods.GET,
                                           query_params_cls=query_params_cls,
@@ -86,14 +87,14 @@ class FlaskService(HTTPServiceAbstract):
                                           options=options)
     
     def update(self,
-               resource_cls: 'ModelMetaKls',
                rule: str,
+               body_params_cls: 'ModelMetaKls',
                query_params_cls: 'QueryParametersMetaKls',
                header_params_cls: 'HeaderParametersMetaKls',
                **options):
         """
         """
-        return self._common_rest_endpoint(resource_cls=resource_cls,
+        return self._common_rest_endpoint(body_params_cls=body_params_cls,
                                           rule=rule,
                                           method=HTTPMethods.PATCH,
                                           query_params_cls=query_params_cls,
@@ -101,14 +102,14 @@ class FlaskService(HTTPServiceAbstract):
                                           options=options)
 
     def delete(self,
-               resource_cls: 'ModelMetaKls',
                rule: str,
                query_params_cls: 'QueryParametersMetaKls',
                header_params_cls: 'HeaderParametersMetaKls',
+               body_params_cls: Optional['ModelMetaKls'] = None,
                **options):
         """
         """
-        return self._common_rest_endpoint(resource_cls=resource_cls,
+        return self._common_rest_endpoint(body_params_cls=body_params_cls,
                                           rule=rule,
                                           method=HTTPMethods.DELETE,
                                           query_params_cls=query_params_cls,
@@ -116,10 +117,10 @@ class FlaskService(HTTPServiceAbstract):
                                           options=options)
     
     def custom(self,
-               resource_cls: 'ModelMetaKls',
                rule: str,
                verb: str,
                method: str,
+               body_params_cls: 'ModelMetaKls',
                query_params_cls: 'QueryParametersMetaKls',
                header_params_cls: 'HeaderParametersMetaKls',
                **options):
@@ -128,11 +129,21 @@ class FlaskService(HTTPServiceAbstract):
         raise NotImplementedError
 
     def list(self,
-             resource_cls: 'ModelMetaKls',
              rule: str,
              query_params_cls: 'QueryParametersMetaKls',
              header_params_cls: 'HeaderParametersMetaKls',
+             body_params_cls: Optional['ModelMetaKls'] = None,
              **options):
+        """
+        """
+        raise NotImplementedError
+
+    def endpoint(self,
+                 rule: str,
+                 query_param_cls: 'QueryParametersMetaKls',
+                 header_param_cls: 'HeaderParametersMetaKls',
+                 body_params_cls: Optional['ModelMetaKls'] = None,
+                 **options):
         """
         """
         raise NotImplementedError
@@ -144,14 +155,14 @@ class FlaskService(HTTPServiceAbstract):
 
     def _view_func_wrapper(self,
                            func: Callable,
-                           resource_cls: 'ModelMetaKls',
+                           body_params_cls: 'ModelMetaKls',
                            query_params_cls: 'QueryParametersMetaKls',
                            header_params_cls: 'HeaderParametersMetaKls'):
         """
         """
         def wrapped(*args, **kwargs):
             inputs = FlaskInputParameters(request=flask.request,
-                                          resource_cls=resource_cls,
+                                          body_params_cls=body_params_cls,
                                           query_params_cls=query_params_cls,
                                           header_params_cls=header_params_cls,
                                           serializer=self.serializer)

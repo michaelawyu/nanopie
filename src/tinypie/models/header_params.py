@@ -27,7 +27,7 @@ class HeaderParametersMetaKls(ModelMetaKls):
                 field_aliases[k] = k_alias
 
         attribute_dict['_field_aliases'] = field_aliases
-        return super().__new__(cls, clsname, super, attribute_dict)
+        return super().__new__(cls, clsname, superclses, attribute_dict)
 
 class HeaderParameters(Model, metaclass=HeaderParametersMetaKls):
     """

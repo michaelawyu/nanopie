@@ -41,3 +41,8 @@ class ModelError(ErrorBase):
         """
         self.source = source
         super().__init__(message)
+
+class ExceptionError(ErrorBase):
+    """
+    """
+    pass
