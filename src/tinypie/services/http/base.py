@@ -1,25 +1,27 @@
 from abc import ABC, abstractmethod
-from typing import Any, Callable, Dict, Optional
+from typing import Any, Callable, Dict, List, Optional
 
-class HTTPServiceAbstract(ABC):
+class HTTPService(ABC):
     """
     """
     @abstractmethod
     def endpoint(self,
-                 resource_cls: 'ResourceMetaKls',
+                 rule: str,
+                 methods: List[str],
+                 body_params_cls: 'ModelMetaKls',
                  query_param_cls: 'ModelMetaKls',
                  header_param_cls: 'ModelMetaKls',
-                 rule: Optional[str] = None):
+                 **options):
         """
         """
         return None
     
     @abstractmethod
     def create(self,
-               resource_cls: 'ResourceMetaKls',
+               rule: str,
+               body_params_cls: 'ModelMetaKls',
                query_param_cls: 'ModelMetaKls',
                header_param_cls: 'ModelMetaKls',
-               rule: Optional[str] = None,
                **options):
         """
         """
@@ -27,10 +29,10 @@ class HTTPServiceAbstract(ABC):
     
     @abstractmethod
     def get(self,
-            resource_cls: 'ResourceMetaKls',
+            rule: str,
+            body_params_cls: 'ModelMetaKls',
             query_param_cls: 'ModelMetaKls',
             header_param_cls: 'ModelMetaKls',
-            rule: Optional[str] = None,
             **options):
         """
         """
@@ -38,10 +40,10 @@ class HTTPServiceAbstract(ABC):
 
     @abstractmethod
     def update(self,
-               resource_cls: 'ResourceMetaKls',
+               rule: str,
+               body_params_cls: 'ModelMetaKls',
                query_param_cls: 'ModelMetaKls',
                header_param_cls: 'ModelMetaKls',
-               rule: Optional[str] = None,
                **options):
         """
         """
@@ -49,10 +51,10 @@ class HTTPServiceAbstract(ABC):
     
     @abstractmethod
     def delete(self,
-               resource_cls: 'ResourceMetaKls',
+               rule: str,
+               body_params_cls: 'ModelMetaKls',
                query_param_cls: 'ModelMetaKls',
                header_param_cls: 'ModelMetaKls',
-               rule: Optional[str] = None,
                **options):
         """
         """
@@ -60,10 +62,10 @@ class HTTPServiceAbstract(ABC):
     
     @abstractmethod
     def list(self,
-             resource_cls: 'ResourceMetaKls',
+             rule: str,
+             body_params_cls: 'ModelMetaKls',
              query_param_cls: 'ModelMetaKls',
              header_param_cls: 'ModelMetaKls',
-             rule: Optional[str] = None,
              **options):
         """
         """
@@ -71,46 +73,61 @@ class HTTPServiceAbstract(ABC):
     
     @abstractmethod
     def custom(self,
-               resource_cls: 'ResourceMetaKls',
+               rule: str,
                verb: str,
                method: str,
+               body_params_cls: 'ModelMetaKls',
                query_param_cls: 'ModelMetaKls',
                header_param_cls: 'ModelMetaKls',
-               rule: Optional[str] = None,
                **options):
         """
         """
         return None
 
-    @abstractmethod
-    def add_resource(self, resource_cls: 'ResourceMetaKls'):
-        """
-        """
-        pass
-
-class HTTPInputParametersAbstract(ABC):
+class ServiceContext(ABC):
     """
     """
+    @property
     @abstractmethod
-    def get_resource(self) -> 'Resource':
+    def api_params(self) -> 'APIParams':
         """
         """
         return None
 
+    @property
     @abstractmethod
-    def get_query_parameters(self) -> 'QueryParameters':
+    def svc(self) -> 'HTTPService':
         """
         """
         return None
 
+class APIParams(ABC):
+    """
+    """
+    @property
     @abstractmethod
-    def get_header_parameters(self) -> 'HeaderParameters':
+    def body_params(self) -> 'Model':
         """
         """
         return None
 
+    @property
     @abstractmethod
-    def get_path_parameters(self) -> Dict:
+    def query_params(self) -> 'QueryParameters':
+        """
+        """
+        return None
+
+    @property
+    @abstractmethod
+    def header_params(self) -> 'HeaderParameters':
+        """
+        """
+        return None
+
+    @property
+    @abstractmethod
+    def path_params(self) -> Dict:
         """
         """
         return {}

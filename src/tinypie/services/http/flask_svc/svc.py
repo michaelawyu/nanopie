@@ -5,18 +5,18 @@ try:
     import flask
 except ImportError:
     raise ImportError(
-        "The Flask (https://pypi.org/project/Flask/) package is required to "
+        "The Flask (https://pypi.org/projectx/Flask/) package is required to "
         "set up a Flask service. To install this package, run"
         "`pip install Flask`."
     )
 
-from ..base import HTTPServiceAbstract
-from .inputs import FlaskInputParameters
+from .api_params import FlaskAPIParams
+from ..base import HTTPService
+from ..globals import svc_ctx, loop_up_attr
 from ..methods import HTTPMethods
-from ....serializers import JSONSerializer
-from ....globals import svc_ctx, loop_up_ctx
+from .svc_ctx import FlaskServiceContext
 
-class FlaskService(HTTPServiceAbstract):
+class FlaskService(HTTPService):
     """
     """
     def __init__(self,
@@ -28,7 +28,8 @@ class FlaskService(HTTPServiceAbstract):
         self._app = app
         self.rules = []
         self.serializer = serializer
-        _svc_ctx.set_func(partial(_loop_up_ctx, flask.g, '_svc_ctx'))
+        self.max_content_length = max_content_length
+        svc_ctx.update_proxy_func(partial(loop_up_attr, flask.g, '_svc_ctx'))
 
     def _common_rest_endpoint(self,
                               rule: str,
@@ -148,11 +149,6 @@ class FlaskService(HTTPServiceAbstract):
         """
         raise NotImplementedError
 
-    def add_resource(self, resource: 'Resource'):
-        """
-        """
-        raise NotImplementedError
-
     def _view_func_wrapper(self,
                            func: Callable,
                            body_params_cls: 'ModelMetaKls',
@@ -160,12 +156,15 @@ class FlaskService(HTTPServiceAbstract):
                            header_params_cls: 'HeaderParametersMetaKls'):
         """
         """
+        def setup_ctx():
+            api_params = FlaskAPIParams(body_params_cls=body_params_cls,
+                                        query_params_cls=query_params_cls,
+                                        header_params_cls=header_params_cls)
+            svc_ctx = FlaskServiceContext(svc=self, api_params=api_params)
+            flask.g.svc_ctx = svc_ctx
+
         def wrapped(*args, **kwargs):
-            inputs = FlaskInputParameters(request=flask.request,
-                                          body_params_cls=body_params_cls,
-                                          query_params_cls=query_params_cls,
-                                          header_params_cls=header_params_cls,
-                                          serializer=self.serializer)
-            return func(inputs)
+            setup_ctx()
+            return func()
 
         return wrapped
