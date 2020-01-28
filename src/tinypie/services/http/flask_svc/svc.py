@@ -5,15 +5,16 @@ try:
     import flask
 except ImportError:
     raise ImportError(
-        "The Flask (https://pypi.org/projectx/Flask/) package is required to "
-        "set up a Flask service. To install this package, run"
-        "`pip install Flask`."
+        'The Flask (https://pypi.org/projectx/Flask/) package is required to '
+        'set up a Flask service. To install this package, run'
+        '`pip install Flask`.'
     )
 
 from .api_params import FlaskAPIParams
 from ..base import HTTPService
 from ..globals import svc_ctx, loop_up_attr
 from ..methods import HTTPMethods
+from ....serializers import JSONSerializer
 from .svc_ctx import FlaskServiceContext
 
 class FlaskService(HTTPService):
@@ -21,13 +22,15 @@ class FlaskService(HTTPService):
     """
     def __init__(self,
                  app: flask.Flask,
-                 serializer: 'Serializer',
+                 serializer: 'Serializer' = JSONSerializer(),
+                 authenticator: 'Authenticator' = None,
                  max_content_length: int=6000):
         """
         """
         self._app = app
         self.rules = []
         self.serializer = serializer
+        self.authenticator = authenticator
         self.max_content_length = max_content_length
         svc_ctx.update_proxy_func(partial(loop_up_attr, flask.g, '_svc_ctx'))
 
