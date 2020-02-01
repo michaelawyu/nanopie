@@ -1,13 +1,27 @@
 from abc import ABC, abstractmethod
-from typing import Dict
+from typing import Callable, Dict
 
-class Authenticator(ABC):
+class HTTPAuthenticator(ABC):
     """
     """
     @abstractmethod
     def authenticate(self,
-                     headers: Dict,
-                     query_args: Dict):
+                     headers: Callable,
+                     query_args: Callable):
         """
         """
         pass
+
+class AuthContext():
+    """
+    """
+    def __init__(self):
+        """
+        """
+        raise NotImplementedError
+
+    @property
+    def jwt(self):
+        """
+        """
+        raise NotImplementedError
