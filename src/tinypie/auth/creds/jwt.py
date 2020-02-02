@@ -25,7 +25,7 @@ class JWTHandler:
         """
         """
         if not pkgutil.find_loader('jwt'):
-            raise ImportError('The pyjwt (https://pypi.org/project/PyJWT/)
+            raise ImportError('The pyjwt (https://pypi.org/project/PyJWT/)'
                               'package is required to use JWT. To install this '
                               'package, run '
                               '`pip install pyjwt`.')
@@ -67,7 +67,7 @@ class JWTHandler:
         """
         try:
             jwt.get_unverified_header(token)
-        except: jwt.exceptions.InvalidTokenError as ex:
+        except jwt.exceptions.InvalidTokenError as ex:
             raise NotImplementedError
 
     @staticmethod

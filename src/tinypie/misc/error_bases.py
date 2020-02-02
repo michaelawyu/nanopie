@@ -1,4 +1,4 @@
-from typing import Any, Optional, Union
+from typing import Any, Optional, Dict, Union
 
 class ErrorBase(Exception):
     """
@@ -11,7 +11,7 @@ class ValidationError(ErrorBase):
     def __init__(self,
                  source: Union['Field', 'ModelMetaKls'],
                  data: Any,
-                 message: Optional[str]):
+                 message: Optional[str] = None):
         """
         """
         self.source = source
@@ -24,25 +24,27 @@ class SerializationError(ErrorBase):
     def __init__(self,
                  source: Union['Field', 'ModelMetaKls'],
                  data: Any,
-                 message: Optional[str]):
+                 message: Optional[str] = None):
         """
         """
         self.source = source
         self.data = data
         super().__init__(message)
 
-class ModelError(ErrorBase):
-    """
-    """
-    def __init__(self,
-                 source: Union['Field', 'ModelMetaKls'],
-                 message: Optional[str]):
-        """
-        """
-        self.source = source
-        super().__init__(message)
-
-class ExceptionError(ErrorBase):
+class AuthenticationError(ErrorBase):
     """
     """
     pass
+
+class HTTPAuthenticationError(ErrorBase):
+    """
+    """
+    def __init__(self,
+                 http_status_code: int,
+                 headers: Dict,
+                 message: Optional[str] = None):
+        """
+        """
+        self.http_status_code = http_status_code
+        self.headers = headers
+        super().__init__(message)

@@ -1,5 +1,5 @@
 from functools import partial
-from typing import Callable, Optional
+from typing import Callable, Dict, List, Optional
 
 try:
     import flask
@@ -40,6 +40,7 @@ class FlaskService(HTTPService):
                               body_params_cls: 'ModelMetaKls',
                               query_params_cls: 'QueryParametersMetaKls',
                               header_params_cls: 'HeaderParametersMetaKls',
+                              extras: Optional[Dict] = None,
                               **options):
         """
         """
@@ -65,6 +66,7 @@ class FlaskService(HTTPService):
                body_params_cls: 'ModelMetaKls',
                query_params_cls: 'QueryParametersMetaKls',
                header_params_cls: 'HeaderParametersMetaKls',
+               extras: Optional[Dict] = None,
                **options):
         """
         """
@@ -80,6 +82,7 @@ class FlaskService(HTTPService):
             query_params_cls: 'QueryParametersMetaKls',
             header_params_cls: 'HeaderParametersMetaKls',
             body_params_cls: Optional['ModelMetaKls'] = None,
+            extras: Optional[Dict] = None,
             **options):
         """
         """
@@ -95,6 +98,7 @@ class FlaskService(HTTPService):
                body_params_cls: 'ModelMetaKls',
                query_params_cls: 'QueryParametersMetaKls',
                header_params_cls: 'HeaderParametersMetaKls',
+               extras: Optional[Dict] = None,
                **options):
         """
         """
@@ -110,6 +114,7 @@ class FlaskService(HTTPService):
                query_params_cls: 'QueryParametersMetaKls',
                header_params_cls: 'HeaderParametersMetaKls',
                body_params_cls: Optional['ModelMetaKls'] = None,
+               extras: Optional[Dict] = None,
                **options):
         """
         """
@@ -127,6 +132,7 @@ class FlaskService(HTTPService):
                body_params_cls: 'ModelMetaKls',
                query_params_cls: 'QueryParametersMetaKls',
                header_params_cls: 'HeaderParametersMetaKls',
+               extras: Optional[Dict] = None,
                **options):
         """
         """
@@ -137,6 +143,7 @@ class FlaskService(HTTPService):
              query_params_cls: 'QueryParametersMetaKls',
              header_params_cls: 'HeaderParametersMetaKls',
              body_params_cls: Optional['ModelMetaKls'] = None,
+             extras: Optional[Dict] = None,
              **options):
         """
         """
@@ -144,9 +151,11 @@ class FlaskService(HTTPService):
 
     def endpoint(self,
                  rule: str,
+                 methods: List[str],
                  query_param_cls: 'QueryParametersMetaKls',
                  header_param_cls: 'HeaderParametersMetaKls',
                  body_params_cls: Optional['ModelMetaKls'] = None,
+                 extras: Optional[Dict] = None,
                  **options):
         """
         """
@@ -164,6 +173,7 @@ class FlaskService(HTTPService):
                                         query_params_cls=query_params_cls,
                                         header_params_cls=header_params_cls)
             svc_ctx = FlaskServiceContext(svc=self, api_params=api_params)
+            flask.g.api_params = api_params
             flask.g.svc_ctx = svc_ctx
 
         def wrapped(*args, **kwargs):

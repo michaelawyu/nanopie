@@ -1,6 +1,6 @@
 from functools import wraps
 import pkgutil
-from typing import Callable, Dict
+from typing import Callable, Dict, Optional
 
 from ..base import HTTPAuthenticator
 from ..creds.jwt import JWT, JWTHandler
@@ -26,7 +26,7 @@ class HTTPOAuth2BearerJWTAuthenticator(HTTPAuthenticator):
         self.key = key
         self.request_method = request_method
         if request_method not in self.supported_request_methods:
-            throw ValueError('request_method is not valid; must be '
+            raise ValueError('request_method is not valid; must be '
                              '`HEADER` or `QUERY`.')
 
         self._before_validation = before_validation
