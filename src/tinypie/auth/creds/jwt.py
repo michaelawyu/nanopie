@@ -6,6 +6,8 @@ try:
 except ImportError:
     pass
 
+from ...misc.errors.creds import InvalidJWTError
+
 class JWT:
     """
     """
@@ -68,7 +70,7 @@ class JWTHandler:
         try:
             jwt.get_unverified_header(token)
         except jwt.exceptions.InvalidTokenError as ex:
-            raise NotImplementedError
+            raise InvalidJWTError(wrapped=ex, message=str(ex))
 
     @staticmethod
     def get_payload_without_validation(token: str):
@@ -77,7 +79,7 @@ class JWTHandler:
         try:
             jwt.decode(token, verify=False)
         except jwt.exceptions.InvalidTokenError as ex:
-            raise NotImplementedError
+            raise InvalidJWTError(wrapped=ex, message=str(ex))
 
     @staticmethod
     def validate(token: str,
@@ -89,4 +91,4 @@ class JWTHandler:
         try:
             jwt.decode(token, key, algorithm=algorithm, **options)
         except jwt.exceptions.InvalidTokenError as ex:
-            raise NotImplementedError
+            raise InvalidJWTError(wrapped=ex, message=str(ex))

@@ -1,9 +1,17 @@
 from functools import wraps
+import inspect
 import pkgutil
 from typing import Callable, Dict, Optional
 
 from ..base import HTTPAuthenticator
 from ..creds.jwt import JWT, JWTHandler
+from ...misc.errors import (
+    HTTPOAuth2BearerHeaderMissingError,
+    HTTPOAuth2BearerQueryArgMissingError,
+    HTTPOAuth2BearerTokenNotFoundError,
+    HTTPOAuth2BearerTokenInvalidError,
+    InvalidJWTError
+)
 
 class HTTPOAuth2BearerJWTAuthenticator(HTTPAuthenticator):
     """
@@ -14,8 +22,8 @@ class HTTPOAuth2BearerJWTAuthenticator(HTTPAuthenticator):
                  algorithm: Optional[str] = None,
                  key: Optional[str] = None,
                  request_method: str = 'HEADER',
-                 before_validation: Optional[Callable] = lambda: None,
-                 after_validation: Optional[Callable] = lambda: None,
+                 before_validation: Optional[Callable] = None
+                 after_validation: Optional[Callable] = None
                  use_cryptography: bool = True,
                  use_pycrypto: bool = False,
                  use_ecdsa: bool = False,
@@ -29,8 +37,12 @@ class HTTPOAuth2BearerJWTAuthenticator(HTTPAuthenticator):
             raise ValueError('request_method is not valid; must be '
                              '`HEADER` or `QUERY`.')
 
-        self._before_validation = before_validation
-        self._after_validation = after_validation
+        if not before_validation:
+            before_validation = lambda header, payload: None
+        self.before_validation(before_validation)
+        if not after_validation:
+            after_validation = lambda header, payload: None
+        self.after_validation(after_validation)
         
         JWTHandler.check_dependencies(use_cryptography=use_cryptography,
                                       use_pycrypto=use_pycrypto,
@@ -66,21 +78,35 @@ class HTTPOAuth2BearerJWTAuthenticator(HTTPAuthenticator):
     def before_validation(self, func: Callable):
         """
         """
+        params = inspect.signature(func).parameters
+        if len(params) != 2 or \
+           'header' not in params or \
+           'payload' not in params:
+            raise ValueError('before_validation func must have two keyword '
+                             'arguments, header and payload.')
+
         self._before_validation = func
 
         @wraps(func)
-        def wrapper():
-            return func()
+        def wrapped(*args, **kwargs):
+            return func(*args, **kwargs)
         
         return wrapper
     
     def after_validation(self, func: Callable):
         """
         """
+        params = inspect.signature(func).parameters
+        if len(params) != 2 or \
+           'header' not in params or \
+           'payload' not in params:
+            raise ValueError('after_validation func must have two keyword '
+                             'arguments, header and payload.')
+
         self._after_validation = func
 
         @wraps(func)
-        def wrapper():
+        def wrapped():
             return func()
 
         return wrapper
@@ -90,17 +116,17 @@ class HTTPOAuth2BearerJWTAuthenticator(HTTPAuthenticator):
         """
         if self.request_method == 'HEADER':
             auth_header = headers.get('Authorization')
-            if not auth_header:
-                raise NotImplementedError
+            if not auth_header or not auth_header.startswith('Bearer'):
+                raise HTTPOAuth2BearerHeaderMissingError()
             token = auth_header[7:]
         elif self.request_method == 'QUERY':
             token = query_args.get('access_token')
             if not token:
-                raise NotImplementedError
+                raise HTTPOAuth2BearerQueryArgMissingError()
 
         return token
     
-    def setup_ctx(self, auth_ctx: 'AuthContext', jwt: 'JWT'):
+    def _setup_ctx(self, auth_ctx: 'AuthContext', jwt: 'JWT'):
         """
         """
         auth_ctx.jwt = jwt
@@ -113,14 +139,17 @@ class HTTPOAuth2BearerJWTAuthenticator(HTTPAuthenticator):
         """
         token = self._retrieve_token(headers, query_args)
         if not token:
-            raise NotImplementedError
+            raise HTTPOAuth2BearerTokenNotFoundError()
 
-        header = JWTHandler.get_header_without_validation(token=token)
-        payload = JWTHandler.get_payload_without_validation(token=token)
+        try:
+            header = JWTHandler.get_header_without_validation(token=token)
+            payload = JWTHandler.get_payload_without_validation(token=token)
+        except InvalidJWTError as ex:
+            raise HTTPOAuth2BearerTokenInvalidError(wrapped=ex)
         jwt = JWT(header=header, payload=payload)
-        self.setup_ctx(auth_ctx=auth_ctx, jwt=jwt)
+        self._setup_ctx(auth_ctx=auth_ctx, jwt=jwt)
 
-        res = self._before_validation()
+        res = self._before_validation(header=header, payload=payload)
         if res and type(res) == tuple and len(res) == 2:
             algorithm = res[0]
             key = res[1]
@@ -128,10 +157,12 @@ class HTTPOAuth2BearerJWTAuthenticator(HTTPAuthenticator):
             algorithm = self.algorithm
             key = self.key
 
-        JWTHandler.validate(token=token,
-                            key=key,
-                            algorithm=algorithm,
-                            **self.validation_options)
+        try:
+            JWTHandler.validate(token=token,
+                                key=key,
+                                algorithm=algorithm,
+                                **self.validation_options)
+        except InvalidJWTError as ex:
+            raise HTTPOAuth2BearerTokenInvalidError(wrapped=ex)
 
-        self._after_validation()
-        
+        self._after_validation(header=header, payload=payload)

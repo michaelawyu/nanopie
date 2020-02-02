@@ -1,7 +1,6 @@
 from typing import Dict, List
 
 from .base import Field, Model, ModelMetaKls
-from ..misc.model_errors import NoNestedObjectInQueryParametersError
 
 class QueryParametersMetaKls(ModelMetaKls):
     """
@@ -13,10 +12,12 @@ class QueryParametersMetaKls(ModelMetaKls):
             v = attribute_dict[k]
             if isinstance(v, Field):
                 if issubclass(v.get_data_type(), Model):
-                    raise NoNestedObjectInQueryParametersError(source=cls)
+                    raise ValueError('Nested objects are not allowed in query '
+                                     'parameters.')
                 if v.get_data_type() == List and \
                    v.item_field.get_data_type() not in [str, int, float, bool]:
-                    raise NoNestedObjectInQueryParametersError(source=cls)
+                    raise ValueError('Nested objects are not allowed in query '
+                                     'parameters.')
 
         return super().__new__(cls, clsname, superclses, attribute_dict)
 

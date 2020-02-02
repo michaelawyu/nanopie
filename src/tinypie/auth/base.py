@@ -6,6 +6,7 @@ class HTTPAuthenticator(ABC):
     """
     @abstractmethod
     def authenticate(self,
+                     auth_ctx: 'AuthContext',
                      headers: Callable,
                      query_args: Callable):
         """
@@ -22,6 +23,12 @@ class AuthContext():
 
     @property
     def jwt(self):
+        """
+        """
+        raise NotImplementedError
+
+    @property
+    def user_credential(self):
         """
         """
         raise NotImplementedError

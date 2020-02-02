@@ -1,6 +1,6 @@
 from typing import Any, Optional, Union
 
-from .error_bases import SerializationError
+from .base import SerializationError
 
 class UnrecognizedTypeError(SerializationError):
     """

@@ -1,6 +1,6 @@
 from typing import Any, List, Optional, Union
 
-from .error_bases import ValidationError
+from .base import ValidationError
 
 class ModelTypeNotMatchedError(ValidationError):
     """
