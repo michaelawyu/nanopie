@@ -100,6 +100,13 @@ class ServiceContext(ABC):
         """
         """
         return None
+    
+    @property
+    @abstractmethod
+    def auth_ctx(self) -> 'AuthContext':
+        """
+        """
+        return None
 
 class APIParams(ABC):
     """

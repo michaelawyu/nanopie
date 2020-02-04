@@ -1,5 +1,6 @@
 from typing import Any, Callable, Dict, Optional
 
+from ...auth.base import AuthContextBase
 from .base import APIParams, ServiceContext
 
 class ServiceContextProxy(ServiceContext):
@@ -28,6 +29,12 @@ class ServiceContextProxy(ServiceContext):
         """
         """
         return self._proxy_func().api_params
+    
+    @property
+    def auth_ctx(self) -> 'AuthContext':
+        """
+        """
+        return self._proxy_func().auth_ctx
 
 class APIParamsProxy(APIParams):
     """
@@ -67,3 +74,36 @@ class APIParamsProxy(APIParams):
         """
         """
         return self._proxy_func().path_params
+
+class AuthContextProxy(AuthContextBase):
+    """
+    """
+    __slots__ = ('_proxy_func')
+
+    def __init__(self, proxy_func: Callable):
+        """
+        """
+        self._proxy_func = proxy_func
+
+    def update_proxy_func(self, proxy_func: Callable):
+        """
+        """
+        self._proxy_func = proxy_func
+    
+    @property
+    def jwt(self) -> 'JWT':
+        """
+        """
+        return self._proxy_func().jwt
+    
+    @property
+    def user_credential(self) -> 'HTTPBasicUserCredentail':
+        """
+        """
+        return self._proxy_func().user_credential
+    
+    @property
+    def api_key(self) -> 'APIKey':
+        """
+        """
+        return self._proxy_func().api_key

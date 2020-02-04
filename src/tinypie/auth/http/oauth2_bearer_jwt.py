@@ -22,8 +22,8 @@ class HTTPOAuth2BearerJWTAuthenticator(HTTPAuthenticator):
                  algorithm: Optional[str] = None,
                  key: Optional[str] = None,
                  request_method: str = 'HEADER',
-                 before_validation: Optional[Callable] = None
-                 after_validation: Optional[Callable] = None
+                 before_validation: Optional[Callable] = None,
+                 after_validation: Optional[Callable] = None,
                  use_cryptography: bool = True,
                  use_pycrypto: bool = False,
                  use_ecdsa: bool = False,
@@ -34,8 +34,8 @@ class HTTPOAuth2BearerJWTAuthenticator(HTTPAuthenticator):
         self.key = key
         self.request_method = request_method
         if request_method not in self.supported_request_methods:
-            raise ValueError('request_method is not valid; must be '
-                             '`HEADER` or `QUERY`.')
+            raise ValueError(('request_method must be one of '
+                              '{}').format(self.supported_request_methods))
 
         if not before_validation:
             before_validation = lambda header, payload: None

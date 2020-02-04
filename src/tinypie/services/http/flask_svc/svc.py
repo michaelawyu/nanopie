@@ -10,10 +10,12 @@ except ImportError:
         '`pip install Flask`.'
     )
 
+from ....auth.base import AuthContext
 from .api_params import FlaskAPIParams
 from ..base import HTTPService
 from ..globals import svc_ctx, loop_up_attr
 from ..methods import HTTPMethods
+from ....misc.errors import HTTPAuthenticationError
 from ....serializers import JSONSerializer
 from .svc_ctx import FlaskServiceContext
 
@@ -23,7 +25,7 @@ class FlaskService(HTTPService):
     def __init__(self,
                  app: flask.Flask,
                  serializer: 'Serializer' = JSONSerializer(),
-                 authenticator: 'Authenticator' = None,
+                 authenticator: 'HTTPAuthenticator' = None,
                  max_content_length: int=6000):
         """
         """
@@ -147,7 +149,12 @@ class FlaskService(HTTPService):
              **options):
         """
         """
-        raise NotImplementedError
+        return self._common_rest_endpoint(body_params_cls=body_params_cls,
+                                          rule=rule,
+                                          method=HTTPMethods.GET,
+                                          query_params_cls=query_params_cls,
+                                          header_params_cls=header_params_cls,
+                                          options=options)
 
     def endpoint(self,
                  rule: str,
@@ -172,12 +179,34 @@ class FlaskService(HTTPService):
             api_params = FlaskAPIParams(body_params_cls=body_params_cls,
                                         query_params_cls=query_params_cls,
                                         header_params_cls=header_params_cls)
-            svc_ctx = FlaskServiceContext(svc=self, api_params=api_params)
+            svc_ctx = FlaskServiceContext(svc=self)
             flask.g.api_params = api_params
             flask.g.svc_ctx = svc_ctx
+        
+        def authenticate():
+            pass
 
         def wrapped(*args, **kwargs):
-            setup_ctx()
+            svc_ctx = FlaskServiceContext(svc=self)
+            flask.g.svc_ctx = svc_ctx
+
+            auth_ctx = AuthContext()
+            try:
+                self.authenticator.authenticate(auth_ctx=auth_ctx,
+                                                headers=flask.request.headers,
+                                                query_args=flask.request.args)
+            except HTTPAuthenticationError as ex:
+                res = flask.make_response(ex.body_text, ex.http_status_code)
+                for k in ex.headers:
+                    res.headers[k] = ex.headers[k]
+                return res
+            svc_ctx.auth_ctx = auth_ctx
+
+            api_params = FlaskAPIParams(body_params_cls=body_params_cls,
+                                        query_params_cls=query_params_cls,
+                                        header_params_cls=header_params_cls)
+            svc_ctx.api_params = api_params
+            
             return func()
 
         return wrapped

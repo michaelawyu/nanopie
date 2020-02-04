@@ -14,7 +14,7 @@ class HTTPBasicAuthenticator(HTTPAuthenticator):
     def __init__(self,
                  validation_handler: Optional[Callable] = None,
                  before_validation: Optional[Callable] = None,
-                 after_validation: Callable = None):
+                 after_validation: Optional[Callable] = None):
         """
         """
         def validation_handler_default(user_id: str, password: str):

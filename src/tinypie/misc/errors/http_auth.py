@@ -108,3 +108,31 @@ class HTTPBasicAuthUserCredentialInvalidError(HTTPAuthenticationError):
                          headers=headers,
                          body_text=body_text,
                          message=message)
+
+class HTTPAPIKeyAuthHeaderMissingError(HTTPAuthenticationError):
+    """
+    """
+    def __init__(self, param_name: str, message: Optional[str] = None):
+        """
+        """
+        http_status_code = 400
+        body_text = ('An API key is required in the request; '
+                     'must specifcy HTTP header {}').format(param_name)
+        super().__init__(http_status_code=http_status_code,
+                         headers={},
+                         body_text=body_text,
+                         message=body_text)
+
+class HTTPAPIKeyAuthQueryArgMissingError(HTTPAuthenticationError):
+    """
+    """
+    def __init__(self, param_name: str, message: Optional[str] = None):
+        """
+        """
+        http_status_code = 400
+        body_text = ('An API key is required in the request; '
+                     'must specifcy query argument {}').format(param_name)
+        super().__init__(http_status_code=http_status_code,
+                         headers={},
+                         body_text=body_text,
+                         message=body_text)
