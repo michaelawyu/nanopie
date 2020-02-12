@@ -13,7 +13,7 @@ except ImportError:
 from ....auth.base import AuthContext
 from .api_params import FlaskAPIParams
 from ..base import HTTPService
-from ..globals import svc_ctx, loop_up_attr
+from ..globals import svc_ctx, look_up_attr
 from ..methods import HTTPMethods
 from ....misc.errors import HTTPAuthenticationError
 from ....serializers import JSONSerializer
@@ -34,7 +34,7 @@ class FlaskService(HTTPService):
         self.serializer = serializer
         self.authenticator = authenticator
         self.max_content_length = max_content_length
-        svc_ctx.update_proxy_func(partial(loop_up_attr, flask.g, '_svc_ctx'))
+        svc_ctx.update_proxy_func(partial(look_up_attr, flask.g, '_svc_ctx'))
 
     def _common_rest_endpoint(self,
                               rule: str,
