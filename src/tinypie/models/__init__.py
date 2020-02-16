@@ -1,10 +1,9 @@
-from .base import Field, Model
-from .query_params import QueryParameters
-from .header_params import HeaderParameters
+from .base import Field, Model, ModelMetaKls
 from .fields import (
     StringField,
     FloatField,
     IntField,
     BoolField,
-    ArrayField
+    ArrayField,
+    ObjectField
 )

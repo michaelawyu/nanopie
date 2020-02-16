@@ -1,3 +1,5 @@
+from typing import Optional
+
 from .base import HTTPAuthenticationError
 
 class HTTPOAuth2BearerHeaderMissingError(HTTPAuthenticationError):
@@ -50,7 +52,7 @@ class HTTPOAuth2BearerTokenNotFoundError(HTTPAuthenticationError):
             message = body_text
         super().__init__(http_status_code=http_status_code,
                          headers=headers,
-                         body_text=body_text
+                         body_text=body_text,
                          message=message)
 
 class HTTPOAuth2BearerTokenInvalidError(HTTPAuthenticationError):
@@ -71,7 +73,7 @@ class HTTPOAuth2BearerTokenInvalidError(HTTPAuthenticationError):
             message = str(wrapped)
         super().__init__(http_status_code=http_status_code,
                          headers=headers,
-                         body_text=body_text
+                         body_text=body_text,
                          message=message)
 
 class HTTPBasicAuthHeaderMissingError(HTTPAuthenticationError):

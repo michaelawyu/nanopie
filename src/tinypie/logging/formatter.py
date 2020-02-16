@@ -1,14 +1,20 @@
+import json
 import logging
 import socket
-from typing import Dict
+from typing import Dict, Optional
 
-class DiktLogRecordFormatter(logging.Formatter):
+from ..globals import logging_context, tracing_context
+
+class DefaultLogRecordFormatter(logging.Formatter):
     """
     """
     def __init__(self,
-                 fmt:Optional[Dict] = None,
+                 fmt: Optional[Dict] = None,
                  datefmt: Optional[str] = None,
                  style: str = '%',
+                 flatten: bool = False,
+                 merge_logging_context = False,
+                 merge_tracing_context = False,
                  quiet: bool = True):
         """
         """
@@ -44,11 +50,16 @@ class DiktLogRecordFormatter(logging.Formatter):
             }
         
         self.__fmt = fmt if fmt else default_fmt
+        self.flatten = flatten
+        self.merge_logging_context = merge_logging_context
+        self.merge_tracing_context = merge_tracing_context
         self.quiet = quiet
 
     def format(self, record: 'LogRecord'):
         """
         """
+        super().format(record)
+
         dikt = {}
 
         for k in self.__fmt:
@@ -57,11 +68,42 @@ class DiktLogRecordFormatter(logging.Formatter):
                     v = self.__style(self.__fmt[k]).format(record)
                 else:
                     v = self.__fmt[k] % record.__dict__
+                dikt[k] = v
             except KeyError as ex:
                 if not self.quiet:
                     raise ex
+        
+        message = record.msg
+        if isinstance(message, dict):
+            dikt.update(message)
+        else:
+            dikt['message'] = super().format(message)
 
-        # TO-DO: Merge log context
+        if self.merge_logging_context:
+            try:
+                dikt.update(logging_context.to_dikt())
+            except Exception as ex:
+                if not self.quiet:
+                    raise ex
 
+        if self.merge_tracing_context:
+            try:
+                dikt.update(tracing_context.to_dikt())
+            except Exception as ex:
+                if not self.quiet:
+                    raise ex
+
+        if self.flatten:
+            return json.dumps(dikt)
+        
         return dikt
 
+    def usesTime(self):
+        """
+        """
+        if self.__style:
+            search = self.__style.asctime_search
+        else:
+            search = "%(asctime)"
+
+        return any([value.find(search) >= 0 for value in self._fmt.values()])

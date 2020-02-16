@@ -10,7 +10,7 @@ class ModelTypeNotMatchedError(ValidationError):
                  data: Any,
                  message: Optional[str] = None):
         if not message:
-            message = 'Input is not of the type {}.'.format(model.__name__)
+            message = 'Input is not of the type {}.'.format(source.__name__)
         super().__init__(source=source, data=data, message=message)
 
 class RequiredFieldMissingError(ValidationError):
@@ -160,4 +160,3 @@ class ListTooLittleItemsError(ValidationError):
             message = '{} in field {} has too little items (mix: {}).'.format(
                 data, assigned_name, source.min_items)
         super().__init__(source=source, data=data, message=message)
-

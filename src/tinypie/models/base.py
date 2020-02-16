@@ -1,9 +1,10 @@
 from abc import ABC, abstractmethod
-from typing import Any
+from typing import Any, Dict, List, Union
 
-from ..misc.validation_errors import (
+from ..misc.errors import (
     ModelTypeNotMatchedError,
-    RequiredFieldMissingError
+    RequiredFieldMissingError,
+    UnrecognizedTypeError
 )
 
 class Field(ABC):
@@ -79,6 +80,61 @@ class Model(metaclass=ModelMetaKls):
                 setattr(self, mask, p)
             else:
                 setattr(self, k, p)
+    
+    def to_dikt(self):
+        """
+        """
+        def helper(data: Union[str, int, float, bool, List, 'Model'],
+                   ref: 'Field'):
+            """
+            """
+            data_type = ref.get_data_type()
+
+            if data_type in [str, int, float, bool]:
+                return data
+            elif data_type == List:
+                item_field = ref.item_field
+                return [ helper(item, item_field) for item in data ]
+            elif issubclass(data_type, Model):
+                return data.to_dikt()
+            else:
+                raise UnrecognizedTypeError(source=ref, data=data)
+
+        dikt = {}
+        for k in self._fields: # pylint: disable=no-member
+            field = self._fields[k] # pylint: disable=no-member
+            v = helper(getattr(self, k), field)
+            dikt[k] = v
+
+        return dikt
+    
+    @classmethod
+    def from_dikt(cls, dikt: Dict):
+        """
+        """
+        def helper(data: Union[str, int, float, bool, List, 'Model'],
+                   ref: 'Field'):
+            """
+            """
+            data_type = ref.get_data_type()
+
+            if data_type in [str, int, float, bool]:
+                return data
+            elif data_type == List and type(data) == list:
+                item_field = ref.item_field
+                return [ helper(item, item_field) for item in data ]
+            elif issubclass(data_type, Model) and type(data) == dict:
+                return data_type.from_dikt(data)
+            else:
+                raise UnrecognizedTypeError(source=ref, data=data)
+        
+        obj = cls(skip_validation=True)
+        for k in cls._fields: # pylint: disable=no-member
+            field = cls._fields[k] # pylint: disable=no-member
+            v = helper(dikt[k], field)
+            setattr(obj, k, v)
+        
+        return obj
     
     @classmethod
     def get_data_type(cls):

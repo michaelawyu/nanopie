@@ -12,9 +12,9 @@ class UnrecognizedTypeError(SerializationError):
         """
         """
         if not message:
-            message_tpl = ('Field {} with the type {} is not supported in the'
-                       'given serialzier.')
-            message = message_tpl.format(source.name, source.get_field_type())
+            message_tpl = ('Given data ({}) does not match the specified field '
+                           '({}) or the field is not supported.')
+            message = message_tpl.format(data, source)
         super().__init__(source=source, data=data, message=message)
 
 class NoRefModelError(SerializationError):
