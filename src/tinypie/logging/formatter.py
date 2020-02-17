@@ -43,10 +43,10 @@ class DefaultLogRecordFormatter(logging.Formatter):
             self.__style = None
             default_fmt = {
                 'host': '{}'.format(hostname),
-                'logger': '%{name}s',
-                'level': '%{level}s',
-                'module': '%{module}s',
-                'func': '%{func}s'
+                'logger': '%(name)s',
+                'level': '%(level)s',
+                'module': '%(module)s',
+                'func': '%(func)s'
             }
         
         self.__fmt = fmt if fmt else default_fmt
@@ -77,7 +77,7 @@ class DefaultLogRecordFormatter(logging.Formatter):
         if isinstance(message, dict):
             dikt.update(message)
         else:
-            dikt['message'] = super().format(message)
+            dikt['message'] = super().format(record)
 
         if self.merge_logging_context:
             try:
@@ -106,4 +106,4 @@ class DefaultLogRecordFormatter(logging.Formatter):
         else:
             search = "%(asctime)"
 
-        return any([value.find(search) >= 0 for value in self._fmt.values()])
+        return any([value.find(search) >= 0 for value in self.__fmt.values()])

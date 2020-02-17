@@ -3,12 +3,9 @@ from typing import Callable, Dict, List, Optional
 
 try:
     import flask
+    FLASK_INSTALLED = True
 except ImportError:
-    raise ImportError(
-        'The Flask (https://pypi.org/projectx/Flask/) package is required to '
-        'set up a Flask service. To install this package, run'
-        '`pip install Flask`.'
-    )
+    FLASK_INSTALLED = False
 
 from ....auth.base import AuthContext
 from .api_params import FlaskAPIParams
@@ -29,6 +26,12 @@ class FlaskService(HTTPService):
                  max_content_length: int=6000):
         """
         """
+        if not FLASK_INSTALLED:
+            raise ImportError(
+                    'The Flask (https://pypi.org/projectx/Flask/) package is required to '
+                    'set up a Flask service. To install this package, run'
+                    '`pip install Flask`.')
+
         self._app = app
         self.rules = []
         self.serializer = serializer

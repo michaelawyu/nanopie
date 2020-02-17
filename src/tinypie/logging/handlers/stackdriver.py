@@ -17,7 +17,7 @@ try:
     )
     from google.cloud.logging.handlers.transports import SyncTransport
 except ImportError:
-    raise ImportError('')
+    pass
 
 class PatchedSyncTransport(SyncTransport):
     """
