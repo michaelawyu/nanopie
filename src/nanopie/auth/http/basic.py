@@ -1,5 +1,6 @@
 import base64
 from functools import wraps
+import inspect
 from typing import Callable
 
 from ..base import HTTPAuthenticator

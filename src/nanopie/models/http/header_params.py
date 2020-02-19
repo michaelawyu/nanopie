@@ -1,6 +1,6 @@
 from typing import Dict, List
 
-from ...models import Field, Model, ModelMetaKls
+from .. import Field, Model, ModelMetaKls
 
 def get_http_header_name_alias(var_name: str) -> str:
     """

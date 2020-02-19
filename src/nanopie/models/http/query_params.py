@@ -1,6 +1,6 @@
 from typing import Dict, List
 
-from ...models import Field, Model, ModelMetaKls
+from .. import Field, Model, ModelMetaKls
 
 class QueryParametersMetaKls(ModelMetaKls):
     """

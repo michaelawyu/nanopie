@@ -91,7 +91,7 @@ class HTTPOAuth2BearerJWTAuthenticator(HTTPAuthenticator):
         def wrapped(*args, **kwargs):
             return func(*args, **kwargs)
         
-        return wrapper
+        return wrapped
     
     def after_validation(self, func: Callable):
         """
@@ -109,7 +109,7 @@ class HTTPOAuth2BearerJWTAuthenticator(HTTPAuthenticator):
         def wrapped():
             return func()
 
-        return wrapper
+        return wrapped
     
     def _retrieve_token(self, headers: Dict, query_args: Dict):
         """
