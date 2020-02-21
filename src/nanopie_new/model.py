@@ -57,12 +57,13 @@ class ModelMetaKls(type):
             )
 
         attribute_dict['_fields'] = fields
+        attribute_dict['_extras'] = {}
         return type.__new__(cls, clsname, superclses, attribute_dict)
 
 class Model(metaclass=ModelMetaKls):
     """
     """
-    __slots__ = ('_fields')
+    __slots__ = ('_fields', '_extras')
 
     def __init__(self, skip_validation: bool = False, **kwargs):
         """
