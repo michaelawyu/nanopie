@@ -5,8 +5,7 @@ from .base import Serializer
 from ..models.base import Model
 from ..misc.errors import (
     UnrecognizedTypeError,
-    NoRefModelError,
-    NoInputDataError
+    NoRefModelError
 )
 
 class JSONSerializer(Serializer):

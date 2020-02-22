@@ -18,3 +18,11 @@ def get_flattenable_dikt(dikt: Dict) -> Dict:
                 result[k] = dikt[k]
     
     return result
+
+def format_error_message(message, **kwargs):
+    """
+    """
+    if kwargs:
+        message = message + ' ' + str(kwargs)
+
+    return message

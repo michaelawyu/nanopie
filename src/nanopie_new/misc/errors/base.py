@@ -1,68 +1,37 @@
-from abc import ABCMeta
-from typing import Any, Optional, Dict, Union
+from typing import Any, Optional, Union
 
-from .mixins import HTTPErrorMixIn
-
-class ErrorBase(Exception, metaclass=ABCMeta):
+class ServiceError(Exception):
     """
     """
-    def get_message(self, message: Optional[str] = None, **kwargs) -> str:
+    def __init__(self, *args, response: Optional['RPCResponse'] = None):
         """
         """
-        if not message:
-            if kwargs:
-                message = getattr(self, '_message', '') + ' ' + str(kwargs)
-            else:
-                message = getattr(self, '_message', '')
+        self.response = response
+        super().__init__(*args)
 
-        return message
+class AuthenticationError(ServiceError):
+    """
+    """
 
-class AuthenticationError(ErrorBase, HTTPErrorMixIn, metaclass=ABCMeta):
+class SerializationError(ServiceError):
+    """
+    """
+
+class ValidationError(ServiceError):
     """
     """
     def __init__(self,
-                 message: Optional[str] = None):
-        """
-        """
-        self.http_status_code = 403
-        super().__init__(message=message)
-
-class ErrorWrapper(ErrorBase):
-    """
-    """
-    def __init__(self,
-                 wraps: Exception):
-        """
-        """
-        self.wraps = wraps
-        super().__init__()
-
-class SerializationError(ErrorBase, HTTPErrorMixIn, metaclass=ABCMeta):
-    """
-    """
-    def __init__(self,
-                 source: 'ModelMetaKls',
-                 data: Any,
-                 message: Optional[str] = None):
-        """
-        """
-        self.source = source
-        self.data = data
-
-        self.http_status_code = 400
-        super().__init__(message=message)
-
-class ValidationError(ErrorBase, HTTPErrorMixIn, metaclass=ABCMeta):
-    """
-    """
-    def __init__(self,
+                 *args,
                  source: Union['Field', 'ModelMetaKls'],
                  data: Any,
-                 message: Optional[str] = None):
+                 response: Optional['RPCResponse'] = None):
         """
         """
         self.source = source
         self.data = data
 
-        self.http_status_code = 400
-        super().__init__(message=message)
+        super().__init__(*args, response=response)
+
+class FoundationError(ServiceError):
+    """
+    """

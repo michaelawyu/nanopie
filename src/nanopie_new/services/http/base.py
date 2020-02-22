@@ -39,31 +39,31 @@ class HTTPRequest(RPCRequest):
             return v
     
     @property
-    def url(self):
+    def url(self) -> str:
         return self._helper(self._url)
     
     @property
-    def headers(self):
+    def headers(self) -> Dict:
         return self._helper(self._headers)
 
     @property
-    def content_length(self):
+    def content_length(self) -> int:
         return self._helper(self._content_length)
     
     @property
-    def mime_type(self):
+    def mime_type(self) -> str:
         return self._helper(self._mime_type)
     
     @property
-    def query_args(self):
+    def query_args(self) -> Dict:
         return self._helper(self._query_args)
     
     @property
-    def binary_data(self):
+    def binary_data(self) -> bytes:
         return self._helper(self._binary_data)
     
     @property
-    def text_data(self):
+    def text_data(self) -> str:
         return self._helper(self._text_data)
 
 class HTTPResponse(RPCResponse):
@@ -97,16 +97,16 @@ class HTTPService(RPCService):
     """
     """
     def __init__(self,
-                 serializer: 'Serializer', # To-Do 
-                 authenticator: Optional['Authenticator'] = None,
+                 serialization_handler: 'SerializationHandler', # To-Do 
+                 authn_handler: Optional['AuthenticationHandler'] = None,
                  logging_handler: Optional['LoggingHandler'] = None,
                  tracing_handler: Optional['TracingHandler'] = None,
                  max_content_length: Optional[int] = 6000,
                  setup_tracing_as_middleware: bool = False):
         """
         """
-        super().__init__(serializer=serializer,
-                         authenticator=authenticator,
+        super().__init__(serialization_handler=serialization_handler,
+                         authn_handler=authn_handler,
                          logging_handler=logging_handler,
                          tracing_handler=tracing_handler,
                          max_content_length=max_content_length)
@@ -128,8 +128,8 @@ class HTTPService(RPCService):
                        headers_cls: Optional['ModelMetaKls'] = None,
                        query_cls: Optional['ModelMetaKls'] = None,
                        logging_context: Optional['ModelMetaKls'] = None,
-                       serializer: Optional['Serializer'] = None,
-                       authenticator: Optional['Authenticator'] = None,
+                       serialization_handler: Optional['SerializationHandler'] = None,
+                       authn_handler: Optional['AuthenticationHandler'] = None,
                        logging_handler: Optional['LoggingHandler'] = None,
                        tracing_handler: Optional['TracingHandler'] = None,
                        extras: Optional[Dict] = None,
@@ -148,8 +148,8 @@ class HTTPService(RPCService):
                headers_cls: Optional['ModelMetaKls'] = None,
                query_cls: Optional['ModelMetaKls'] = None,
                logging_context: Optional['ModelMetaKls'] = None,
-               serializer: Optional['Serializer'] = None,
-               authenticator: Optional['Authenticator'] = None,
+               serialization_handler: Optional['SerializationHandler'] = None,
+               authn_handler: Optional['AuthenticationHandler'] = None,
                logging_handler: Optional['LoggingHandler'] = None,
                tracing_handler: Optional['TracingHandler'] = None,
                extras: Optional[Dict] = None,
@@ -162,8 +162,8 @@ class HTTPService(RPCService):
                                    headers_cls=headers_cls,
                                    query_cls=query_cls,
                                    logging_context=logging_context,
-                                   serializer=serializer,
-                                   authenticator=authenticator,
+                                   serialization_handler=serialization_handler,
+                                   authn_handler=authn_handler,
                                    logging_handler=logging_handler,
                                    tracing_handler=tracing_handler,
                                    extras=extras,
@@ -181,8 +181,8 @@ class HTTPService(RPCService):
             headers_cls: Optional['ModelMetaKls'] = None,
             query_cls: Optional['ModelMetaKls'] = None,
             logging_context: Optional['ModelMetaKls'] = None,
-            serializer: Optional['Serializer'] = None,
-            authenticator: Optional['Authenticator'] = None,
+            serialization_handler: Optional['SerializationHandler'] = None,
+            authn_handler: Optional['AuthenticationHandler'] = None,
             logging_handler: Optional['LoggingHandler'] = None,
             tracing_handler: Optional['TracingHandler'] = None,
             extras: Optional[Dict] = None,
@@ -195,8 +195,8 @@ class HTTPService(RPCService):
                                    headers_cls=headers_cls,
                                    query_cls=query_cls,
                                    logging_context=logging_context,
-                                   serializer=serializer,
-                                   authenticator=authenticator,
+                                   serialization_handler=serialization_handler,
+                                   authn_handler=authn_handler,
                                    logging_handler=logging_handler,
                                    tracing_handler=tracing_handler,
                                    extras=extras,
@@ -214,8 +214,8 @@ class HTTPService(RPCService):
                headers_cls: Optional['ModelMetaKls'] = None,
                query_cls: Optional['ModelMetaKls'] = None,
                logging_context: Optional['ModelMetaKls'] = None,
-               serializer: Optional['Serializer'] = None,
-               authenticator: Optional['Authenticator'] = None,
+               serialization_handler: Optional['SerializationHandler'] = None,
+               authn_handler: Optional['AuthenticationHandler'] = None,
                logging_handler: Optional['LoggingHandler'] = None,
                tracing_handler: Optional['TracingHandler'] = None,
                extras: Optional[Dict] = None,
@@ -228,8 +228,8 @@ class HTTPService(RPCService):
                                    headers_cls=headers_cls,
                                    query_cls=query_cls,
                                    logging_context=logging_context,
-                                   serializer=serializer,
-                                   authenticator=authenticator,
+                                   serialization_handler=serialization_handler,
+                                   authn_handler=authn_handler,
                                    logging_handler=logging_handler,
                                    tracing_handler=tracing_handler,
                                    extras=extras,
@@ -247,8 +247,8 @@ class HTTPService(RPCService):
                headers_cls: Optional['ModelMetaKls'] = None,
                query_cls: Optional['ModelMetaKls'] = None,
                logging_context: Optional['ModelMetaKls'] = None,
-               serializer: Optional['Serializer'] = None,
-               authenticator: Optional['Authenticator'] = None,
+               serialization_handler: Optional['SerializationHandler'] = None,
+               authn_handler: Optional['AuthenticationHandler'] = None,
                logging_handler: Optional['LoggingHandler'] = None,
                tracing_handler: Optional['TracingHandler'] = None,
                extras: Optional[Dict] = None,
@@ -261,8 +261,8 @@ class HTTPService(RPCService):
                                    headers_cls=headers_cls,
                                    query_cls=query_cls,
                                    logging_context=logging_context,
-                                   serializer=serializer,
-                                   authenticator=authenticator,
+                                   serialization_handler=serialization_handler,
+                                   authn_handler=authn_handler,
                                    logging_handler=logging_handler,
                                    tracing_handler=tracing_handler,
                                    extras=extras,
@@ -280,8 +280,8 @@ class HTTPService(RPCService):
              headers_cls: Optional['ModelMetaKls'] = None,
              query_cls: Optional['ModelMetaKls'] = None,
              logging_context: Optional['ModelMetaKls'] = None,
-             serializer: Optional['Serializer'] = None,
-             authenticator: Optional['Authenticator'] = None,
+             serialization_handler: Optional['SerializationHandler'] = None,
+             authn_handler: Optional['AuthenticationHandler'] = None,
              logging_handler: Optional['LoggingHandler'] = None,
              tracing_handler: Optional['TracingHandler'] = None,
              extras: Optional[Dict] = None,
@@ -294,8 +294,8 @@ class HTTPService(RPCService):
                                    headers_cls=headers_cls,
                                    query_cls=query_cls,
                                    logging_context=logging_context,
-                                   serializer=serializer,
-                                   authenticator=authenticator,
+                                   serialization_handler=serialization_handler,
+                                   authn_handler=authn_handler,
                                    logging_handler=logging_handler,
                                    tracing_handler=tracing_handler,
                                    extras=extras,
@@ -315,8 +315,8 @@ class HTTPService(RPCService):
                headers_cls: Optional['ModelMetaKls'] = None,
                query_cls: Optional['ModelMetaKls'] = None,
                logging_context: Optional['ModelMetaKls'] = None,
-               serializer: Optional['Serializer'] = None,
-               authenticator: Optional['Authenticator'] = None,
+               serialization_handler: Optional['SerializationHandler'] = None,
+               authn_handler: Optional['AuthenticationHandler'] = None,
                logging_handler: Optional['LoggingHandler'] = None,
                tracing_handler: Optional['TracingHandler'] = None,
                extras: Optional[Dict] = None,
@@ -337,8 +337,8 @@ class HTTPService(RPCService):
                                    headers_cls=headers_cls,
                                    query_cls=query_cls,
                                    logging_context=logging_context,
-                                   serializer=serializer,
-                                   authenticator=authenticator,
+                                   serialization_handler=serialization_handler,
+                                   authn_handler=authn_handler,
                                    logging_handler=logging_handler,
                                    tracing_handler=tracing_handler,
                                    extras=extras,

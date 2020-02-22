@@ -72,9 +72,8 @@ class Model(metaclass=ModelMetaKls):
                 default = self._fields[k].default # pylint: disable=no-member
                 if default:
                     p = default
-                else:
-                    if required:
-                        raise RequiredFieldMissingError(self._fields[k], k) # pylint: disable=no-member
+                elif required:
+                    raise RequiredFieldMissingError(self._fields[k], k) # pylint: disable=no-member
 
             if skip_validation:
                 setattr(self, mask, p)

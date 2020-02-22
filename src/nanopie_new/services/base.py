@@ -32,16 +32,16 @@ class RPCService(ABC):
     """
     """
     def __init__(self,
-                 serializer: 'Serializer',
-                 authenticator: 'Authenticator',
+                 serialization_handler: 'SerializationHandler',
+                 authn_handler: 'AuthenticationHandler',
                  logging_handler: 'LoggingHandler',
                  tracing_handler: 'TracingHandler',
                  max_content_length: int = 6000):
         """
         """
         self.endpoints = []
-        self.serializer = serializer
-        self.authenticator = authenticator
+        self.serialization_handler = serialization_handler
+        self.authn_handler = authn_handler
         self.logging_handler = logging_handler
         self.tracing_handler = tracing_handler
         self.max_content_length = max_content_length

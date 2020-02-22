@@ -4,6 +4,7 @@ from typing import Any, List, Optional
 
 from .model import Field, Model
 from .misc.errors import (
+    RequiredFieldMissingError,
     FieldTypeNotMatchedError,
     ListItemTypeNotMatchedError,
     ListTooLittleItemsError,
@@ -50,8 +51,10 @@ class StringField(Field):
         """
         """
         if type(v) != str:
-            if not self.required and v == None:
-                pass
+            if v == None:
+                if self.required:
+                    raise RequiredFieldMissingError(source=self,
+                                                    assigned_field_name=name)
             else:
                 raise FieldTypeNotMatchedError(source=self,
                                                assigned_field_name=name,
@@ -105,8 +108,10 @@ class FloatField(Field):
         """
         """
         if type(v) != float:
-            if not self.required and v == None:
-                pass
+            if v == None:
+                if self.required:
+                    raise RequiredFieldMissingError(source=self,
+                                                    assigned_field_name=name)
             else:
                 raise FieldTypeNotMatchedError(source=self,
                                                assigned_field_name=name,
@@ -163,8 +168,10 @@ class IntField(Field):
         """
         """
         if type(v) != int:
-            if not self.required and v == None:
-                pass
+            if v == None:
+                if self.required:
+                    raise RequiredFieldMissingError(source=self,
+                                                    assigned_field_name=name)
             else:
                 raise FieldTypeNotMatchedError(source=self,
                                                assigned_field_name=name,
@@ -244,8 +251,10 @@ class ArrayField(Field):
         """
         """
         if type(v) != list:
-            if not self.required and v == None:
-                pass
+            if v == None:
+                if self.required:
+                    raise RequiredFieldMissingError(source=self,
+                                                    assigned_field_name=name)
             else:
                 raise FieldTypeNotMatchedError(source=self,
                                                assigned_field_name=name,
@@ -294,10 +303,11 @@ class ObjectField(Field):
     def validate(self, v: 'Model', name: str = 'unassigned_field'):
         """
         """
-
         if not issubclass(v.__class__, Model):
-            if not self.required and v == None:
-                pass
+            if v == None:
+                if self.required:
+                    raise RequiredFieldMissingError(source=self,
+                                                    assigned_field_name=name)
             else:
                 raise FieldTypeNotMatchedError(source=self,
                                                assigned_field_name=name,
