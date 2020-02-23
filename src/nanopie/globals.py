@@ -1,17 +1,29 @@
 from functools import partial
-from typing import Any
+from typing import Any, Dict
 
 from .proxy import GenericProxy
 
-err_msg = 'Working outside of context.'
+out_of_context_error = ''
+not_set_error = ''
 
 def look_up_attr(ctx: Any, name: str) -> Any:
     """
     """
-    v = getattr(ctx, name, None)
+    v = getattr(ctx, name)
     if not v:
-        raise RuntimeError(err_msg)
+        raise RuntimeError(out_of_context_error)
     return v
 
-logging_context = GenericProxy(partial(look_up_attr, None, 'logging_context'))
-tracing_context = GenericProxy(partial(look_up_attr, None, 'tracing_context'))
+def look_up_item(dikt: Dict, name: str) -> Any:
+    """
+    """
+    v = dikt.get(name)
+    if not v:
+        raise RuntimeError(not_set_error)
+    return v
+
+svc_ctx = GenericProxy(partial(look_up_attr(None, '_svc_ctx')))
+parsed_request = GenericProxy(partial(look_up_item(svc_ctx, 'parsed_request')))
+svc = GenericProxy(partial(look_up_item(svc_ctx, 'svc')))
+endpoint = GenericProxy(partial(look_up_item(svc_ctx, 'endpoint')))
+request = GenericProxy(partial(look_up_item(svc_ctx, 'request')))

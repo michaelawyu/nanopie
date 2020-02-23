@@ -1,26 +1,23 @@
 from abc import ABC, abstractmethod
 from typing import Any, Dict, List, Union
 
-from ..misc.errors import (
-    ModelTypeNotMatchedError,
-    RequiredFieldMissingError,
-    UnrecognizedTypeError
-)
+from .misc import format_error_message
+from .misc.errors import ModelTypeNotMatchedError, RequiredFieldMissingError
 
 class Field(ABC):
     """
     """
     @abstractmethod
     def get_data_type(self) -> type:
-        return type(None)
+        pass
 
     @abstractmethod
-    def validate(self, v: Any, name: str = 'unnamed'):
+    def validate(self, v: Any, name: str = 'unassigned_field'):
         """
         """
-        return False
+        pass
 
-class ModelMetaKls(type):
+class ModelMetaCls(type):
     """
     """
     def __new__(cls, clsname, superclses, attribute_dict):
@@ -31,6 +28,7 @@ class ModelMetaKls(type):
             v = attribute_dict[k]
             if issubclass(v.__class__, Field):
                 user_defined_fields.append((k, v))
+
         fields = {}
         for (name, field) in user_defined_fields:
             # TO-DO: The following field names are reserved:
@@ -56,11 +54,14 @@ class ModelMetaKls(type):
             )
 
         attribute_dict['_fields'] = fields
+        attribute_dict['_extras'] = {}
         return type.__new__(cls, clsname, superclses, attribute_dict)
 
-class Model(metaclass=ModelMetaKls):
+class Model(metaclass=ModelMetaCls):
     """
     """
+    __slots__ = ('_fields', '_extras')
+
     def __init__(self, skip_validation: bool = False, **kwargs):
         """
         """
@@ -72,8 +73,9 @@ class Model(metaclass=ModelMetaKls):
                 default = self._fields[k].default # pylint: disable=no-member
                 if default:
                     p = default
-                elif required:
-                    raise RequiredFieldMissingError(self._fields[k], k) # pylint: disable=no-member
+                else:
+                    if required:
+                        raise RequiredFieldMissingError(self._fields[k], k) # pylint: disable=no-member
 
             if skip_validation:
                 setattr(self, mask, p)
@@ -89,15 +91,22 @@ class Model(metaclass=ModelMetaKls):
             """
             data_type = ref.get_data_type()
 
-            if data_type in [str, int, float, bool]:
+            if data_type in [str, int, float, bool] and \
+               type(data) == data_type:
                 return data
-            elif data_type == List:
+            elif data_type == List and type(data) == list:
                 item_field = ref.item_field
                 return [ helper(item, item_field) for item in data ]
-            elif issubclass(data_type, Model):
+            elif issubclass(data_type, Model) and \
+                 issubclass(data, Model):
                 return data.to_dikt()
             else:
-                raise UnrecognizedTypeError(source=ref, data=data)
+                message = format_error_message(
+                    message='Unsupported data type.',
+                    data=data,
+                    ref=ref
+                )
+                raise RuntimeError(message)
 
         dikt = {}
         for k in self._fields: # pylint: disable=no-member
@@ -117,7 +126,8 @@ class Model(metaclass=ModelMetaKls):
             """
             data_type = ref.get_data_type()
 
-            if data_type in [str, int, float, bool]:
+            if data_type in [str, int, float, bool] and \
+               type(data) == data_type:
                 return data
             elif data_type == List and type(data) == list:
                 item_field = ref.item_field
@@ -125,7 +135,12 @@ class Model(metaclass=ModelMetaKls):
             elif issubclass(data_type, Model) and type(data) == dict:
                 return data_type.from_dikt(data)
             else:
-                raise UnrecognizedTypeError(source=ref, data=data)
+                message = format_error_message(
+                    message='Unsupported data type.',
+                    data=data,
+                    ref=ref
+                )
+                raise RuntimeError(message)
         
         obj = cls(skip_validation=True)
         for k in cls._fields: # pylint: disable=no-member
@@ -151,4 +166,4 @@ class Model(metaclass=ModelMetaKls):
         for k in v._fields:
             field = v._fields[k]
             val = getattr(v, k)
-            field.validate(val)
+            field.validate(v=val, name=k)

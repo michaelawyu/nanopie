@@ -1,98 +1,86 @@
 from abc import ABC, abstractmethod
-from typing import Callable, Dict
+from inspect import signature
+from typing import Callable, Optional
 
-class HTTPAuthenticator(ABC):
+from ..globals import request
+from ..handler import Handler
+from ..services.base import Extractor
+
+class Credential(ABC):
+    """
+    """
+
+class CredentialExtractor(Extractor):
     """
     """
     @abstractmethod
-    def before_validation(self, func: Callable):
+    def extract(self, request: 'RPCRequest') -> 'Credential':
         """
         """
         pass
 
+class CredentialValidator(ABC):
+    """
+    """
     @abstractmethod
-    def after_validation(self, func: Callable):
+    def validate(self, credential: 'Credential'):
         """
         """
         pass
 
-    @abstractmethod
-    def authenticate(self,
-                     auth_ctx: 'AuthContext',
-                     headers: Dict,
-                     query_args: Dict):
+class AuthenticationHandler(Handler):
+    """
+    """
+    def __init__(self,
+                 credential_extractor: 'CredentialExtractor',
+                 credential_validator: 'CredentialValidator'):
         """
         """
-        pass
+        self._credential_extractor = credential_extractor
+        self._credential_validator = credential_validator
+        self._before_authentication = lambda: None
+        self._after_authentication = lambda: None
+        super().__init__()
 
-class AuthContextBase(ABC):
-    """
-    """
-    @property
-    @abstractmethod
-    def jwt(self) -> 'JWT':
+    def __call__(self, *args, **kwargs):
         """
         """
-        return None
-    
-    @property
-    @abstractmethod
-    def user_credential(self) -> 'HTTPBasicUserCredential':
-        """
-        """
-        return None
-    
-    @property
-    @abstractmethod
-    def api_key(self) -> 'APIKey':
-        """
-        """
-        return None
+        credential = self._credential_extractor.extract(request=request)
 
-class AuthContext:
-    """
-    """
-    __slots__ = ('_jwt', '_user_credential', '_api_key')
+        credential_validator = self._before_authentication(self)
+        if not credential_validator:
+            credential_validator = self._credential_validator
+        
+        credential_validator.validate(credential=credential)
 
-    def __init__(self):
-        """
-        """
-        self._jwt = None
-        self._user_credential = None
-        self._api_key = None
+        self._after_authentication(self)
+        
+        return super().__call__(*args, **kwargs)
     
-    @property
-    def jwt(self) -> 'JWT':
+    def before_authentication(self,
+            func: Callable) -> Optional['CredentialValidator']:
         """
         """
-        return self._jwt
+        self._check_signature(func)
+        self._before_authentication = func
+        return func
+
+    def after_authentication(self, func: Callable):
+        """
+        """
+        self._check_signature(func)
+        self._after_authentication = func
+        return func
     
-    @jwt.setter
-    def jwt(self, jwt: 'JWT'):
+    @staticmethod
+    def _check_signature(func: Callable):
         """
         """
-        self._jwt = jwt
-    
-    @property
-    def user_credential(self) -> 'HTTPBasicUserCredentail':
-        """
-        """
-        return self._user_credential
-    
-    @user_credential.setter
-    def user_credential(self, user_credential: 'HTTPBasicUserCredential'):
-        """
-        """
-        self._user_credential = user_credential
-    
-    @property
-    def api_key(self) -> 'APIKey':
-        """
-        """
-        return self._api_key
-    
-    @api_key.setter
-    def api_key(self, api_key: 'APIKey'):
-        """
-        """
-        self._api_key = api_key
+        if not callable(func):
+            raise ValueError('before_authentication and after_authentication '
+                             'must decorate a callable.')
+        parameters = signature(func).parameters
+        if len(parameters) != 1 or not parameters.get('auth_handler'):
+            raise ValueError('before_authentication and after_authentication '
+                             'must decorate a callable with exactly one'
+                             'argument named auth_handler.')

@@ -3,9 +3,10 @@ import logging
 import socket
 from typing import Dict, Optional
 
-from ..globals import logging_context, tracing_context
+from ..globals import request
+from ..logger import logger as package_logger
 
-class DefaultLogRecordFormatter(logging.Formatter):
+class CustomLogRecordFormatter(logging.Formatter):
     """
     """
     def __init__(self,
@@ -13,8 +14,7 @@ class DefaultLogRecordFormatter(logging.Formatter):
                  datefmt: Optional[str] = None,
                  style: str = '%',
                  flatten: bool = False,
-                 merge_logging_context = False,
-                 merge_tracing_context = False,
+                 log_ctx_extractor: Optional['LogContextExtractor'] = None,
                  quiet: bool = True):
         """
         """
@@ -50,10 +50,9 @@ class DefaultLogRecordFormatter(logging.Formatter):
             }
         
         self.__fmt = fmt if fmt else default_fmt
-        self.flatten = flatten
-        self.merge_logging_context = merge_logging_context
-        self.merge_tracing_context = merge_tracing_context
-        self.quiet = quiet
+        self._flatten = flatten
+        self._quiet = quiet
+        self._log_ctx_extractor = log_ctx_extractor
 
     def format(self, record: 'LogRecord'):
         """
@@ -70,7 +69,10 @@ class DefaultLogRecordFormatter(logging.Formatter):
                     v = self.__fmt[k] % record.__dict__
                 dikt[k] = v
             except KeyError as ex:
-                if not self.quiet:
+                warning = ('One or more fields in the format cannot be '
+                           'filled ({}).').format(ex)
+                package_logger.warning(warning)
+                if not self._quiet:
                     raise ex
         
         message = record.msg
@@ -79,21 +81,16 @@ class DefaultLogRecordFormatter(logging.Formatter):
         else:
             dikt['message'] = super().format(record)
 
-        if self.merge_logging_context:
+        if self._log_ctx_extractor:
             try:
-                dikt.update(logging_context.to_dikt())
+                log_ctx = self._log_ctx_extractor.extract(request=request)
+                log_ctx = log_ctx.to_dikt()
             except Exception as ex:
-                if not self.quiet:
+                warning = 'Log context is not available ({}).'.format(ex)
+                if not self._quiet:
                     raise ex
 
-        if self.merge_tracing_context:
-            try:
-                dikt.update(tracing_context.to_dikt())
-            except Exception as ex:
-                if not self.quiet:
-                    raise ex
-
-        if self.flatten:
+        if self._flatten:
             return json.dumps(dikt)
         
         return dikt

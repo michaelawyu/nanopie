@@ -2,9 +2,8 @@ from abc import ABC, abstractmethod
 import re
 from typing import Any, List, Optional
 
-from .base import Field, Model
-from ..misc.errors.base import ValidationError
-from ..misc.errors import (
+from .model import Field, Model
+from .misc.errors import (
     RequiredFieldMissingError,
     FieldTypeNotMatchedError,
     ListItemTypeNotMatchedError,
@@ -12,9 +11,11 @@ from ..misc.errors import (
     ListTooManyItemsError,
     NumberMaxExceededError,
     NumberMinBelowError,
+    RequiredFieldMissingError,
     StringMaxLengthExceededError,
     StringMinLengthBelowError,
-    StringPatternNotMatchedError
+    StringPatternNotMatchedError,
+    ValidationError
 )
 
 class StringField(Field):
@@ -37,11 +38,7 @@ class StringField(Field):
         self.required = required
         self.description = description
         if default:
-            try:
-                self.validate(default, None)
-            except ValidationError as ex:
-                print('Cannot set default value {}.'.format(default))
-                raise ex
+            self.validate(v=default)
         self.default = default
 
     @property
@@ -50,30 +47,32 @@ class StringField(Field):
         """
         return str
 
-    def validate(self, v: Any, name: str = 'unnamed'):
+    def validate(self, v: Any, name: str = 'unassigned_field'):
         """
         """
         if type(v) != str:
-            if not self.required and v == None:
-                pass
+            if v == None:
+                if self.required:
+                    raise RequiredFieldMissingError(source=self,
+                                                    assigned_field_name=name)
             else:
                 raise FieldTypeNotMatchedError(source=self,
-                                               assigned_name=name,
+                                               assigned_field_name=name,
                                                data=v)
 
         if self.max_length and len(v) > self.max_length:
             raise StringMaxLengthExceededError(source=self,
-                                               assigned_name=name,
+                                               assigned_field_name=name,
                                                data=v)
         
         if self.min_length and len(v) < self.min_length:
             raise StringMinLengthBelowError(source=self,
-                                            assigned_name=name,
+                                            assigned_field_name=name,
                                             data=v)
         
         if self.pattern and not re.match(self.pattern, v):
             raise StringPatternNotMatchedError(source=self,
-                                               assigned_name=name,
+                                               assigned_field_name=name,
                                                data=v)
 
 class FloatField(Field):
@@ -96,11 +95,7 @@ class FloatField(Field):
         self.required = required
         self.description = description
         if default:
-            try:
-                self.validate(default)
-            except ValidationError as ex:
-                print('Cannot set default value {}.'.format(default))
-                raise ex
+            self.validate(v=default)
         self.default = default
 
     @property
@@ -109,15 +104,17 @@ class FloatField(Field):
         """
         return float
 
-    def validate(self, v: Any, name: str = 'unnamed'):
+    def validate(self, v: Any, name: str = 'unassigned_field'):
         """
         """
         if type(v) != float:
-            if not self.required and v == None:
-                pass
+            if v == None:
+                if self.required:
+                    raise RequiredFieldMissingError(source=self,
+                                                    assigned_field_name=name)
             else:
                 raise FieldTypeNotMatchedError(source=self,
-                                               assigned_name=name,
+                                               assigned_field_name=name,
                                                data=v)
 
         if self.maximum and v >= self.maximum:
@@ -125,7 +122,7 @@ class FloatField(Field):
                 pass
             else:
                 raise NumberMaxExceededError(source=self,
-                                             assigned_name=name,
+                                             assigned_field_name=name,
                                              data=v)
         
         if self.minimum and v <= self.minimum:
@@ -133,7 +130,7 @@ class FloatField(Field):
                 pass
             else:
                 raise NumberMinBelowError(source=self,
-                                          assigned_name=name,
+                                          assigned_field_name=name,
                                           data=v)
 
 class IntField(Field):
@@ -158,11 +155,7 @@ class IntField(Field):
         self.required = required
         self.description = description
         if default:
-            try:
-                self.validate(default)
-            except ValidationError as ex:
-                print('Cannot set default value {}.'.format(default))
-                raise ex
+            self.validate(v=default)
         self.default = default
 
     @property
@@ -171,15 +164,17 @@ class IntField(Field):
         """
         return int
 
-    def validate(self, v: Any, name: str = 'unnamed'):
+    def validate(self, v: Any, name: str = 'unassigned_field'):
         """
         """
         if type(v) != int:
-            if not self.required and v == None:
-                pass
+            if v == None:
+                if self.required:
+                    raise RequiredFieldMissingError(source=self,
+                                                    assigned_field_name=name)
             else:
                 raise FieldTypeNotMatchedError(source=self,
-                                               assigned_name=name,
+                                               assigned_field_name=name,
                                                data=v)
 
         if self.maximum and v >= self.maximum:
@@ -187,7 +182,7 @@ class IntField(Field):
                 pass
             else:
                 raise NumberMaxExceededError(source=self,
-                                             assigned_name=name,
+                                             assigned_field_name=name,
                                              data=v)
         
         if self.minimum and v <= self.minimum:
@@ -195,7 +190,7 @@ class IntField(Field):
                 pass
             else:
                 raise NumberMinBelowError(source=self,
-                                          assigned_name=name,
+                                          assigned_field_name=name,
                                           data=v)
 
 class BoolField(Field):
@@ -210,11 +205,7 @@ class BoolField(Field):
         self.required = required
         self.description = description
         if default:
-            try:
-                self.validate(default)
-            except ValidationError as ex:
-                print('Cannot set default value {}.'.format(default))
-                raise ex
+            self.validate(v=default)
         self.default = default
 
     @property
@@ -223,7 +214,7 @@ class BoolField(Field):
         """
         return bool
 
-    def validate(self, v: Any, name: str = 'unnamed'):
+    def validate(self, v: Any, name: str = 'unassigned_field'):
         """
         """
         if type(v) != bool:
@@ -247,11 +238,7 @@ class ArrayField(Field):
         self.required = required
         self.description = description
         if default:
-            try:
-                self.validate(default)
-            except ValidationError as ex:
-                print('Cannot set default value {}.'.format(default))
-                raise ex
+            self.validate(v=default)
         self.default = default
 
     @property
@@ -260,31 +247,33 @@ class ArrayField(Field):
         """
         return List
 
-    def validate(self, v: List[Any], name: str = 'unnamed'):
+    def validate(self, v: List[Any], name: str = 'unassigned_field'):
         """
         """
         if type(v) != list:
-            if not self.required and v == None:
-                pass
+            if v == None:
+                if self.required:
+                    raise RequiredFieldMissingError(source=self,
+                                                    assigned_field_name=name)
             else:
                 raise FieldTypeNotMatchedError(source=self,
-                                               assigned_name=name,
+                                               assigned_field_name=name,
                                                data=v)
 
         if self.min_items and len(v) < self.min_items:
             raise ListTooLittleItemsError(source=self,
-                                          assigned_name=name,
+                                          assigned_field_name=name,
                                           data=v)
         
         if self.max_items and len(v) > self.max_items:
             raise ListTooManyItemsError(source=self,
-                                        assigned_name=name,
+                                        assigned_field_name=name,
                                         data=v)
 
         for item in v:
             if type(item) != self.item_field.get_data_type():
                 raise ListItemTypeNotMatchedError(source=self,
-                                                  assigned_name=name,
+                                                  assigned_field_name=name,
                                                   data=v)
             self.item_field.validate(item)
 
@@ -292,7 +281,7 @@ class ObjectField(Field):
     """
     """
     def __init__(self,
-                 model: 'ModelMetaKls',
+                 model: 'ModelMetaCls',
                  required: bool = False,
                  default: Optional['Model'] = None,
                  description: str = ''):
@@ -302,11 +291,7 @@ class ObjectField(Field):
         self.required = required
         self.description = description
         if default:
-            try:
-                self.validate(default)
-            except ValidationError as ex:
-                print('Cannot set default value {}.'.format(default))
-                raise ex
+            self.validate(v=default)
         self.default = default
 
     @property
@@ -315,16 +300,17 @@ class ObjectField(Field):
         """
         return self.model
 
-    def validate(self, v: 'Model', name: str = 'unnamed'):
+    def validate(self, v: 'Model', name: str = 'unassigned_field'):
         """
         """
-
         if not issubclass(v.__class__, Model):
-            if not self.required and v == None:
-                pass
+            if v == None:
+                if self.required:
+                    raise RequiredFieldMissingError(source=self,
+                                                    assigned_field_name=name)
             else:
                 raise FieldTypeNotMatchedError(source=self,
-                                               assigned_name=name,
+                                               assigned_field_name=name,
                                                data=v)
 
         for k in self.model._fields:

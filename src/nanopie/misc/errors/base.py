@@ -1,61 +1,37 @@
-from typing import Any, Optional, Dict, Union
+from typing import Any, Optional, Union
 
-class ErrorBase(Exception):
+class ServiceError(Exception):
     """
     """
-    pass
+    def __init__(self, *args, response: Optional['RPCResponse'] = None):
+        """
+        """
+        self.response = response
+        super().__init__(*args)
 
-class ValidationError(ErrorBase):
+class AuthenticationError(ServiceError):
+    """
+    """
+
+class SerializationError(ServiceError):
+    """
+    """
+
+class ValidationError(ServiceError):
     """
     """
     def __init__(self,
-                 source: Union['Field', 'ModelMetaKls'],
+                 *args,
+                 source: Union['Field', 'ModelMetaCls'],
                  data: Any,
-                 message: Optional[str] = None):
+                 response: Optional['RPCResponse'] = None):
         """
         """
         self.source = source
         self.data = data
-        super().__init__(message)
 
-class SerializationError(ErrorBase):
-    """
-    """
-    def __init__(self,
-                 source: Union['Field', 'ModelMetaKls'],
-                 data: Any,
-                 message: Optional[str] = None):
-        """
-        """
-        self.source = source
-        self.data = data
-        super().__init__(message)
+        super().__init__(*args, response=response)
 
-class CredentialError(ErrorBase):
+class FoundationError(ServiceError):
     """
     """
-    def __init__(self,
-                 message: Optional[str] = None):
-        super().__init__(message)
-
-class AuthenticationError(ErrorBase):
-    """
-    """
-    def __init__(self,
-                 message: Optional[str] = None):
-        super().__init__(message)
-
-class HTTPAuthenticationError(ErrorBase):
-    """
-    """
-    def __init__(self,
-                 http_status_code: int,
-                 headers: Dict,
-                 body_text: str,
-                 message: Optional[str] = None):
-        """
-        """
-        self.http_status_code = http_status_code
-        self.headers = headers
-        self.body_text = body_text
-        super().__init__(message)
