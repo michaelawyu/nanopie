@@ -1,5 +1,6 @@
 from typing import Dict
 
+
 def get_flattenable_dikt(dikt: Dict) -> Dict:
     """
     """
@@ -16,13 +17,14 @@ def get_flattenable_dikt(dikt: Dict) -> Dict:
                     break
             if flag:
                 result[k] = dikt[k]
-    
+
     return result
+
 
 def format_error_message(message, **kwargs):
     """
     """
     if kwargs:
-        message = message + ' ' + str(kwargs)
+        message = message + " " + str(kwargs)
 
     return message

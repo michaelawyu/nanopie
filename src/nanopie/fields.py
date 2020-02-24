@@ -15,20 +15,24 @@ from .misc.errors import (
     StringPatternNotMatchedError,
 )
 
+
 class StringField(Field):
     """
     """
-    def __init__(self,
-                 format: Optional[str] = None, # pylint: disable=redefined-builtin
-                 max_length: Optional[int] = None,
-                 min_length: Optional[int] = None,
-                 pattern: Optional[int] = None,
-                 required: bool = False,
-                 default: Optional[str] = None,
-                 description: str = ''):
+
+    def __init__(
+        self,
+        format: Optional[str] = None,  # pylint: disable=redefined-builtin
+        max_length: Optional[int] = None,
+        min_length: Optional[int] = None,
+        pattern: Optional[int] = None,
+        required: bool = False,
+        default: Optional[str] = None,
+        description: str = "",
+    ):
         """
         """
-        self.format = format # pylint: disable=redefined-builtin
+        self.format = format  # pylint: disable=redefined-builtin
         self.max_length = max_length
         self.min_length = min_length
         self.pattern = pattern
@@ -43,45 +47,50 @@ class StringField(Field):
         """
         return str
 
-    def validate(self, v: Any, name: str = 'unassigned_field'):
+    def validate(self, v: Any, name: str = "unassigned_field"):
         """
         """
         if type(v) != str:
             if v == None:
                 if self.required:
-                    raise RequiredFieldMissingError(source=self,
-                                                    assigned_field_name=name)
+                    raise RequiredFieldMissingError(
+                        source=self, assigned_field_name=name
+                    )
             else:
-                raise FieldTypeNotMatchedError(source=self,
-                                               assigned_field_name=name,
-                                               data=v)
+                raise FieldTypeNotMatchedError(
+                    source=self, assigned_field_name=name, data=v
+                )
 
         if self.max_length and len(v) > self.max_length:
-            raise StringMaxLengthExceededError(source=self,
-                                               assigned_field_name=name,
-                                               data=v)
-        
+            raise StringMaxLengthExceededError(
+                source=self, assigned_field_name=name, data=v
+            )
+
         if self.min_length and len(v) < self.min_length:
-            raise StringMinLengthBelowError(source=self,
-                                            assigned_field_name=name,
-                                            data=v)
-        
+            raise StringMinLengthBelowError(
+                source=self, assigned_field_name=name, data=v
+            )
+
         if self.pattern and not re.match(self.pattern, v):
-            raise StringPatternNotMatchedError(source=self,
-                                               assigned_field_name=name,
-                                               data=v)
+            raise StringPatternNotMatchedError(
+                source=self, assigned_field_name=name, data=v
+            )
+
 
 class FloatField(Field):
     """
     """
-    def __init__(self,
-                 maximum: Optional[float] = None,
-                 exclusive_maximum: Optional[bool] = None,
-                 minimum: Optional[float] = None,
-                 exclusive_minimum: Optional[bool] = None,
-                 required: bool = False,
-                 default: Optional[float] = None,
-                 description: str = ''):
+
+    def __init__(
+        self,
+        maximum: Optional[float] = None,
+        exclusive_maximum: Optional[bool] = None,
+        minimum: Optional[float] = None,
+        exclusive_minimum: Optional[bool] = None,
+        required: bool = False,
+        default: Optional[float] = None,
+        description: str = "",
+    ):
         """
         """
         self.maximum = maximum
@@ -99,47 +108,50 @@ class FloatField(Field):
         """
         return float
 
-    def validate(self, v: Any, name: str = 'unassigned_field'):
+    def validate(self, v: Any, name: str = "unassigned_field"):
         """
         """
         if type(v) != float:
             if v == None:
                 if self.required:
-                    raise RequiredFieldMissingError(source=self,
-                                                    assigned_field_name=name)
+                    raise RequiredFieldMissingError(
+                        source=self, assigned_field_name=name
+                    )
             else:
-                raise FieldTypeNotMatchedError(source=self,
-                                               assigned_field_name=name,
-                                               data=v)
+                raise FieldTypeNotMatchedError(
+                    source=self, assigned_field_name=name, data=v
+                )
 
         if self.maximum and v >= self.maximum:
             if self.exclusive_maximum and v == self.maximum:
                 pass
             else:
-                raise NumberMaxExceededError(source=self,
-                                             assigned_field_name=name,
-                                             data=v)
-        
+                raise NumberMaxExceededError(
+                    source=self, assigned_field_name=name, data=v
+                )
+
         if self.minimum and v <= self.minimum:
             if self.exclusive_minimum and v == self.minimum:
                 pass
             else:
-                raise NumberMinBelowError(source=self,
-                                          assigned_field_name=name,
-                                          data=v)
+                raise NumberMinBelowError(source=self, assigned_field_name=name, data=v)
+
 
 class IntField(Field):
     """
     """
-    def __init__(self,
-                 maximum: Optional[float] = None,
-                 exclusive_maximum: Optional[float] = None,
-                 minimum: Optional[float] = None,
-                 exclusive_minimum: Optional[float] = None,
-                 multiple_of: Optional[int] = None,
-                 required: bool = False,
-                 default: Optional[int] = None,
-                 description: str = ''):
+
+    def __init__(
+        self,
+        maximum: Optional[float] = None,
+        exclusive_maximum: Optional[float] = None,
+        minimum: Optional[float] = None,
+        exclusive_minimum: Optional[float] = None,
+        multiple_of: Optional[int] = None,
+        required: bool = False,
+        default: Optional[int] = None,
+        description: str = "",
+    ):
         """
         """
         self.maximum = maximum
@@ -158,42 +170,45 @@ class IntField(Field):
         """
         return int
 
-    def validate(self, v: Any, name: str = 'unassigned_field'):
+    def validate(self, v: Any, name: str = "unassigned_field"):
         """
         """
         if type(v) != int:
             if v == None:
                 if self.required:
-                    raise RequiredFieldMissingError(source=self,
-                                                    assigned_field_name=name)
+                    raise RequiredFieldMissingError(
+                        source=self, assigned_field_name=name
+                    )
             else:
-                raise FieldTypeNotMatchedError(source=self,
-                                               assigned_field_name=name,
-                                               data=v)
+                raise FieldTypeNotMatchedError(
+                    source=self, assigned_field_name=name, data=v
+                )
 
         if self.maximum and v >= self.maximum:
             if self.exclusive_maximum and v == self.maximum:
                 pass
             else:
-                raise NumberMaxExceededError(source=self,
-                                             assigned_field_name=name,
-                                             data=v)
-        
+                raise NumberMaxExceededError(
+                    source=self, assigned_field_name=name, data=v
+                )
+
         if self.minimum and v <= self.minimum:
             if self.exclusive_minimum and v == self.minimum:
                 pass
             else:
-                raise NumberMinBelowError(source=self,
-                                          assigned_field_name=name,
-                                          data=v)
+                raise NumberMinBelowError(source=self, assigned_field_name=name, data=v)
+
 
 class BoolField(Field):
     """
     """
-    def __init__(self,
-                 required: bool = False,
-                 default: Optional[bool] = None,
-                 description: str = ''):
+
+    def __init__(
+        self,
+        required: bool = False,
+        default: Optional[bool] = None,
+        description: str = "",
+    ):
         """
         """
         self.required = required
@@ -207,22 +222,26 @@ class BoolField(Field):
         """
         return bool
 
-    def validate(self, v: Any, name: str = 'unassigned_field'):
+    def validate(self, v: Any, name: str = "unassigned_field"):
         """
         """
         if type(v) != bool:
-            raise FieldTypeNotMatchedError(self, v, 'bool')
+            raise FieldTypeNotMatchedError(self, v, "bool")
+
 
 class ArrayField(Field):
     """
     """
-    def __init__(self,
-                 item_field: Field,
-                 min_items: Optional[int] = None,
-                 max_items: Optional[int] = None,
-                 required: bool = False,
-                 default: Optional[List[Any]] = None,
-                 description: str = ''):
+
+    def __init__(
+        self,
+        item_field: Field,
+        min_items: Optional[int] = None,
+        max_items: Optional[int] = None,
+        required: bool = False,
+        default: Optional[List[Any]] = None,
+        description: str = "",
+    ):
         """
         """
         self.item_field = item_field
@@ -239,44 +258,45 @@ class ArrayField(Field):
         """
         return List
 
-    def validate(self, v: List[Any], name: str = 'unassigned_field'):
+    def validate(self, v: List[Any], name: str = "unassigned_field"):
         """
         """
         if type(v) != list:
             if v == None:
                 if self.required:
-                    raise RequiredFieldMissingError(source=self,
-                                                    assigned_field_name=name)
+                    raise RequiredFieldMissingError(
+                        source=self, assigned_field_name=name
+                    )
             else:
-                raise FieldTypeNotMatchedError(source=self,
-                                               assigned_field_name=name,
-                                               data=v)
+                raise FieldTypeNotMatchedError(
+                    source=self, assigned_field_name=name, data=v
+                )
 
         if self.min_items and len(v) < self.min_items:
-            raise ListTooLittleItemsError(source=self,
-                                          assigned_field_name=name,
-                                          data=v)
-        
+            raise ListTooLittleItemsError(source=self, assigned_field_name=name, data=v)
+
         if self.max_items and len(v) > self.max_items:
-            raise ListTooManyItemsError(source=self,
-                                        assigned_field_name=name,
-                                        data=v)
+            raise ListTooManyItemsError(source=self, assigned_field_name=name, data=v)
 
         for item in v:
             if type(item) != self.item_field.data_type():
-                raise ListItemTypeNotMatchedError(source=self,
-                                                  assigned_field_name=name,
-                                                  data=v)
+                raise ListItemTypeNotMatchedError(
+                    source=self, assigned_field_name=name, data=v
+                )
             self.item_field.validate(item)
+
 
 class ObjectField(Field):
     """
     """
-    def __init__(self,
-                 model: 'ModelMetaCls',
-                 required: bool = False,
-                 default: Optional['Model'] = None,
-                 description: str = ''):
+
+    def __init__(
+        self,
+        model: "ModelMetaCls",
+        required: bool = False,
+        default: Optional["Model"] = None,
+        description: str = "",
+    ):
         """
         """
         self.model = model
@@ -291,18 +311,19 @@ class ObjectField(Field):
         """
         return self.model
 
-    def validate(self, v: 'Model', name: str = 'unassigned_field'):
+    def validate(self, v: "Model", name: str = "unassigned_field"):
         """
         """
         if not issubclass(v.__class__, Model):
             if v == None:
                 if self.required:
-                    raise RequiredFieldMissingError(source=self,
-                                                    assigned_field_name=name)
+                    raise RequiredFieldMissingError(
+                        source=self, assigned_field_name=name
+                    )
             else:
-                raise FieldTypeNotMatchedError(source=self,
-                                               assigned_field_name=name,
-                                               data=v)
+                raise FieldTypeNotMatchedError(
+                    source=self, assigned_field_name=name, data=v
+                )
 
         for k in self.model._fields:
             child_field = self.model._fields[k]

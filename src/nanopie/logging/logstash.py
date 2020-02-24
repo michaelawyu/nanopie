@@ -2,14 +2,14 @@ from .base import LoggingHandler
 from .formatter import CustomLogRecordFormatter
 from .handlers.logstash import LogstashTCPHandler, LogstashUDPHandler
 
+
 class LogstashLoggingHandler(LoggingHandler):
     """
     """
-    def __init__(self,
-                 host: str = 'localhost',
-                 port: int = 9600,
-                 use_udp: bool = False,
-                 **kwargs):
+
+    def __init__(
+        self, host: str = "localhost", port: int = 9600, use_udp: bool = False, **kwargs
+    ):
         """
         """
         self._host = host
@@ -17,8 +17,8 @@ class LogstashLoggingHandler(LoggingHandler):
         self._use_udp = use_udp
 
         super().__init__(**kwargs)
-    
-    def _setup_logger(self, logger: 'logging.Logger'):
+
+    def _setup_logger(self, logger: "logging.Logger"):
         """
         """
         if self._use_udp:
@@ -32,7 +32,7 @@ class LogstashLoggingHandler(LoggingHandler):
             style=self._style,
             flatten=True,
             log_ctx_extractor=self._log_ctx_extractor,
-            quiet=self._quiet
+            quiet=self._quiet,
         )
         handler.setFormatter(formatter)
         logger.addHandler(handler)

@@ -3,8 +3,9 @@ from typing import Any, Dict
 
 from .proxy import GenericProxy
 
-out_of_context_error = ''
-not_set_error = ''
+out_of_context_error = ""
+not_set_error = ""
+
 
 def look_up_attr(ctx: Any, name: str) -> Any:
     """
@@ -14,6 +15,7 @@ def look_up_attr(ctx: Any, name: str) -> Any:
         raise RuntimeError(out_of_context_error)
     return v
 
+
 def look_up_item(dikt: Dict, name: str) -> Any:
     """
     """
@@ -22,8 +24,9 @@ def look_up_item(dikt: Dict, name: str) -> Any:
         raise RuntimeError(not_set_error)
     return v
 
-svc_ctx = GenericProxy(partial(look_up_attr(None, '_svc_ctx')))
-parsed_request = GenericProxy(partial(look_up_item(svc_ctx, 'parsed_request')))
-svc = GenericProxy(partial(look_up_item(svc_ctx, 'svc')))
-endpoint = GenericProxy(partial(look_up_item(svc_ctx, 'endpoint')))
-request = GenericProxy(partial(look_up_item(svc_ctx, 'request')))
+
+svc_ctx = GenericProxy(partial(look_up_attr(None, "_svc_ctx")))
+parsed_request = GenericProxy(partial(look_up_item(svc_ctx, "parsed_request")))
+svc = GenericProxy(partial(look_up_item(svc_ctx, "svc")))
+endpoint = GenericProxy(partial(look_up_item(svc_ctx, "endpoint")))
+request = GenericProxy(partial(look_up_item(svc_ctx, "request")))

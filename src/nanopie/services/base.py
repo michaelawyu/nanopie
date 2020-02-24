@@ -3,30 +3,34 @@ from typing import Any, Dict, Optional
 
 from ..handler import Handler
 
+
 class RPCRequest(ABC):
     """
     """
 
+
 class Extractor(ABC):
     """
     """
+
     @abstractmethod
-    def extract(self, request: 'RPCRequest') -> Any:
+    def extract(self, request: "RPCRequest") -> Any:
         """
         """
+
 
 class RPCResponse(ABC):
     """
     """
 
+
 class RPCEndpoint(ABC):
     """
     """
-    def __init__(self,
-                 name: str,
-                 rule: str,
-                 entrypoint: Handler,
-                 extras: Optional[Dict] = None):
+
+    def __init__(
+        self, name: str, rule: str, entrypoint: Handler, extras: Optional[Dict] = None
+    ):
         """
         """
         self.name = name
@@ -34,15 +38,19 @@ class RPCEndpoint(ABC):
         self.entrypoint = entrypoint
         self.extras = extras
 
+
 class RPCService(ABC):
     """
     """
-    def __init__(self,
-                 serialization_handler: 'SerializationHandler',
-                 authn_handler: 'AuthenticationHandler',
-                 logging_handler: 'LoggingHandler',
-                 tracing_handler: 'TracingHandler',
-                 max_content_length: int = 6000):
+
+    def __init__(
+        self,
+        serialization_handler: "SerializationHandler",
+        authn_handler: "AuthenticationHandler",
+        logging_handler: "LoggingHandler",
+        tracing_handler: "TracingHandler",
+        max_content_length: int = 6000,
+    ):
         """
         """
         self.endpoints = []
@@ -53,8 +61,6 @@ class RPCService(ABC):
         self.max_content_length = max_content_length
 
     @abstractmethod
-    def add_endpoint(self,
-                     endpoint: RPCEndpoint,
-                     **kwargs):
+    def add_endpoint(self, endpoint: RPCEndpoint, **kwargs):
         """
         """

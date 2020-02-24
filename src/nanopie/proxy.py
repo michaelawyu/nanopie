@@ -1,48 +1,50 @@
 import copy
 from typing import Any, Callable, Dict
 
+
 class GenericProxy:
     """
     """
-    __slots__ = ('_proxy_func')
+
+    __slots__ = "_proxy_func"
 
     def __init__(self, proxy_func: Callable):
         """
         """
-        object.__setattr__(self, '_proxy_func', proxy_func)
-    
+        object.__setattr__(self, "_proxy_func", proxy_func)
+
     def update_proxy_func(self, proxy_func: Callable):
         """
         """
-        object.__setattr__(self, '_proxy_func', proxy_func)
+        object.__setattr__(self, "_proxy_func", proxy_func)
 
     @property
     def wrapped(self) -> object:
         """
         """
-        return object.__getattribute__(self, '_proxy_func')()
-    
+        return object.__getattribute__(self, "_proxy_func")()
+
     @property
     def __dict__(self) -> Dict[str, Any]:
         try:
             return self.wrapped.__dict__
         except RuntimeError:
-            raise AttributeError('__dict__')
-    
+            raise AttributeError("__dict__")
+
     def __repr__(self) -> str:
         try:
             wrapped = self.wrapped
         except RuntimeError:
-            return '<%s unbound>' % self.__class__.__name__
-        
+            return "<%s unbound>" % self.__class__.__name__
+
         return repr(wrapped)
-    
+
     def __bool__(self) -> bool:
         try:
             return bool(self.wrapped)
         except RuntimeError:
             return False
-    
+
     def __dir__(self) -> Any:
         try:
             return dir(self.wrapped)
@@ -50,24 +52,22 @@ class GenericProxy:
             return []
 
     def __getattr__(self, name: str) -> Any:
-        if name == '__members':
+        if name == "__members":
             return dir(self.wrapped)
-        
+
         return object.__getattribute__(self.wrapped, name)
 
     def __setitem__(self, key: Any, value: Any) -> Any:
         self.wrapped[key] = value
-    
+
     def __delitem__(self, key: Any) -> Any:
         del self.wrapped[key]
-    
+
     async def __aiter__(self) -> Any:
         async for x in self.wrapped:
             yield x
 
-    __setattr__ = lambda x, n, v: object.__setattr__(
-        x.wrapped, n, v
-    )
+    __setattr__ = lambda x, n, v: object.__setattr__(x.wrapped, n, v)
     __delattr__ = lambda x, n: object.__delattr__(x.wrapped, n)
     __str__ = lambda x: str(x.wrapped)
     __lt__ = lambda x, o: x.wrapped < o
@@ -106,7 +106,9 @@ class GenericProxy:
     __oct__ = lambda x: oct(x.wrapped)
     __hex__ = lambda x: hex(x.wrapped)
     __index__ = lambda x: x.wrapped.__index__()
-    __coerce__ = lambda x, o: x.wrapped.__coerce__(x, o) # pylint: disable=unnecessary-lambda
+    __coerce__ = lambda x, o: x.wrapped.__coerce__( # pylint: disable=unnecessary-lambda
+        x, o
+    )
     __enter__ = lambda x: x.wrapped.__enter__()
     __exit__ = lambda x, *a, **kw: x.wrapped.__exit__(*a, **kw)
     __radd__ = lambda x, o: o + x.wrapped

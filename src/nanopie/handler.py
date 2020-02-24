@@ -1,8 +1,10 @@
 from typing import Callable
 
-class Handler():
+
+class Handler:
     """
     """
+
     def __init__(self):
         """
         """
@@ -12,7 +14,7 @@ class Handler():
         """
         """
         if self.wrapped:
-            return self.wrapped(*args, **kwargs) # pylint: disable=not-callable
+            return self.wrapped(*args, **kwargs)  # pylint: disable=not-callable
 
     def wraps(self, handler: Handler):
         """
@@ -20,15 +22,17 @@ class Handler():
         self.wrapped = handler
         return handler
 
+
 class SimpleHandler(Handler):
     """
     """
+
     def __init__(self, func: Callable):
         """
         """
         self.func = func
         super().__init__()
-    
+
     def __call__(self, *args, **kwargs):
         res = self.func(*args, **kwargs)
         if res:
