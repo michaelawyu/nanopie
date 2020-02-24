@@ -2,10 +2,10 @@ import re
 
 from setuptools import find_packages, setup
 
-with open('README.md', 'rt', encoding='utf8') as f:
+with open('README.md', 'rt') as f:
     readme = f.read()
 
-with open('src/nanopie/__init__.py', 'rt', encoding='utf8') as f:
+with open('src/nanopie/__init__.py', 'rt') as f:
     version = re.search(r'__version__ = "(.*?)"', f.read()).group(1)
 
 setup(
@@ -22,7 +22,7 @@ setup(
     author_email='michael.a.w.yu@gmail.com',
     maintainer='michaelawyu',
     maintainer_email='michael.a.w.yu@gmail.com',
-    description='A simple framework for building Python microservices and API services.',
+    description='A lightweight framework for building Python microservices and API services.',
     long_description=readme,
     classifiers=[
         'Development Status :: 3 - Alpha',
