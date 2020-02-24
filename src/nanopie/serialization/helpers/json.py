@@ -1,16 +1,18 @@
 import json
-from typing import Dict
+from typing import Dict, Optional
 
 from .base import SerializationHelper
 
 class JSONSerializationHelper(SerializationHelper):
     """
     """
-    def __init__(self, load_args: Dict = {}, dump_args: Dict = {}):
+    def __init__(self,
+                 load_args: Optional[Dict] = None,
+                 dump_args: Optional[Dict] = None):
         """
         """
-        self._load_args = load_args
-        self._dump_args = dump_args
+        self._load_args = load_args if load_args else {}
+        self._dump_args = dump_args if dump_args else {}
 
     @property
     def mime_type(self) -> str:

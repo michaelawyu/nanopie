@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+from functools import partial
 from typing import Any, Dict, List, Union
 
 from .misc import format_error_message
@@ -9,13 +10,13 @@ class Field(ABC):
     """
     @abstractmethod
     def get_data_type(self) -> type:
-        pass
+        """
+        """
 
     @abstractmethod
     def validate(self, v: Any, name: str = 'unassigned_field'):
         """
         """
-        pass
 
 class ModelMetaCls(type):
     """
@@ -36,21 +37,21 @@ class ModelMetaCls(type):
             fields[name] = field
             mask = '_' + name
             
-            def fget(self):
+            def fget(self, mask):
                 return getattr(self, mask)
 
-            def fset(self, v):
+            def fset(self, name, mask, v):
                 self._fields[name].validate(v)
                 setattr(self, mask, v)
 
-            def doc(self):
+            def doc(self, name):
                 return self._fields[name].description
 
             attribute_dict[mask] = None
             attribute_dict[name] = property(
-                fget=fget,
-                fset=fset,
-                doc=doc
+                fget=partial(fget, mask=mask),
+                fset=partial(fset, name=name, mask=mask),
+                doc=partial(doc, name=name)
             )
 
         attribute_dict['_fields'] = fields

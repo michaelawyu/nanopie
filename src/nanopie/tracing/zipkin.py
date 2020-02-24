@@ -1,4 +1,4 @@
-from typing import Dict, Optional
+from typing import Optional
 
 try:
     from opentelemetry.ext import zipkin

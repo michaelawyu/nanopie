@@ -1,10 +1,9 @@
 import pkgutil
-from typing import Dict
 
 try:
     import jwt
     JWT_INSTALLED = True
-except:
+except ImportError:
     JWT_INSTALLED = False
 
 from ..base import Credential, CredentialValidator

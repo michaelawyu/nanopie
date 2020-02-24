@@ -1,5 +1,5 @@
 import logging
-from typing import Any, BinaryIO, Dict, List, Optional, TextIO
+from typing import Any, BinaryIO, Dict, Optional, TextIO
 
 try:
     from google.cloud import logging as stackdriver_logging

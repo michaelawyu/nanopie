@@ -1,10 +1,8 @@
-from abc import ABC, abstractmethod
 import re
 from typing import Any, List, Optional
 
 from .model import Field, Model
 from .misc.errors import (
-    RequiredFieldMissingError,
     FieldTypeNotMatchedError,
     ListItemTypeNotMatchedError,
     ListTooLittleItemsError,
@@ -15,14 +13,13 @@ from .misc.errors import (
     StringMaxLengthExceededError,
     StringMinLengthBelowError,
     StringPatternNotMatchedError,
-    ValidationError
 )
 
 class StringField(Field):
     """
     """
     def __init__(self,
-                 format: Optional[str] = None,
+                 format: Optional[str] = None, # pylint: disable=redefined-builtin
                  max_length: Optional[int] = None,
                  min_length: Optional[int] = None,
                  pattern: Optional[int] = None,
@@ -31,7 +28,7 @@ class StringField(Field):
                  description: str = ''):
         """
         """
-        self.format = format
+        self.format = format # pylint: disable=redefined-builtin
         self.max_length = max_length
         self.min_length = min_length
         self.pattern = pattern
@@ -41,7 +38,6 @@ class StringField(Field):
             self.validate(v=default)
         self.default = default
 
-    @property
     def get_data_type(self) -> type:
         """
         """
@@ -98,7 +94,6 @@ class FloatField(Field):
             self.validate(v=default)
         self.default = default
 
-    @property
     def get_data_type(self) -> type:
         """
         """
@@ -158,7 +153,6 @@ class IntField(Field):
             self.validate(v=default)
         self.default = default
 
-    @property
     def get_data_type(self) -> type:
         """
         """
@@ -208,7 +202,6 @@ class BoolField(Field):
             self.validate(v=default)
         self.default = default
 
-    @property
     def get_data_type(self) -> type:
         """
         """
@@ -241,7 +234,6 @@ class ArrayField(Field):
             self.validate(v=default)
         self.default = default
 
-    @property
     def get_data_type(self) -> type:
         """
         """
@@ -271,7 +263,7 @@ class ArrayField(Field):
                                         data=v)
 
         for item in v:
-            if type(item) != self.item_field.get_data_type():
+            if type(item) != self.item_field.data_type():
                 raise ListItemTypeNotMatchedError(source=self,
                                                   assigned_field_name=name,
                                                   data=v)
@@ -294,7 +286,6 @@ class ObjectField(Field):
             self.validate(v=default)
         self.default = default
 
-    @property
     def get_data_type(self) -> type:
         """
         """

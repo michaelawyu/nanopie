@@ -1,7 +1,4 @@
-from typing import Dict, List, Optional
-
 try:
-    import fluent
     from fluent import handler as fluent_handler
     FLUENT_INSTALLED = True
 except ImportError:

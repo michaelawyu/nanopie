@@ -1,5 +1,5 @@
 from abc import abstractmethod
-from typing import Any, Dict, Optional
+from typing import Dict, Optional
 
 try:
     from opentelemetry import trace
@@ -14,7 +14,7 @@ try:
 except ImportError:
     OPENTELEMETRY_INSTALLED = False
 
-from ..globals import endpoint, request
+from ..globals import endpoint, request as request_proxy
 from ..handler import Handler
 from ..logger import logger
 from ..misc import get_flattenable_dikt
@@ -29,14 +29,12 @@ class TraceContext(Model):
     def trace_id(self) -> int:
         """
         """
-        pass
 
     @property
     @abstractmethod
     def span_id(self) -> int:
         """
         """
-        pass
 
     @property
     @abstractmethod
@@ -55,7 +53,6 @@ class TraceContext(Model):
     def process(self):
         """
         """
-        pass
 
 class TraceContextExtractor(Extractor):
     """
@@ -64,8 +61,6 @@ class TraceContextExtractor(Extractor):
     def extract(self, request: 'RPCRequest') -> 'TraceContext':
         """
         """
-        pass
-
 
 class OpenTelemetryTracingHandler(Handler):
     """
@@ -124,13 +119,15 @@ class OpenTelemetryTracingHandler(Handler):
         else:
             self._sampler = with_sampler if with_sampler \
                 else ProbabilitySampler(rate=probability)
+        
+        self._tracer_source = None
 
         super().__init__()
     
     def _setup_tracer_source(self):
         """
         """
-        if not getattr(self, '_tracer_source'):
+        if not self._tracer_source:
             tracer_source = TracerSource(sampler=self._sampler)
             for processor in self._span_processers:
                 tracer_source.add_span_processor(processor)
@@ -141,7 +138,7 @@ class OpenTelemetryTracingHandler(Handler):
     def get_tracing_ctx(self):
         """
         """
-        return self._trace_ctx_extractor.extract(request=request)
+        return self._trace_ctx_extractor.extract(request=request_proxy)
     
     def get_tracer(self):
         """
@@ -170,11 +167,11 @@ class OpenTelemetryTracingHandler(Handler):
                         trace_options=trace_options,
                         trace_state=trace_state)
                     assert(current_span.is_valid())
-                except Exception as ex:
+                except Exception as ex: # pylint: disable=broad-except
                     warning = ('Trace context is not available ({}); '
                                'starting a new span without '
-                               'propagation instead.')
-                    logger.warning(warning.format(ex))
+                               'propagation instead.').format(ex)
+                    logger.warning(warning)
                     if not self._quiet:
                         raise ex
 

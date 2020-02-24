@@ -2,7 +2,6 @@ import base64
 
 from .base import CredentialExtractor, AuthenticationHandler
 from .creds.user_credential import UserCredential
-from ..globals import request
 from ..misc.errors import AuthenticationError
 from ..services.http.base import HTTPResponse
 
@@ -12,8 +11,8 @@ INVALID_HEADER_RESPONSE = HTTPResponse(
         'WWW-Authenticate': 'Basic'
     },
     mime_type='text/html',
-    text_data=('<h2>401 Unauthorized: must include an HTTP Authorization '
-               'request header of the Basic type.</h2>')
+    data=('<h2>401 Unauthorized: must include an HTTP Authorization '
+          'request header of the Basic type.</h2>')
 )
 INVALID_CREDENTIAL_RESPONSE = HTTPResponse(
     status_code=403,
@@ -21,8 +20,8 @@ INVALID_CREDENTIAL_RESPONSE = HTTPResponse(
         'WWW-Authenticate': 'Basic'
     },
     mime_type='text/html',
-    text_data=('<h2>403 Forbidden: the provided user credential is not valid '
-               '</h2>')
+    data=('<h2>403 Forbidden: the provided user credential is not valid '
+          '</h2>')
 )
 
 class HTTPBasicUserCredentialExtractor(CredentialExtractor):

@@ -10,6 +10,8 @@ class SerializationHandler(Handler):
         """
         self._serialization_helper = serialization_helper
 
+        super().__init__()
+
     @abstractmethod
     def __call__(self, *args, **kwargs):
         """

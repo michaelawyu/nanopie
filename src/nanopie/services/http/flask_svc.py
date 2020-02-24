@@ -1,5 +1,4 @@
 from functools import partial
-from typing import Dict, Optional
 
 try:
     import flask
@@ -7,7 +6,8 @@ try:
 except ImportError:
     FLASK_INSTALLED = False
 
-from .base import HTTPEndpoint, HTTPRequest, HTTPResponse, HTTPService
+from .base import HTTPRequest, HTTPResponse, HTTPService
+from ...misc.errors import ServiceError
 
 class FlaskService(HTTPService):
     """
@@ -26,19 +26,10 @@ class FlaskService(HTTPService):
         super().__init__(**kwargs)
 
     def add_endpoint(self,
-                     name: str,
-                     rule: str,
-                     method: str,
-                     entrypoint: 'Handler',
-                     extras: Optional[Dict] = None,
+                     endpoint: 'HTTPEndpoint',
                      **kwargs):
         """
         """
-        endpoint = HTTPEndpoint(name=name,
-                                rule=rule,
-                                method=method,
-                                entrypoint=entrypoint,
-                                extras=extras)
         svc = self
 
         def view_func(*args, **kwargs):
@@ -52,12 +43,18 @@ class FlaskService(HTTPService):
                 text_data=partial(flask.request.get_data, as_text=True)
             )
             svc_ctx = {}
-            flask.g._svc_ctx = svc_ctx
+            flask.g._svc_ctx = svc_ctx # pylint: disable=protected-access
             svc_ctx['svc'] = svc
             svc_ctx['endpoint'] = endpoint
             svc_ctx['request'] = request
 
-            res = entrypoint(*args, **kwargs)
+            try:
+                res = endpoint.entrypoint(*args, **kwargs)
+            except ServiceError as ex:
+                if ex.response:
+                    res = ex.response
+                else:
+                    raise ex
 
             if isinstance(res, HTTPResponse):
                 return flask.make_response((
@@ -68,10 +65,10 @@ class FlaskService(HTTPService):
 
             return res
 
-        self._app.add_url_rule(rule=rule,
-                               endpoint=name,
+        self._app.add_url_rule(rule=endpoint.rule,
+                               endpoint=endpoint.name,
                                view_func=view_func,
-                               methods=[method],
+                               methods=[endpoint.method],
                                **kwargs)
 
         self.endpoints.append(endpoint)

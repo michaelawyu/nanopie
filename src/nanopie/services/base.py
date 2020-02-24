@@ -1,8 +1,7 @@
 from abc import ABC, abstractmethod
-from functools import partial, wraps
-from typing import Any, Callable, Dict, Optional
+from typing import Any, Dict, Optional
 
-from ..handler import Handler, SimpleHandler
+from ..handler import Handler
 
 class RPCRequest(ABC):
     """
@@ -15,7 +14,6 @@ class Extractor(ABC):
     def extract(self, request: 'RPCRequest') -> Any:
         """
         """
-        pass
 
 class RPCResponse(ABC):
     """
@@ -28,8 +26,7 @@ class RPCEndpoint(ABC):
                  name: str,
                  rule: str,
                  entrypoint: Handler,
-                 extras: Optional[Dict] = None,
-                 **kwargs):
+                 extras: Optional[Dict] = None):
         """
         """
         self.name = name
@@ -61,4 +58,3 @@ class RPCService(ABC):
                      **kwargs):
         """
         """
-        pass

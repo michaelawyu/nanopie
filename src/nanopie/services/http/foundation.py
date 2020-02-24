@@ -22,6 +22,8 @@ class HTTPFoundationHandler(Handler):
         """
         self._max_content_length = max_content_length
 
+        super().__init__()
+
     def __call__(self, *args, **kwargs):
         """
         """

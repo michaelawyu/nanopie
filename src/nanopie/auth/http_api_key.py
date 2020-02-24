@@ -1,6 +1,5 @@
 from .base import CredentialExtractor, AuthenticationHandler
 from .creds.key import Key
-from ..globals import request
 from ..misc.errors import AuthenticationError
 from ..services.http.base import HTTPResponse
 

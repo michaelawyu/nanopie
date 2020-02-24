@@ -1,10 +1,12 @@
 from abc import abstractmethod
-from typing import Any, Callable, Dict, List, Optional
+from typing import Any, Callable, Dict, Optional
 
 from ..base import RPCEndpoint, RPCRequest, RPCResponse, RPCService
 from .foundation import HTTPFoundationHandler
-from ...handler import Handler, SimpleHandler
+from ...handler import SimpleHandler
 from .methods import HTTPMethods
+from ...serialization.http import HTTPSerializationHandler
+from ...serialization.helpers.json import JSONSerializationHelper
 
 class HTTPRequest(RPCRequest):
     """
@@ -211,7 +213,14 @@ class HTTPResponse(RPCResponse):
 class HTTPEndpoint(RPCEndpoint):
     """
     """
-    pass
+    def __init__(self,
+                 method: str,
+                 **kwargs):
+        """
+        """
+        self.method = method
+        
+        super().__init__(**kwargs)
 
 class HTTPService(RPCService):
     """
@@ -232,11 +241,7 @@ class HTTPService(RPCService):
 
     @abstractmethod
     def add_endpoint(self,
-                     name: str,
-                     rule: str,
-                     method: str,
-                     entrypoint: Handler,
-                     extras: Optional[Dict] = None,
+                     endpoint: 'HTTPEndpoint',
                      **kwargs):
         pass
     
@@ -244,9 +249,6 @@ class HTTPService(RPCService):
                        name: str,
                        rule: str,
                        method: str,
-                       data_cls: Optional['ModelMetaCls'] = None,
-                       headers_cls: Optional['ModelMetaCls'] = None,
-                       query_args_cls: Optional['ModelMetaCls'] = None,
                        serialization_handler: Optional['SerializationHandler'] = None,
                        authn_handler: Optional['AuthenticationHandler'] = None,
                        logging_handler: Optional['LoggingHandler'] = None,
@@ -274,15 +276,20 @@ class HTTPService(RPCService):
         elif self.tracing_handler:
             handler = handler.wraps(self.tracing_handler)
         
+        if serialization_handler:
+            handler = handler.wraps(serialization_handler)
+        elif self.serialization_handler:
+            handler = handler.wraps(self.serialization_handler)
+        
         def wrapper(func):
             simple_handler = SimpleHandler(func=func)
             handler.wraps(simple_handler)
-            self.add_endpoint(name=name,
-                              rule=rule,
-                              method=method,
-                              entrypoint=entrypoint,
-                              extras=extras,
-                              **options)
+            endpoint = HTTPEndpoint(name=name,
+                                    rule=rule,
+                                    method=method,
+                                    entrypoint=entrypoint,
+                                    extras=extras)
+            self.add_endpoint(endpoint, **options)
             return func
 
         return wrapper
@@ -293,7 +300,7 @@ class HTTPService(RPCService):
                data_cls: 'ModelMetaCls',
                headers_cls: Optional['ModelMetaCls'] = None,
                query_args_cls: Optional['ModelMetaCls'] = None,  
-               serialization_handler: Optional['SerializationHandler'] = None,
+               serialization_helper: 'SerializationHelper' = JSONSerializationHelper,
                authn_handler: Optional['AuthenticationHandler'] = None,
                logging_handler: Optional['LoggingHandler'] = None,
                tracing_handler: Optional['TracingHandler'] = None,
@@ -301,12 +308,15 @@ class HTTPService(RPCService):
                **options):
         """
         """
+        serialization_handler = HTTPSerializationHandler(
+            headers_cls=headers_cls,
+            query_args_cls=query_args_cls,
+            data_cls=data_cls,
+            serialization_handler=serialization_helper
+        )
         return self._rest_endpoint(name=name,
                                    rule=rule,
                                    method=HTTPMethods.POST,
-                                   data_cls=data_cls,
-                                   headers_cls=headers_cls,
-                                   query_args_cls=query_args_cls,
                                    serialization_handler=serialization_handler,
                                    authn_handler=authn_handler,
                                    logging_handler=logging_handler,
@@ -325,7 +335,7 @@ class HTTPService(RPCService):
             data_cls: Optional['ModelMetaCls'] = None,
             headers_cls: Optional['ModelMetaCls'] = None,
             query_args_cls: Optional['ModelMetaCls'] = None,
-            serialization_handler: Optional['SerializationHandler'] = None,
+            serialization_helper: 'SerializationHelper' = JSONSerializationHelper,
             authn_handler: Optional['AuthenticationHandler'] = None,
             logging_handler: Optional['LoggingHandler'] = None,
             tracing_handler: Optional['TracingHandler'] = None,
@@ -333,12 +343,15 @@ class HTTPService(RPCService):
             **options):
         """
         """
+        serialization_handler = HTTPSerializationHandler(
+            headers_cls=headers_cls,
+            query_args_cls=query_args_cls,
+            data_cls=data_cls,
+            serialization_handler=serialization_helper
+        )
         return self._rest_endpoint(name=name,
                                    rule=rule,
                                    method=HTTPMethods.GET,
-                                   data_cls=data_cls,
-                                   headers_cls=headers_cls,
-                                   query_args_cls=query_args_cls,
                                    serialization_handler=serialization_handler,
                                    authn_handler=authn_handler,
                                    logging_handler=logging_handler,
@@ -357,7 +370,7 @@ class HTTPService(RPCService):
                data_cls: 'ModelMetaCls',
                headers_cls: Optional['ModelMetaCls'] = None,
                query_args_cls: Optional['ModelMetaCls'] = None,
-               serialization_handler: Optional['SerializationHandler'] = None,
+               serialization_helper: 'SerializationHelper' = JSONSerializationHelper,
                authn_handler: Optional['AuthenticationHandler'] = None,
                logging_handler: Optional['LoggingHandler'] = None,
                tracing_handler: Optional['TracingHandler'] = None,
@@ -365,12 +378,15 @@ class HTTPService(RPCService):
                **options):
         """
         """
+        serialization_handler = HTTPSerializationHandler(
+            headers_cls=headers_cls,
+            query_args_cls=query_args_cls,
+            data_cls=data_cls,
+            serialization_handler=serialization_helper
+        )
         return self._rest_endpoint(name=name,
                                    rule=rule,
                                    method=HTTPMethods.PATCH,
-                                   data_cls=data_cls,
-                                   headers_cls=headers_cls,
-                                   query_args_cls=query_args_cls,
                                    serialization_handler=serialization_handler,
                                    authn_handler=authn_handler,
                                    logging_handler=logging_handler,
@@ -389,7 +405,7 @@ class HTTPService(RPCService):
                data_cls: Optional['ModelMetaCls'] = None,
                headers_cls: Optional['ModelMetaCls'] = None,
                query_args_cls: Optional['ModelMetaCls'] = None,
-               serialization_handler: Optional['SerializationHandler'] = None,
+               serialization_helper: 'SerializationHelper' = JSONSerializationHelper,
                authn_handler: Optional['AuthenticationHandler'] = None,
                logging_handler: Optional['LoggingHandler'] = None,
                tracing_handler: Optional['TracingHandler'] = None,
@@ -397,12 +413,15 @@ class HTTPService(RPCService):
                **options):
         """
         """
+        serialization_handler = HTTPSerializationHandler(
+            headers_cls=headers_cls,
+            query_args_cls=query_args_cls,
+            data_cls=data_cls,
+            serialization_handler=serialization_helper
+        )
         return self._rest_endpoint(name=name,
                                    rule=rule,
                                    method=HTTPMethods.DELETE,
-                                   data_cls=data_cls,
-                                   headers_cls=headers_cls,
-                                   query_args_cls=query_args_cls,
                                    serialization_handler=serialization_handler,
                                    authn_handler=authn_handler,
                                    logging_handler=logging_handler,
@@ -421,7 +440,7 @@ class HTTPService(RPCService):
              data_cls: Optional['ModelMetaCls'] = None,
              headers_cls: Optional['ModelMetaCls'] = None,
              query_args_cls: Optional['ModelMetaCls'] = None,
-             serialization_handler: Optional['SerializationHandler'] = None,
+             serialization_helper: 'SerializationHelper' = JSONSerializationHelper,
              authn_handler: Optional['AuthenticationHandler'] = None,
              logging_handler: Optional['LoggingHandler'] = None,
              tracing_handler: Optional['TracingHandler'] = None,
@@ -429,12 +448,15 @@ class HTTPService(RPCService):
              **options):
         """
         """
+        serialization_handler = HTTPSerializationHandler(
+            headers_cls=headers_cls,
+            query_args_cls=query_args_cls,
+            data_cls=data_cls,
+            serialization_handler=serialization_helper
+        )
         return self._rest_endpoint(name=name,
                                    rule=rule,
                                    method=HTTPMethods.GET,
-                                   data_cls=data_cls,
-                                   headers_cls=headers_cls,
-                                   query_args_cls=query_args_cls,
                                    serialization_handler=serialization_handler,
                                    authn_handler=authn_handler,
                                    logging_handler=logging_handler,
@@ -455,7 +477,7 @@ class HTTPService(RPCService):
                data_cls: Optional['ModelMetaCls'] = None,
                headers_cls: Optional['ModelMetaCls'] = None,
                query_args_cls: Optional['ModelMetaCls'] = None,
-               serialization_handler: Optional['SerializationHandler'] = None,
+               serialization_helper: 'SerializationHelper' = JSONSerializationHelper,
                authn_handler: Optional['AuthenticationHandler'] = None,
                logging_handler: Optional['LoggingHandler'] = None,
                tracing_handler: Optional['TracingHandler'] = None,
@@ -467,16 +489,19 @@ class HTTPService(RPCService):
             rule = rule[:-1]
         rule = '{}:{}'.format(rule, verb)
 
-        if method not in HTTPMethods.all_methods:
+        if method not in HTTPMethods.supported_methods:
             raise ValueError('{} is not a supported HTTP method ({}).'.format(
-                                method, HTTPMethods.all_methods))
-
+                                method, HTTPMethods.supported_methods))
+        
+        serialization_handler = HTTPSerializationHandler(
+            headers_cls=headers_cls,
+            query_args_cls=query_args_cls,
+            data_cls=data_cls,
+            serialization_handler=serialization_helper
+        )
         return self._rest_endpoint(name=name,
                                    rule=rule,
                                    method=method,
-                                   data_cls=data_cls,
-                                   headers_cls=headers_cls,
-                                   query_args_cls=query_args_cls,
                                    serialization_handler=serialization_handler,
                                    authn_handler=authn_handler,
                                    logging_handler=logging_handler,

@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 from inspect import signature
 from typing import Callable, Optional
 
-from ..globals import request
+from ..globals import request as request_proxy
 from ..handler import Handler
 from ..services.base import Extractor
 
@@ -17,7 +17,6 @@ class CredentialExtractor(Extractor):
     def extract(self, request: 'RPCRequest') -> 'Credential':
         """
         """
-        pass
 
 class CredentialValidator(ABC):
     """
@@ -26,7 +25,6 @@ class CredentialValidator(ABC):
     def validate(self, credential: 'Credential'):
         """
         """
-        pass
 
 class AuthenticationHandler(Handler):
     """
@@ -45,7 +43,7 @@ class AuthenticationHandler(Handler):
     def __call__(self, *args, **kwargs):
         """
         """
-        credential = self._credential_extractor.extract(request=request)
+        credential = self._credential_extractor.extract(request=request_proxy)
 
         credential_validator = self._before_authentication(self)
         if not credential_validator:

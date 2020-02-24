@@ -85,7 +85,7 @@ class CustomLogRecordFormatter(logging.Formatter):
             try:
                 log_ctx = self._log_ctx_extractor.extract(request=request)
                 log_ctx = log_ctx.to_dikt()
-            except Exception as ex:
+            except Exception as ex: # pylint: disable=broad-except
                 warning = 'Log context is not available ({}).'.format(ex)
                 if not self._quiet:
                     raise ex

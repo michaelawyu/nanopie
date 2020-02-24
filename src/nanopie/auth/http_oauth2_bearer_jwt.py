@@ -2,7 +2,6 @@ from typing import Optional
 
 from .base import CredentialExtractor, AuthenticationHandler
 from .creds.jwt import JWT, JWTValidator
-from ..globals import request
 from ..misc.errors import AuthenticationError
 from ..services.http.base import HTTPResponse
 

@@ -1,7 +1,4 @@
-import logging
-from typing import Dict, List, Optional
-
-from .base import LoggingHandlerModes, LoggingHandler
+from .base import LoggingHandler
 from .formatter import CustomLogRecordFormatter
 from .handlers.logstash import LogstashTCPHandler, LogstashUDPHandler
 

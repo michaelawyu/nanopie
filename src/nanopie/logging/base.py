@@ -5,7 +5,6 @@ from typing import Dict, List, Optional
 from .formatter import CustomLogRecordFormatter
 from ..globals import endpoint
 from ..handler import Handler
-from ..logger import logger as package_logger
 from ..model import Model
 from ..services.base import Extractor
 
@@ -20,7 +19,6 @@ class LogContextExtractor(Extractor):
     def extract(self, request: 'Request') -> 'LogContext':
         """
         """
-        pass
 
 class LoggingHandlerModes:
     """
@@ -70,9 +68,12 @@ class LoggingHandler(Handler):
         if not span_name:
             span_name = endpoint.name
 
-        logger.info('Entering {}'.format(span_name))
+        entering = 'Entering {}'.format(span_name)
+        exiting = 'Exiting {}'.format(span_name)
+
+        logger.info(entering)
         res = super().__call__(*args, **kwargs)
-        logger.info('Exiting {}'.format(span_name))
+        logger.info(exiting)
         return res
         
     def _setup_logger(self, logger: 'logging.Logger'):
