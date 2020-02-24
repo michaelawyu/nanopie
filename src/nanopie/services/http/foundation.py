@@ -4,7 +4,7 @@ from ...globals import request
 from ...handler import Handler
 from ...misc import format_error_message
 from ...misc.errors import FoundationError
-from ...services.http.base import HTTPResponse
+from .io import HTTPResponse
 
 REQUEST_TOO_LARGE_RESPONSE = HTTPResponse(
     status_code=400,

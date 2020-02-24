@@ -1,8 +1,10 @@
 from .base import (
+    HTTPService
+)
+from .io import (
     HTTPEndpoint,
     HTTPRequest,
     HTTPResponse,
-    HTTPService
 )
 from .flask_svc import FlaskService
 from .foundation import HTTPFoundationHandler

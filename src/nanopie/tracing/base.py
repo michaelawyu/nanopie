@@ -76,7 +76,7 @@ class OpenTelemetryTracingHandler(Handler):
         self,
         with_span_name: Optional[str] = None,
         with_span_attributes: Optional[Dict] = None,
-        with_span_kind: "SpanKind" = trace.SpanKind.SERVER,
+        with_span_kind: "SpanKind" = None,
         with_endpoint_config: bool = True,
         with_endpoint_extras: bool = False,
         propagated: bool = False,
@@ -104,6 +104,8 @@ class OpenTelemetryTracingHandler(Handler):
         self._with_span_name = with_span_name
         self._with_span_attributes = with_span_attributes
         self._with_span_kind = with_span_kind
+        if not with_span_kind:
+            self._with_span_kind = trace.SpanKind.SERVER
         self._with_endpoint_config = with_endpoint_config
         self._with_endpoint_extras = with_endpoint_extras
 

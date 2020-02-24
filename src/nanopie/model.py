@@ -67,7 +67,7 @@ class Model(metaclass=ModelMetaCls):
     """
     """
 
-    __slots__ = ("_fields", "_extras")
+    __slots__ = ()
 
     def __init__(self, skip_validation: bool = False, **kwargs):
         """

@@ -25,8 +25,8 @@ def look_up_item(dikt: Dict, name: str) -> Any:
     return v
 
 
-svc_ctx = GenericProxy(partial(look_up_attr(None, "_svc_ctx")))
-parsed_request = GenericProxy(partial(look_up_item(svc_ctx, "parsed_request")))
-svc = GenericProxy(partial(look_up_item(svc_ctx, "svc")))
-endpoint = GenericProxy(partial(look_up_item(svc_ctx, "endpoint")))
-request = GenericProxy(partial(look_up_item(svc_ctx, "request")))
+svc_ctx = GenericProxy(partial(look_up_attr, ctx=None, name='_svc_ctx'))
+parsed_request = GenericProxy(partial(look_up_item, dikt=svc_ctx, name='parsed_request'))
+svc = GenericProxy(partial(look_up_item, dikt=svc_ctx, name='svc'))
+endpoint = GenericProxy(partial(look_up_item, dikt=svc_ctx, name='endpoint'))
+request = GenericProxy(partial(look_up_item, dikt=svc_ctx, name='request'))

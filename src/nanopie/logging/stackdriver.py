@@ -1,21 +1,24 @@
 import logging
-from typing import Any, BinaryIO, Dict, Optional, TextIO
+from typing import BinaryIO, Dict, Optional, TextIO, Union
 
 try:
     from google.cloud import logging as stackdriver_logging
-
     STACKDRIVER_INSTALLED = True
 except ImportError:
     STACKDRIVER_INSTALLED = False
 
 from .base import LoggingHandlerModes, LoggingHandler
 from .formatter import CustomLogRecordFormatter
-from .handlers.stackdriver import (
-    DEFAULT_LOGGER_NAME,
-    StackdriverHandler,
-    PatchedSyncTransport,
-    _GLOBAL_RESOURCE,
-)
+
+try:
+    from .handlers.stackdriver import (
+        DEFAULT_LOGGER_NAME,
+        StackdriverHandler,
+        PatchedSyncTransport,
+        _GLOBAL_RESOURCE,
+    )
+except:
+    STACKDRIVER_INSTALLED = False
 
 
 class StackdriverLoggingHandler(LoggingHandler):
@@ -28,7 +31,7 @@ class StackdriverLoggingHandler(LoggingHandler):
         custom_log_name: Optional[str] = None,
         resource: Optional["stackdriver_logging.resource.Resource"] = None,
         labels: Optional[Dict] = None,
-        stream: Optional[Any[TextIO, BinaryIO]] = None,
+        stream: Optional[Union[TextIO, BinaryIO]] = None,
         level: int = logging.INFO,
         fmt: Optional[Dict] = None,
         datefmt: Optional[str] = None,

@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import Any, Dict
+from typing import Dict, Union
 
 
 class SerializationHelper(ABC):
@@ -19,11 +19,11 @@ class SerializationHelper(ABC):
         """
 
     @abstractmethod
-    def from_data(self, data: Any[str, bytes]) -> Dict:
+    def from_data(self, data: Union[str, bytes]) -> Dict:
         """
         """
 
     @abstractmethod
-    def to_data(self, dikt: Dict) -> Any[str, bytes]:
+    def to_data(self, dikt: Dict) -> Union[str, bytes]:
         """
         """

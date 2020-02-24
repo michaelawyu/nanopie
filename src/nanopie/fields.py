@@ -84,9 +84,9 @@ class FloatField(Field):
     def __init__(
         self,
         maximum: Optional[float] = None,
-        exclusive_maximum: Optional[bool] = None,
+        exclusive_maximum: bool = False,
         minimum: Optional[float] = None,
-        exclusive_minimum: Optional[bool] = None,
+        exclusive_minimum: bool = False,
         required: bool = False,
         default: Optional[float] = None,
         description: str = "",
@@ -123,7 +123,7 @@ class FloatField(Field):
                 )
 
         if self.maximum and v >= self.maximum:
-            if self.exclusive_maximum and v == self.maximum:
+            if v == self.maximum and not self.exclusive_maximum:
                 pass
             else:
                 raise NumberMaxExceededError(
@@ -131,10 +131,12 @@ class FloatField(Field):
                 )
 
         if self.minimum and v <= self.minimum:
-            if self.exclusive_minimum and v == self.minimum:
+            if v == self.minimum and not self.exclusive_minimum:
                 pass
             else:
-                raise NumberMinBelowError(source=self, assigned_field_name=name, data=v)
+                raise NumberMinBelowError(source=self,
+                                          assigned_field_name=name,
+                                          data=v)
 
 
 class IntField(Field):
@@ -185,7 +187,7 @@ class IntField(Field):
                 )
 
         if self.maximum and v >= self.maximum:
-            if self.exclusive_maximum and v == self.maximum:
+            if v == self.maximum and not self.exclusive_maximum:
                 pass
             else:
                 raise NumberMaxExceededError(
@@ -193,10 +195,12 @@ class IntField(Field):
                 )
 
         if self.minimum and v <= self.minimum:
-            if self.exclusive_minimum and v == self.minimum:
+            if v == self.minimum and not self.exclusive_minimum:
                 pass
             else:
-                raise NumberMinBelowError(source=self, assigned_field_name=name, data=v)
+                raise NumberMinBelowError(source=self,
+                                          assigned_field_name=name,
+                                          data=v)
 
 
 class BoolField(Field):

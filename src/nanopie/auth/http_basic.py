@@ -3,7 +3,7 @@ import base64
 from .base import CredentialExtractor, AuthenticationHandler
 from .creds.user_credential import UserCredential
 from ..misc.errors import AuthenticationError
-from ..services.http.base import HTTPResponse
+from ..services.http.io import HTTPResponse
 
 INVALID_HEADER_RESPONSE = HTTPResponse(
     status_code=401,

@@ -1,5 +1,5 @@
 import datetime
-from typing import Any, BinaryIO, Dict, Optional, TextIO
+from typing import BinaryIO, Dict, Optional, TextIO, Union
 
 try:
     from google.cloud.logging.handlers.handlers import (
@@ -17,7 +17,12 @@ try:
     )
     from google.cloud.logging.handlers.transports import SyncTransport
 except ImportError:
-    pass
+    raise ImportError(
+        "The google-cloud-logging "
+        "(https://pypi.org/project/google-cloud-logging/)"
+        "package is required to set up logging with Stackdriver. To "
+        "install this package, run `pip install google-cloud-logging`."
+    )
 
 
 class PatchedSyncTransport(SyncTransport):
@@ -84,9 +89,9 @@ class PatchedBackgroundThreadTransport(BackgroundThreadTransport):
         self,  
         client: "google.cloud.logging.client.Client",
         name: str,
-        grace_period: Any[int, float] = _DEFAULT_GRACE_PERIOD,
+        grace_period: Union[int, float] = _DEFAULT_GRACE_PERIOD,
         batch_size: int = _DEFAULT_MAX_BATCH_SIZE,
-        max_latency: Any[int, float] = _DEFAULT_MAX_LATENCY,
+        max_latency: Union[int, float] = _DEFAULT_MAX_LATENCY,
     ):
         """
         """
@@ -112,7 +117,7 @@ class StackdriverHandler(CloudLoggingHandler):
         transport: "google.cloud.logging.handlers.Transport" = PatchedBackgroundThreadTransport,
         resource: "google.cloud.logging.resource.Resource" = _GLOBAL_RESOURCE,
         labels: Optional[Dict] = None,
-        stream: Optional[Any[TextIO, BinaryIO]] = None,
+        stream: Optional[Union[TextIO, BinaryIO]] = None,
     ):
         """
         """

@@ -5,7 +5,7 @@ from ..globals import request, svc_ctx
 from ..misc import format_error_message
 from ..misc.errors import SerializationError
 from ..model import Model
-from ..services.http.base import HTTPParsedRequest, HTTPResponse
+from ..services.http.io import HTTPParsedRequest, HTTPResponse
 
 INVALID_MIME_TYPE_RESPONSE = HTTPResponse(
     status_code=400,

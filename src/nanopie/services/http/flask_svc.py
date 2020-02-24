@@ -7,7 +7,8 @@ try:
 except ImportError:
     FLASK_INSTALLED = False
 
-from .base import HTTPRequest, HTTPResponse, HTTPService
+from .base import HTTPService
+from .io import HTTPRequest, HTTPResponse
 from ...misc.errors import ServiceError
 
 

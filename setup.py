@@ -42,7 +42,8 @@ setup(
         'dev': [
             'pylint',
             'pytest',
-            'black'
+            'black',
+            'pyjwt'
         ]
     }
 )
