@@ -1,9 +1,11 @@
 import pytest
+from typing import List
 
 from nanopie import (
     StringField,
     IntField,
     FloatField,
+    BoolField,
     ArrayField,
 )
 from nanopie.misc.errors import (
@@ -13,7 +15,10 @@ from nanopie.misc.errors import (
     StringMinLengthBelowError,
     StringPatternNotMatchedError,
     NumberMaxExceededError,
-    NumberMinBelowError
+    NumberMinBelowError,
+    ListItemTypeNotMatchedError,
+    ListTooLittleItemsError,
+    ListTooManyItemsError
 )
 
 def test_string_field_empty():
@@ -149,4 +154,190 @@ def test_float_field_validate_exclusive():
         f.validate(2.0)
     assert ex.value.source == f
     assert ex.value.data == 2.0
+    assert ex.value.response == None
+
+def test_int_field_empty():
+    f = IntField()
+
+    assert f.maximum == None
+    assert f.exclusive_maximum == False
+    assert f.minimum == None
+    assert f.exclusive_minimum == False
+    assert f.required == False
+    assert f.default == None
+    assert f.description == ''
+
+def test_int_field_data_type():
+    f = IntField()
+
+    assert f.get_data_type() == int
+
+def test_int_field_validate():
+    f = IntField(
+        maximum=10,
+        exclusive_maximum=False,
+        minimum=2,
+        exclusive_minimum=False,
+        required=True,
+        default=3
+    )
+
+    f.validate(4)
+    f.validate(10)
+    f.validate(2)
+
+    with pytest.raises(RequiredFieldMissingError) as ex:
+        f.validate(None)
+    assert ex.value.source == f
+    assert ex.value.data == None
+    assert ex.value.response == None
+
+    with pytest.raises(FieldTypeNotMatchedError) as ex:
+        f.validate(4.0)
+    assert ex.value.source == f
+    assert ex.value.data == 4.0
+    assert ex.value.response == None
+    
+    with pytest.raises(NumberMaxExceededError) as ex:
+        f.validate(11)
+    assert ex.value.source == f
+    assert ex.value.data == 11
+    assert ex.value.response == None
+    
+    with pytest.raises(NumberMinBelowError) as ex:
+        f.validate(1)
+    assert ex.value.source == f
+    assert ex.value.data == 1
+    assert ex.value.response == None
+
+def test_int_field_validate_exclusive():
+    f = IntField(
+        maximum=10,
+        exclusive_maximum=True,
+        minimum=2,
+        exclusive_minimum=True,
+        required=True,
+        default=3
+    )
+
+    f.validate(4)
+
+    with pytest.raises(NumberMaxExceededError) as ex:
+        f.validate(10)
+    assert ex.value.source == f
+    assert ex.value.data == 10
+    assert ex.value.response == None
+    
+    with pytest.raises(NumberMinBelowError) as ex:
+        f.validate(2)
+    assert ex.value.source == f
+    assert ex.value.data == 2
+    assert ex.value.response == None
+
+def test_bool_field_empty():
+    f = BoolField()
+
+    assert f.required == False
+    assert f.default == None
+    assert f.description == ''
+
+def test_bool_field_data_type():
+    f = BoolField()
+
+    assert f.get_data_type() == bool
+
+def test_bool_field_validate():
+    f = BoolField(
+        required=True,
+        default=False
+    )
+
+    with pytest.raises(RequiredFieldMissingError) as ex:
+        f.validate(None)
+    assert ex.value.source == f
+    assert ex.value.data == None
+    assert ex.value.response == None
+
+    with pytest.raises(FieldTypeNotMatchedError) as ex:
+        f.validate('')
+    assert ex.value.source == f
+    assert ex.value.data == ''
+    assert ex.value.response == None
+
+def test_array_field_empty():
+    i = IntField()
+    f = ArrayField(
+        item_field=i
+    )
+
+    assert f.item_field == i
+    assert f.min_items == None
+    assert f.max_items == None
+    assert f.required == False
+    assert f.default == None
+    assert f.description == ''
+
+def test_array_field_data_type():
+    i = IntField()
+    f = ArrayField(
+        item_field=i
+    )
+
+    assert f.get_data_type() == List
+
+def test_array_field_validate():
+    i = IntField(
+        maximum=10,
+        minimum=2,
+        required=True,
+    )
+    f = ArrayField(
+        item_field=i,
+        min_items=2,
+        max_items=5,
+        required=True
+    )
+
+    f.validate([2,3,4])
+
+    with pytest.raises(RequiredFieldMissingError) as ex:
+        f.validate(None)
+    
+    assert ex.value.source == f
+    assert ex.value.data == None
+    assert ex.value.response == None
+
+    with pytest.raises(FieldTypeNotMatchedError) as ex:
+        f.validate(1)
+    
+    assert ex.value.source == f
+    assert ex.value.data == 1
+    assert ex.value.response == None
+
+    with pytest.raises(NumberMaxExceededError) as ex:
+        f.validate([2,3,11])
+    
+    assert ex.value.source == i
+    assert ex.value.data == 11
+    assert ex.value.response == None
+
+    with pytest.raises(ListItemTypeNotMatchedError) as ex:
+        f.validate([2,3,'11'])
+    
+    assert ex.value.source == f
+    assert ex.value.data == [2,3,'11']
+    assert ex.value.response == None
+
+    with pytest.raises(ListTooManyItemsError) as ex:
+        f.validate([2,3,4,5,6,7])
+    
+    assert ex.value.source == f
+    assert ex.value.data == [2,3,4,5,6,7]
+    assert ex.value.response == None
+
+    with pytest.raises(ListTooLittleItemsError) as ex:
+        f.validate([2])
+    
+    assert ex.value.source == f
+    assert ex.value.data == [2]
     assert ex.value.response == None

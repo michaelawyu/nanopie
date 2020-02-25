@@ -32,11 +32,15 @@ setup(
         'Topic :: Internet',
         'Topic :: Software Development :: Libraries :: Application Frameworks',
         'Topic :: Software Development :: Libraries :: Python Modules',
-        'Programming Language :: Python :: 3'
+        'Programming Language :: Python :: 3',
+        "Programming Language :: Python :: 3.5",
+        "Programming Language :: Python :: 3.6",
+        "Programming Language :: Python :: 3.7",
+        "Programming Language :: Python :: 3.8"
     ],
     packages=find_packages('src'),
     package_dir={'':'src'},
-    python_requires='>=3.0',
+    python_requires='>3.4',
     install_requires=[],
     extras_require={
         'dev': [

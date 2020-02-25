@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from functools import partial
+from functools import partialmethod
 from typing import Any, Dict, List, Union
 
 from .misc import format_error_message
@@ -20,14 +20,35 @@ class Field(ABC):
         """
         """
 
-
 class ModelMetaCls(type):
     """
     """
-
     def __new__(cls, clsname, superclses, attribute_dict):
         """
         """
+
+        class PropertyDescriptor:
+            """
+            """
+            __slots__ = ('name', 'mask')
+
+            def __init__(self, name: str, mask: str):
+                """
+                """
+                self.name = name
+                self.mask = mask
+            
+            def __get__(self, obj, type=None) -> Any:
+                """
+                """
+                return getattr(obj, self.mask)
+
+            def __set__(self, obj, value):
+                """
+                """
+                obj._fields[self.name].validate(value, name)
+                setattr(obj, self.mask, value)
+
         user_defined_fields = []
         for k in attribute_dict:
             v = attribute_dict[k]
@@ -36,27 +57,13 @@ class ModelMetaCls(type):
 
         fields = {}
         for (name, field) in user_defined_fields:
-            # TO-DO: The following field names are reserved:
-            # 'fields'
             fields[name] = field
             mask = "_" + name
 
-            def fget(self, mask):
-                return getattr(self, mask)
-
-            def fset(self, name, mask, v):
-                self._fields[name].validate(v)
-                setattr(self, mask, v)
-
-            def doc(self, name):
-                return self._fields[name].description
+            descriptor = PropertyDescriptor(name=name, mask=mask)
 
             attribute_dict[mask] = None
-            attribute_dict[name] = property(
-                fget=partial(fget, mask=mask),
-                fset=partial(fset, name=name, mask=mask),
-                doc=partial(doc, name=name),
-            )
+            attribute_dict[name] = descriptor
 
         attribute_dict["_fields"] = fields
         attribute_dict["_extras"] = {}
@@ -73,56 +80,56 @@ class Model(metaclass=ModelMetaCls):
         """
         """
         for k in self._fields:  # pylint: disable=no-member
-            p = kwargs.get(k)
             mask = "_" + k
+            p = kwargs.get(k)
+
+            if skip_validation:
+                setattr(self, mask, p)
+                continue
+            
             if not p:
                 required = self._fields[k].required  # pylint: disable=no-member
                 default = self._fields[k].default  # pylint: disable=no-member
                 if default:
-                    p = default
+                    setattr(self, mask, default)
+                    continue
                 else:
                     if required:
                         raise RequiredFieldMissingError(
                             self._fields[k], k # pylint: disable=no-member
                         )
 
-            if skip_validation:
-                setattr(self, mask, p)
-            else:
-                setattr(self, k, p)
+            setattr(self, k, p)
 
-    def to_dikt(self):
+    def to_dikt(self, skip_validation: bool = True):
         """
         """
+        if not skip_validation:
+            self.validate(v=self)
 
-        def helper(data: Union[str, int, float, bool, List, "Model"], ref: "Field"):
+        def helper(data: Union[str, int, float, bool, List, "Model"]):
             """
             """
-            data_type = ref.get_data_type()
-
-            if data_type in [str, int, float, bool] and type(data) == data_type:
+            if type(data) in [str, int, float, bool]:
                 return data
-            elif data_type == List and type(data) == list:
-                item_field = ref.item_field
-                return [helper(item, item_field) for item in data]
-            elif issubclass(data_type, Model) and issubclass(data, Model):
-                return data.to_dikt()
+            elif type(data) == list:
+                return [ helper(item) for item in data ]
+            elif issubclass(data, Model):
+                return data.to_dikt(skip_validation=skip_validation)
             else:
-                message = format_error_message(
-                    message="Unsupported data type.", data=data, ref=ref
-                )
+                message = ('The data is of an unsupported type.')
+                message = format_error_message(message=message, data=data)
                 raise RuntimeError(message)
 
         dikt = {}
         for k in self._fields:  # pylint: disable=no-member
-            field = self._fields[k]  # pylint: disable=no-member
-            v = helper(getattr(self, k), field)
+            v = helper(getattr(self, k))
             dikt[k] = v
 
         return dikt
 
     @classmethod
-    def from_dikt(cls, dikt: Dict):
+    def from_dikt(cls, dikt: Dict, skip_validation: bool = True):
         """
         """
 
@@ -131,24 +138,34 @@ class Model(metaclass=ModelMetaCls):
             """
             data_type = ref.get_data_type()
 
-            if data_type in [str, int, float, bool] and type(data) == data_type:
+            if data_type in [str, int, float, bool]:
+                return data
+            elif data_type == List and type(data) != list:
                 return data
             elif data_type == List and type(data) == list:
                 item_field = ref.item_field
                 return [helper(item, item_field) for item in data]
+            elif issubclass(data_type, Model) and type(data) != dict:
+                return data
             elif issubclass(data_type, Model) and type(data) == dict:
                 return data_type.from_dikt(data)
             else:
+                message = ('The data is not of the type specified in the field'
+                           ', or the field specifies an unsupported type.')
                 message = format_error_message(
-                    message="Unsupported data type.", data=data, ref=ref
+                    message=message, data=data, ref=ref
                 )
                 raise RuntimeError(message)
 
         obj = cls(skip_validation=True)
         for k in cls._fields:  # pylint: disable=no-member
+            mask = '_' + k
             field = cls._fields[k]  # pylint: disable=no-member
-            v = helper(dikt[k], field)
-            setattr(obj, k, v)
+            v = helper(dikt.get(k), field)
+            setattr(obj, mask, v)
+        
+        if not skip_validation:
+            cls.validate(v=obj)
 
         return obj
 

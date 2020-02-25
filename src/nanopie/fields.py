@@ -56,6 +56,8 @@ class StringField(Field):
                     raise RequiredFieldMissingError(
                         source=self, assigned_field_name=name
                     )
+                else:
+                    return
             else:
                 raise FieldTypeNotMatchedError(
                     source=self, assigned_field_name=name, data=v
@@ -117,6 +119,8 @@ class FloatField(Field):
                     raise RequiredFieldMissingError(
                         source=self, assigned_field_name=name
                     )
+                else:
+                    return
             else:
                 raise FieldTypeNotMatchedError(
                     source=self, assigned_field_name=name, data=v
@@ -145,11 +149,10 @@ class IntField(Field):
 
     def __init__(
         self,
-        maximum: Optional[float] = None,
-        exclusive_maximum: Optional[float] = None,
-        minimum: Optional[float] = None,
-        exclusive_minimum: Optional[float] = None,
-        multiple_of: Optional[int] = None,
+        maximum: Optional[int] = None,
+        exclusive_maximum: bool = False,
+        minimum: Optional[int] = None,
+        exclusive_minimum: bool = False,
         required: bool = False,
         default: Optional[int] = None,
         description: str = "",
@@ -160,7 +163,6 @@ class IntField(Field):
         self.exclusive_maximum = exclusive_maximum
         self.minimum = minimum
         self.exclusive_minimum = exclusive_minimum
-        self.multiple_of = multiple_of
         self.required = required
         self.description = description
         if default:
@@ -181,6 +183,8 @@ class IntField(Field):
                     raise RequiredFieldMissingError(
                         source=self, assigned_field_name=name
                     )
+                else:
+                    return
             else:
                 raise FieldTypeNotMatchedError(
                     source=self, assigned_field_name=name, data=v
@@ -230,7 +234,17 @@ class BoolField(Field):
         """
         """
         if type(v) != bool:
-            raise FieldTypeNotMatchedError(self, v, "bool")
+            if v == None:
+                if self.required:
+                    raise RequiredFieldMissingError(
+                        source=self, assigned_field_name=name
+                    )
+                else:
+                    return
+            else:
+                raise FieldTypeNotMatchedError(
+                    source=self, assigned_field_name=name, data=v
+                )
 
 
 class ArrayField(Field):
@@ -271,6 +285,8 @@ class ArrayField(Field):
                     raise RequiredFieldMissingError(
                         source=self, assigned_field_name=name
                     )
+                else:
+                    return
             else:
                 raise FieldTypeNotMatchedError(
                     source=self, assigned_field_name=name, data=v
@@ -283,7 +299,7 @@ class ArrayField(Field):
             raise ListTooManyItemsError(source=self, assigned_field_name=name, data=v)
 
         for item in v:
-            if type(item) != self.item_field.data_type():
+            if type(item) != self.item_field.get_data_type():
                 raise ListItemTypeNotMatchedError(
                     source=self, assigned_field_name=name, data=v
                 )
@@ -324,6 +340,8 @@ class ObjectField(Field):
                     raise RequiredFieldMissingError(
                         source=self, assigned_field_name=name
                     )
+                else:
+                    return
             else:
                 raise FieldTypeNotMatchedError(
                     source=self, assigned_field_name=name, data=v
