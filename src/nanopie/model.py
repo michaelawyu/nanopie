@@ -87,7 +87,7 @@ class Model(metaclass=ModelMetaCls):
                 setattr(self, mask, p)
                 continue
             
-            if not p:
+            if p == None:
                 required = self._fields[k].required  # pylint: disable=no-member
                 default = self._fields[k].default  # pylint: disable=no-member
                 if default:
@@ -114,7 +114,7 @@ class Model(metaclass=ModelMetaCls):
                 return data
             elif type(data) == list:
                 return [ helper(item) for item in data ]
-            elif issubclass(data, Model):
+            elif isinstance(data, Model):
                 return data.to_dikt(skip_validation=skip_validation)
             else:
                 message = ('The data is of an unsupported type.')
@@ -140,9 +140,9 @@ class Model(metaclass=ModelMetaCls):
 
             if data_type in [str, int, float, bool]:
                 return data
-            elif data_type == List and type(data) != list:
+            elif data_type == list and type(data) != list:
                 return data
-            elif data_type == List and type(data) == list:
+            elif data_type == list and type(data) == list:
                 item_field = ref.item_field
                 return [helper(item, item_field) for item in data]
             elif issubclass(data_type, Model) and type(data) != dict:

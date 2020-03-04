@@ -5,8 +5,8 @@ from .model import Field, Model
 from .misc.errors import (
     FieldTypeNotMatchedError,
     ListItemTypeNotMatchedError,
-    ListTooLittleItemsError,
     ListTooManyItemsError,
+    ListTooLittleItemsError,
     NumberMaxExceededError,
     NumberMinBelowError,
     RequiredFieldMissingError,
@@ -274,7 +274,7 @@ class ArrayField(Field):
     def get_data_type(self) -> type:
         """
         """
-        return List
+        return list
 
     def validate(self, v: List[Any], name: str = "unassigned_field"):
         """
@@ -334,7 +334,7 @@ class ObjectField(Field):
     def validate(self, v: "Model", name: str = "unassigned_field"):
         """
         """
-        if not issubclass(v.__class__, Model):
+        if not issubclass(v.__class__, self.model):
             if v == None:
                 if self.required:
                     raise RequiredFieldMissingError(

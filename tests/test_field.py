@@ -7,8 +7,11 @@ from nanopie import (
     FloatField,
     BoolField,
     ArrayField,
+    ObjectField,
+    Model
 )
 from nanopie.misc.errors import (
+    ValidationError,
     RequiredFieldMissingError,
     FieldTypeNotMatchedError,
     StringMaxLengthExceededError,
@@ -252,6 +255,8 @@ def test_bool_field_validate():
         default=False
     )
 
+    f.validate(True)
+
     with pytest.raises(RequiredFieldMissingError) as ex:
         f.validate(None)
     assert ex.value.source == f
@@ -283,7 +288,7 @@ def test_array_field_data_type():
         item_field=i
     )
 
-    assert f.get_data_type() == List
+    assert f.get_data_type() == list
 
 def test_array_field_validate():
     i = IntField(
@@ -340,4 +345,63 @@ def test_array_field_validate():
     
     assert ex.value.source == f
     assert ex.value.data == [2]
+    assert ex.value.response == None
+
+class SimpleModel(Model):
+    a = StringField(max_length=5, min_length=1)
+    b = IntField(maximum=10, minimum=1, default=5)
+    c = FloatField(maximum=10.0, minimum=1.0)
+    d = BoolField(required=True)
+    e = ArrayField(
+        item_field=IntField(),
+        max_items=5,
+        min_items=1,
+        default=[1,2,3]
+    )
+
+def test_object_field():
+    f = ObjectField(model=SimpleModel)
+
+    assert f.model == SimpleModel
+    assert f.required == False
+    assert f.description == ''
+    assert f.default == None
+
+def test_object_field_data_type():
+    f = ObjectField(model=SimpleModel)
+
+    assert f.get_data_type() == SimpleModel
+
+def test_object_field_validate():
+    f = ObjectField(
+        model=SimpleModel,
+        required=True
+    )
+
+    m = SimpleModel(
+        a='Test',
+        c=2.0,
+        d=False
+    )
+
+    f.validate(m)
+
+    with pytest.raises(RequiredFieldMissingError) as ex:
+        f.validate(None)
+    assert ex.value.source == f
+    assert ex.value.data == None
+    assert ex.value.response == None
+    
+    with pytest.raises(FieldTypeNotMatchedError) as ex:
+        f.validate(1)
+    assert ex.value.source == f
+    assert ex.value.data == 1
+    assert ex.value.response == None
+
+    setattr(m, '_a', 'Long Message')
+
+    with pytest.raises(ValidationError) as ex:
+        f.validate(m)
+    assert isinstance(ex.value.source, StringField)
+    assert ex.value.data == 'Long Message'
     assert ex.value.response == None
