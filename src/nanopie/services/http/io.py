@@ -1,6 +1,6 @@
 from typing import Any, Callable, Dict, Optional, Union
 
-from ..base import RPCEndpoint, RPCRequest, RPCResponse
+from ..base import RPCEndpoint, RPCParsedRequest, RPCRequest, RPCResponse
 
 class HTTPRequest(RPCRequest):
     """
@@ -74,7 +74,7 @@ class HTTPRequest(RPCRequest):
         return self._helper(self._text_data)
 
 
-class HTTPParsedRequest:
+class HTTPParsedRequest(RPCParsedRequest):
     """
     """
 

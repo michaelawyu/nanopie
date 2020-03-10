@@ -35,7 +35,7 @@ class SimpleHandler(Handler):
 
     def __call__(self, *args, **kwargs):
         res = self.func(*args, **kwargs)
-        if res:
+        if res != None:
             return res
         else:
             return super().__call__(*args, **kwargs)

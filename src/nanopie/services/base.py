@@ -8,6 +8,10 @@ class RPCRequest(ABC):
     """
     """
 
+class RPCParsedRequest(ABC):
+    """
+    """
+
 
 class Extractor(ABC):
     """
@@ -45,10 +49,10 @@ class RPCService(ABC):
 
     def __init__(
         self,
-        serialization_handler: "SerializationHandler",
-        authn_handler: "AuthenticationHandler",
-        logging_handler: "LoggingHandler",
-        tracing_handler: "TracingHandler",
+        serialization_handler: 'SerializationHandler' = None,
+        authn_handler: 'AuthenticationHandler' = None,
+        logging_handler: 'LoggingHandler' = None,
+        tracing_handler: 'TracingHandler' = None,
         max_content_length: int = 6000,
     ):
         """
