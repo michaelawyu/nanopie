@@ -28,7 +28,7 @@ class HTTPFoundationHandler(Handler):
     def __call__(self, *args, **kwargs):
         """
         """
-        content_length = getattr(request, "content_length")
+        content_length = getattr(request, "content_length", None)
         if not content_length:
             raise RuntimeError("The incoming request is not a valid HTTP " "request.")
 

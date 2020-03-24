@@ -57,13 +57,13 @@ class HTTPSerializationHandler(SerializationHandler):
         """
         helper = self._serialization_helper
 
-        mime_type = getattr(request, "mime_type")
-        headers_dikt = getattr(request, "headers")
-        query_args_dikt = getattr(request, "query_args")
+        mime_type = getattr(request, "mime_type", None)
+        headers_dikt = getattr(request, "headers", None)
+        query_args_dikt = getattr(request, "query_args", None)
         if self._serialization_helper.binary:
-            raw_data = getattr(request, "binary_data")
+            raw_data = getattr(request, "binary_data", None)
         else:
-            raw_data = getattr(request, "text_data")
+            raw_data = getattr(request, "text_data", None)
 
         if not all([mime_type, headers_dikt, query_args_dikt, raw_data]):
             raise RuntimeError("The incoming request is not a valid HTTP " "request.")

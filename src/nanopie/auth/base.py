@@ -45,8 +45,8 @@ class AuthenticationHandler(Handler):
         """
         self._credential_extractor = credential_extractor
         self._credential_validator = credential_validator
-        self._before_authentication = lambda: None
-        self._after_authentication = lambda: None
+        self._before_authentication = lambda auth_handler: None
+        self._after_authentication = lambda auth_handler: None
         super().__init__()
 
     def __call__(self, *args, **kwargs):
@@ -54,13 +54,13 @@ class AuthenticationHandler(Handler):
         """
         credential = self._credential_extractor.extract(request=request_proxy)
 
-        credential_validator = self._before_authentication(self)
+        credential_validator = self._before_authentication(auth_handler=self)
         if not credential_validator:
             credential_validator = self._credential_validator
 
         credential_validator.validate(credential=credential)
 
-        self._after_authentication(self)
+        self._after_authentication(auth_handler=self)
 
         return super().__call__(*args, **kwargs)
 
@@ -91,6 +91,6 @@ class AuthenticationHandler(Handler):
         if len(parameters) != 1 or not parameters.get("auth_handler"):
             raise ValueError(
                 "before_authentication and after_authentication "
-                "must decorate a callable with exactly one"
+                "must decorate a callable with exactly one "
                 "argument named auth_handler."
             )

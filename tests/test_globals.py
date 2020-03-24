@@ -12,50 +12,48 @@ from nanopie.globals import (
     request
 )
 
-
-_svc_ctx = {
-    'parsed_request': 'parsed_request',
-    'svc': 'svc',
-    'endpoint': 'endpoint',
-    'request': 'request'
-}
-
-class DummyCtx:
+class Object(object):
     pass
 
-dummy_ctx = DummyCtx()
-dummy_ctx._svc_ctx = _svc_ctx
-
-svc_ctx.update_proxy_func(partial(look_up_attr, ctx=dummy_ctx, name='_svc_ctx'))
-
 def test_look_up_attr():
-    assert look_up_attr(ctx=dummy_ctx, name='_svc_ctx') == _svc_ctx
+    obj = Object()
+    obj.attr = 0
+
+    assert look_up_attr(ctx=obj, name='attr') == 0
+
+def test_look_up_attr_none():
+    obj = Object()
 
     with pytest.raises(RuntimeError) as ex:
-        look_up_attr(ctx=dummy_ctx, name='random')
+        look_up_attr(ctx=obj, name='attr')
     assert 'No context is available' in str(ex.value)
 
 def test_look_up_item():
-    dummy_svc_ctx = {
-        'svc': ''
-    }
-    assert look_up_item(dikt=dummy_svc_ctx, name='svc') == ''
+    dikt = { 'item': 0 }
+
+    assert look_up_item(dikt=dikt, name='item') == 0
+
+def test_look_up_item_none():
+    dikt = {}
 
     with pytest.raises(RuntimeError) as ex:
-        look_up_item(dikt=dummy_svc_ctx, name='random')
+        look_up_item(dikt=dikt, name='item')
     assert 'Specified object is not available yet.' in str(ex.value)
 
-def test_svc_ctx():
-    assert svc_ctx == _svc_ctx
+def test_svc_ctx(setup_ctx):
+    assert svc_ctx.get('parsed_request') != None
+    assert svc_ctx.get('svc') != None
+    assert svc_ctx.get('endpoint') != None
+    assert svc_ctx.get('request') != None
 
-def test_parsed_request():
-    assert parsed_request == 'parsed_request'
+def test_parsed_request(setup_ctx):
+    assert parsed_request._extract_mock_name() == 'parsed_request'
 
-def test_svc():
-    assert svc == 'svc'
+def test_svc(setup_ctx):
+    assert svc._extract_mock_name() == 'svc'
 
-def test_endpoint():
-    assert endpoint == 'endpoint'
+def test_endpoint(setup_ctx):
+    assert endpoint._extract_mock_name() == 'endpoint'
 
-def test_request():
-    assert request == 'request'
+def test_request(setup_ctx):
+    assert request._extract_mock_name() == 'request'

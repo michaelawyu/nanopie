@@ -138,7 +138,7 @@ class HTTPResponse(RPCResponse):
         """
         """
         headers = self._headers
-        if not headers:
+        if headers == None:
             return {"Content-Type": self.mime_type}
 
         if type(self._headers) != dict:
@@ -159,7 +159,7 @@ class HTTPResponse(RPCResponse):
     def headers(self, headers: Optional[Dict]):
         """
         """
-        if not headers:
+        if headers == None:
             headers = {}
 
         if type(headers) != dict:
@@ -171,7 +171,7 @@ class HTTPResponse(RPCResponse):
     def mime_type(self) -> str:
         """
         """
-        if not self.mime_type:
+        if self._mime_type == None:
             return ""
 
         if type(self._mime_type) != str:
@@ -183,7 +183,7 @@ class HTTPResponse(RPCResponse):
     def mime_type(self, mime_type: Optional[str]):
         """
         """
-        if not mime_type:
+        if mime_type == None:
             mime_type = ""
 
         if type(mime_type) != str:

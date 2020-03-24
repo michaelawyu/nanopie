@@ -49,7 +49,7 @@ class JWTValidator(CredentialValidator):
         algorithm: str,
         use_pycrypto: bool = False,
         use_ecdsa: bool = False,
-        **validation_options
+        **kwargs
     ):
         """
         """
@@ -66,8 +66,8 @@ class JWTValidator(CredentialValidator):
 
         if use_pycrypto:
             if algorithm not in PYCRYPTO_SUPPORTED_ALGS:
-                raise ValueError("pycrypto does not support the specified" "algorithm.")
-            if not pkgutil.find_loader("pycrypto"):
+                raise ValueError("pycrypto does not support the specified " "algorithm.")
+            if not pkgutil.find_loader("Crypto"):
                 raise ImportError(
                     "The pycrypto "
                     "(https://pypi.org/project/pycrypto/) "
@@ -79,10 +79,10 @@ class JWTValidator(CredentialValidator):
             from jwt.contrib.algorithms.pycrypto import RSAAlgorithm
 
             jwt.unregister_algorithm(algorithm)
-            jwt.register_algorithm(algorithm, RSAAlgorithm(RSAAlgorithm.SHA256))
+            jwt.register_algorithm(algorithm, RSAAlgorithm(getattr(RSAAlgorithm, 'SHA' + algorithm[2:])))
         elif use_ecdsa:
             if algorithm not in ECDSA_SUPPORTED_ALGS:
-                raise ValueError("ecdsa does not support the specified" "algorithm.")
+                raise ValueError("ecdsa does not support the specified " "algorithm.")
             if not pkgutil.find_loader("ecdsa"):
                 raise ImportError(
                     "The ecdsa "
@@ -94,7 +94,7 @@ class JWTValidator(CredentialValidator):
             from jwt.contrib.algorithms.py_ecdsa import ECAlgorithm
 
             jwt.unregister_algorithm(algorithm)
-            jwt.register_algorithm(algorithm, ECAlgorithm(ECAlgorithm.SHA256))
+            jwt.register_algorithm(algorithm, ECAlgorithm(getattr(ECAlgorithm, 'SHA' + algorithm[2:])))
         elif not pkgutil.find_loader("cryptography"):
             raise ImportError(
                 "The cryptography "
@@ -113,25 +113,30 @@ class JWTValidator(CredentialValidator):
             "verify_iss": False,
             "require_exp": False,
             "require_iat": False,
-            "require_nbf": False,
-            "audience": None,
-            "issuer": None,
-            "leeway": 0,
+            "require_nbf": False
         }
 
-        for k in validation_options:
+        self._canonical_info = {
+            "audience": None,
+            "issuer": None,
+            "leeway": 0
+        }
+
+        for k in kwargs:
             if k in self._validation_options:
-                self._validation_options[k] = validation_options[k]
+                self._validation_options[k] = kwargs[k]
+            elif k in self._canonical_info:
+                self._canonical_info[k] = kwargs[k]
 
         if (
             self._validation_options["verify_iss"]
-            and not self._validation_options["issuer"]
+            and not self._canonical_info["issuer"]
         ):
             raise ValueError("No expected issuer.")
 
         if (
             self._validation_options["verify_aud"]
-            and not self._validation_options["audience"]
+            and not self._canonical_info["audience"]
         ):
             raise ValueError("No expected audience.")
 
@@ -142,8 +147,9 @@ class JWTValidator(CredentialValidator):
             jwt.decode(
                 credential.token,
                 self._key,
-                algorithm=self._algorithm,
-                **self._validation_options
+                algorithms=self._algorithm,
+                options=self._validation_options,
+                **self._canonical_info
             )
         except jwt.exceptions.InvalidTokenError as ex:
             message = "The provided JWT is not valid ({})".format(str(ex))

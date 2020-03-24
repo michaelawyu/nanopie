@@ -133,7 +133,7 @@ class HTTPW3CTraceContextExtractor(TraceContextExtractor):
     def extract(self, request: "HTTPRequest") -> "HTTPW3CTraceContext":
         """
         """
-        headers = getattr(request, "headers")
+        headers = getattr(request, "headers", None)
         if not headers:
             raise RuntimeError("The incoming request is not a valid HTTP " "request.")
 

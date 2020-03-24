@@ -29,8 +29,8 @@ class HTTPBasicUserCredentialExtractor(CredentialExtractor):
     def extract(self, request: "HTTPRequest"):
         """
         """
-        headers = getattr(request, "headers")
-        if not headers:
+        headers = getattr(request, "headers", None)
+        if headers == None:
             raise RuntimeError("The incoming request is not a valid HTTP " "request.")
 
         auth_header = None
@@ -57,8 +57,8 @@ class HTTPBasicUserCredentialExtractor(CredentialExtractor):
         except Exception as ex:
             message = "Cannot decode the credential data ({}).".format(str(ex))
             raise AuthenticationError(message, response=INVALID_CREDENTIAL_RESPONSE)
-        t = decoded_data.split(":")
-        if len(t >= 2):
+        t = decoded_data.decode().split(":")
+        if len(t) >= 2:
             username = t[0]
             password = "".join(t[1:])
         else:
