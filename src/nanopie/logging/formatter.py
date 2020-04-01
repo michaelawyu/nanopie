@@ -32,25 +32,25 @@ class CustomLogRecordFormatter(logging.Formatter):
                 "logger": "{name}",
                 "level": "{levelname}",
                 "module": "{module}",
-                "func": "{funcname}",
+                "func": "{funcName}",
             }
         elif style == "$":
             self.__style = logging.StringTemplateStyle
             default_fmt = {
                 "host": "{}".format(hostname),
                 "logger": "${name}",
-                "level": "${level}",
+                "level": "${levelname}",
                 "module": "${module}",
-                "func": "${func}",
+                "func": "${funcName}",
             }
         elif style == "%":
             self.__style = None
             default_fmt = {
                 "host": "{}".format(hostname),
                 "logger": "%(name)s",
-                "level": "%(level)s",
+                "level": "%(levelname)s",
                 "module": "%(module)s",
-                "func": "%(func)s",
+                "func": "%(funcName)s",
             }
 
         self.__fmt = fmt if fmt else default_fmt

@@ -1,6 +1,7 @@
 from typing import Any, Callable, Dict, Optional, Union
 
 from ..base import RPCEndpoint, RPCParsedRequest, RPCRequest, RPCResponse
+from ...model import Model
 
 class HTTPRequest(RPCRequest):
     """
@@ -108,19 +109,20 @@ class HTTPResponse(RPCResponse):
     ):
         """
         """
-        self._status_code = status_code
-        self._headers = headers
-        self._mime_type = mime_type
-        self._data = data
+        self._status_code = None
+        self._headers = None
+        self._mime_type = None
+        self._data = None
+
+        self.status_code = status_code
+        self.headers = headers
+        self.mime_type = mime_type
+        self.data = data
 
     @property
     def status_code(self) -> int:
         """
         """
-        if type(self._status_code) != int:
-            raise RuntimeError(
-                "HTTP Response must have a status code of " "the int type."
-            )
         return self._status_code
 
     @status_code.setter
@@ -134,26 +136,10 @@ class HTTPResponse(RPCResponse):
         self._status_code = status_code
 
     @property
-    def headers(self) -> Dict:
+    def headers(self) -> [Dict, "Model"]:
         """
         """
-        headers = self._headers
-        if headers == None:
-            return {"Content-Type": self.mime_type}
-
-        if type(self._headers) != dict:
-            raise RuntimeError(
-                "HTTP Response must have a dict as headers. "
-                "If a response is initialized with a model "
-                "as headers, a serializer must be present "
-                "to serialize the model."
-            )
-        n = "Content-Type"
-        for k in headers:
-            if k.lower() == n.lower():
-                n = k
-        headers[n] = self.mime_type
-        return headers
+        return self._headers
 
     @headers.setter
     def headers(self, headers: Optional[Dict]):
@@ -161,9 +147,10 @@ class HTTPResponse(RPCResponse):
         """
         if headers == None:
             headers = {}
-
-        if type(headers) != dict:
-            raise RuntimeError("HTTP Response must have a dict as " "headers.")
+        
+        if type(headers) != dict and not isinstance(headers, Model):
+            raise RuntimeError("HTTP Response must have a Model or a dict "
+                               "as headers.")
 
         self._headers = headers
 
@@ -171,12 +158,6 @@ class HTTPResponse(RPCResponse):
     def mime_type(self) -> str:
         """
         """
-        if self._mime_type == None:
-            return ""
-
-        if type(self._mime_type) != str:
-            raise RuntimeError("The mime type must be a str.")
-
         return self._mime_type
 
     @mime_type.setter
@@ -192,34 +173,32 @@ class HTTPResponse(RPCResponse):
         self._mime_type = mime_type
 
     @property
-    def data(self) -> Optional[Union[str, bytes]]:
+    def data(self) -> Optional[Union[str, bytes, "Model"]]:
         """
         """
-        if not self._data:
-            return
-
-        if type(self._data) not in [str, bytes]:
-            raise RuntimeError(
-                "HTTP Response must have a str or bytes as "
-                "data. If a response is initialized with a "
-                "model as data, a serializer must be present "
-                "to serialize the model."
-            )
-
         return self._data
 
     @data.setter
-    def data(self, data: Optional[Union[str, bytes]]):
+    def data(self, data: Optional[Union[str, bytes, "Model"]]):
         """
-        """
-        if not data:
-            self._data = None
-            return
-
-        if type(data) not in [str, bytes]:
-            raise RuntimeError("HTTP Response must have a str or bytes as " "data.")
+        """            
+        if data != None and \
+           type(data) not in [str, bytes] and \
+           not isinstance(data, Model):
+            raise RuntimeError(
+                "HTTP Response must have a str, a bytes or a Model as data."
+            )
 
         self._data = data
+    
+    @property
+    def is_processed(self):
+        """
+        """
+        if type(self._headers) != dict or type(self._data) not in [str, bytes]:
+            return False
+        
+        return True
 
 
 class HTTPEndpoint(RPCEndpoint):

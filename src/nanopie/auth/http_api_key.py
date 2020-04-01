@@ -56,11 +56,11 @@ class HTTPAPIKeyExtractor(CredentialExtractor):
         """
         """
         if self.mode == HTTPAPIKeyModes.HEADER:
-            headers = getattr(request, "headers", None)
-            if headers == None:
-                raise RuntimeError(
-                    "The incoming request is not a valid HTTP " "request."
-                )
+            try:
+                headers = getattr(request, "headers")
+            except AttributeError:
+                raise AttributeError("The incoming request is not a valid "
+                                     "HTTP request.")
 
             auth_header = None
             for k in headers:
@@ -75,11 +75,11 @@ class HTTPAPIKeyExtractor(CredentialExtractor):
                 raise AuthenticationError(message, response=INVALID_HEADER_RESPONSE)
             key = auth_header
         elif self.mode == HTTPAPIKeyModes.URI_QUERY:
-            query_args = getattr(request, "query_args", None)
-            if query_args == None:
-                raise RuntimeError(
-                    "The incoming request is not a valid HTTP " "request."
-                )
+            try:
+                query_args = getattr(request, "query_args")
+            except AttributeError:
+                raise AttributeError("The incoming request is not a valid "
+                                     "HTTP request.")
 
             key = query_args.get(self.key_field_name)
             if not key:

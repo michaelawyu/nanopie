@@ -59,11 +59,10 @@ class HTTPOAuth2BearerJWTExtractor(CredentialExtractor):
         """
         """
         if self.mode == HTTPOAuth2BearerJWTModes.HEADER:
-            headers = getattr(request, "headers", None)
-            if not headers:
-                raise RuntimeError(
-                    "The incoming request is not a valid HTTP " "request."
-                )
+            try:
+                headers = getattr(request, "headers")
+            except AttributeError:
+                raise AttributeError("The incoming request is not a valid HTTP " "request.")
 
             auth_header = None
             for k in headers:
@@ -84,11 +83,11 @@ class HTTPOAuth2BearerJWTExtractor(CredentialExtractor):
                 raise AuthenticationError(message, response=INVALID_HEADER_RESPONSE)
             token = auth_header[7:]
         elif self.mode == HTTPOAuth2BearerJWTModes.URI_QUERY:
-            query_args = getattr(request, "query_args", None)
-            if not query_args:
-                raise RuntimeError(
-                    "The incoming request is not a valid HTTP " "request."
-                )
+            try:
+                query_args = getattr(request, "query_args")
+            except AttributeError:
+                raise AttributeError("The incoming request is not a valid "
+                                     "HTTP request.")
 
             token = query_args.get("access_token")
             if not token:

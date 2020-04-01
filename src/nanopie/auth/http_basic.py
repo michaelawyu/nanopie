@@ -29,9 +29,10 @@ class HTTPBasicUserCredentialExtractor(CredentialExtractor):
     def extract(self, request: "HTTPRequest"):
         """
         """
-        headers = getattr(request, "headers", None)
-        if headers == None:
-            raise RuntimeError("The incoming request is not a valid HTTP " "request.")
+        try:
+            headers = getattr(request, "headers")
+        except AttributeError:
+            raise AttributeError("The incoming request is not a valid HTTP " "request.")
 
         auth_header = None
         for k in headers:

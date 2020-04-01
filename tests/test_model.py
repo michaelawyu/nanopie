@@ -196,11 +196,11 @@ def test_nested_model_init():
     assert n.a == [2,3,4]
     assert n.b == [[2,3,4]]
     assert isinstance(n.c, SimpleModelWithRestraints)
-    assert n.c.a == 'Test'
-    assert n.c.b == 1
-    assert n.c.c == 1.0
-    assert n.c.d == True
-    assert n.c.e == [2,3]
+    assert n.c.a == 'Test' # pylint: disable=no-member
+    assert n.c.b == 1 # pylint: disable=no-member
+    assert n.c.c == 1.0 # pylint: disable=no-member
+    assert n.c.d == True # pylint: disable=no-member
+    assert n.c.e == [2,3] # pylint: disable=no-member
 
     with pytest.raises(NumberMaxExceededError) as ex:
          n = NestedModel(
@@ -282,11 +282,11 @@ def test_nested_model_from_dikt():
     assert n.a == [2,3,4]
     assert n.b == [[2,3,4], [1,2,3]]
     assert isinstance(n.c, SimpleModelWithRestraints)
-    assert n.c.a == 'Test'
-    assert n.c.b == 1
-    assert n.c.c == 1.0
-    assert n.c.d == True
-    assert n.c.e == [2,3]
+    assert n.c.a == 'Test' # pylint: disable=no-member
+    assert n.c.b == 1 # pylint: disable=no-member
+    assert n.c.c == 1.0 # pylint: disable=no-member
+    assert n.c.d == True # pylint: disable=no-member
+    assert n.c.e == [2,3] # pylint: disable=no-member
 
     dikt['b'] = [[2,3,15]]
 

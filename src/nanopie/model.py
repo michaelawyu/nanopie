@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 from functools import partialmethod
-from typing import Any, Dict, List, Union
+from typing import Any, Dict, List, Optional, Union
 
 from .misc import format_error_message
 from .misc.errors import ModelTypeNotMatchedError, RequiredFieldMissingError
@@ -101,7 +101,9 @@ class Model(metaclass=ModelMetaCls):
 
             setattr(self, k, p)
 
-    def to_dikt(self, skip_validation: bool = True):
+    def to_dikt(self,
+                altchar: Optional[str] = None,
+                skip_validation: bool = True):
         """
         """
         if not skip_validation:
@@ -124,12 +126,18 @@ class Model(metaclass=ModelMetaCls):
         dikt = {}
         for k in self._fields:  # pylint: disable=no-member
             v = helper(getattr(self, k))
+            if altchar:
+                k = k.replace('_', altchar[0])
             dikt[k] = v
 
         return dikt
 
     @classmethod
-    def from_dikt(cls, dikt: Dict, skip_validation: bool = True):
+    def from_dikt(cls,
+                  dikt: Dict,
+                  altchar: Optional[str] = None,
+                  skip_validation: bool = True,
+                  type_cast: bool = False):
         """
         """
 
@@ -139,6 +147,11 @@ class Model(metaclass=ModelMetaCls):
             data_type = ref.get_data_type()
 
             if data_type in [str, int, float, bool]:
+                if type_cast:
+                    try:
+                        data = data_type(data)
+                    except:
+                        pass
                 return data
             elif data_type == list and type(data) != list:
                 return data
@@ -161,6 +174,8 @@ class Model(metaclass=ModelMetaCls):
         for k in cls._fields:  # pylint: disable=no-member
             mask = '_' + k
             field = cls._fields[k]  # pylint: disable=no-member
+            if altchar:
+                k = k.replace('_', altchar[0])
             v = helper(dikt.get(k), field)
             setattr(obj, mask, v)
         

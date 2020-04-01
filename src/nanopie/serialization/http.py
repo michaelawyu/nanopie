@@ -57,19 +57,19 @@ class HTTPSerializationHandler(SerializationHandler):
         """
         helper = self._serialization_helper
 
-        mime_type = getattr(request, "mime_type", None)
-        headers_dikt = getattr(request, "headers", None)
-        query_args_dikt = getattr(request, "query_args", None)
-        if self._serialization_helper.binary:
-            raw_data = getattr(request, "binary_data", None)
-        else:
-            raw_data = getattr(request, "text_data", None)
-
-        if not all([mime_type, headers_dikt, query_args_dikt, raw_data]):
-            raise RuntimeError("The incoming request is not a valid HTTP " "request.")
+        try:
+            mime_type = getattr(request, "mime_type")
+            headers_dikt = getattr(request, "headers")
+            query_args_dikt = getattr(request, "query_args")
+            if self._serialization_helper.binary:
+                raw_data = getattr(request, "binary_data")
+            else:
+                raw_data = getattr(request, "text_data")
+        except AttributeError:
+            raise AttributeError("The incoming request is not a valid HTTP " "request.")
 
         if mime_type.lower() != helper.mime_type.lower():
-            message = "The incoming request does not have the expected " "mime_type."
+            message = "The incoming request does not have the expected " "mime type."
             message = format_error_message(
                 message=message,
                 provided_mime_type=mime_type,
@@ -80,7 +80,7 @@ class HTTPSerializationHandler(SerializationHandler):
         headers = None
         if self._headers_cls:
             try:
-                headers = self._headers_cls.from_dikt(headers_dikt)
+                headers = self._headers_cls.from_dikt(headers_dikt, altchar='-')
             except Exception as ex:
                 message = (
                     "The incoming request does not have " "valid headers ({})."
@@ -116,7 +116,6 @@ class HTTPSerializationHandler(SerializationHandler):
         res = super().__call__(*args, **kwargs)
 
         if isinstance(res, HTTPResponse):
-            res.mime_type = helper.mime_type
             if isinstance(res.headers, Model):
                 try:
                     res.headers = res.headers.to_dikt()
@@ -126,6 +125,7 @@ class HTTPSerializationHandler(SerializationHandler):
                     ).format(str(ex))
                     raise SerializationError(message)
             if isinstance(res.data, Model):
+                res.mime_type = helper.mime_type
                 try:
                     res.data = helper.to_data(res.data.to_dikt())
                 except Exception as ex:

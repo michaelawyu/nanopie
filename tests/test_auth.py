@@ -97,19 +97,23 @@ def test_authentication_handler(setup_ctx, authentication_handler):
     credential_extractor.extract.assert_called_with(request=request)
     credential_validator.validate.assert_called_with(credential=credential)
 
-def test_authentication_handler_before_authentication_wrong_signature(
+def test_authentication_handler_before_authentication_failure_not_callable(
     setup_ctx, authentication_handler):
     with pytest.raises(ValueError) as ex:
         authentication_handler.before_authentication(0)
     assert 'must decorate a callable' in str(ex.value)
 
+def test_authentication_handler_before_authentication_failure_too_many_params(
+    setup_ctx, authentication_handler):
     with pytest.raises(ValueError) as ex:
         @authentication_handler.before_authentication
         def before_authentication_multi_params(x, y): # pylint: disable=unused-variable
             pass
     assert ('must decorate a callable with '
             'exactly one argument named auth_handler') in str(ex.value)
-    
+ 
+def test_authentication_handler_before_authentication_failure_misspelled_param(
+    setup_ctx, authentication_handler):   
     with pytest.raises(ValueError) as ex:
         @authentication_handler.before_authentication
         def before_authentication_wrong_name(x): # pylint: disable=unused-variable
@@ -131,19 +135,23 @@ def test_authentication_handler_before_authentication(
     credential_validator.assert_not_called()
     credential_validator_alt.validate.assert_called_with(credential=credential)
 
-def test_authentication_handler_after_authentication_wrong_signature(
+def test_authentication_handler_after_authentication_failure_not_callable(
     setup_ctx, authentication_handler):
     with pytest.raises(ValueError) as ex:
         authentication_handler.after_authentication(0)
     assert 'must decorate a callable' in str(ex.value)
 
+def test_authentication_handler_after_authentication_failure_too_many_params(
+    setup_ctx, authentication_handler):  
     with pytest.raises(ValueError) as ex:
         @authentication_handler.after_authentication
         def after_authentication_multi_params(x, y): # pylint: disable=unused-variable
             pass
     assert ('must decorate a callable with '
             'exactly one argument named auth_handler') in str(ex.value)
-    
+
+def test_authentication_handler_after_authentication_failure_misspelled_param(
+    setup_ctx, authentication_handler):
     with pytest.raises(ValueError) as ex:
         @authentication_handler.after_authentication
         def after_authentication_wrong_name(x): # pylint: disable=unused-variable
@@ -177,13 +185,15 @@ def test_authentication_handler_http_api_key_query(
 
     assert http_api_key_authentication_handler_query() == None
 
-def test_authentication_handler_http_api_key_header_fail(
+def test_authentication_handler_http_api_key_header_failure_not_HTTP_request(
     setup_ctx, http_api_key_authentication_handler_header):
-    with pytest.raises(RuntimeError) as ex:
+    with pytest.raises(AttributeError) as ex:
         http_api_key_authentication_handler_header()
     
     assert 'not a valid HTTP request' in str(ex.value)
 
+def test_authentication_handler_http_api_key_header_failture_no_header(
+    setup_ctx, http_api_key_authentication_handler_header):
     request.headers = {} # pylint: disable=assigning-non-slot
 
     with pytest.raises(AuthenticationError) as ex:
@@ -192,17 +202,19 @@ def test_authentication_handler_http_api_key_header_fail(
     assert 'does not have an API key' in str(ex.value)
     assert isinstance(ex.value.response, HTTPResponse)
     assert ex.value.response.status_code == 401
-    assert ex.value.response.headers == {'Content-Type': 'text/html'}
+    assert ex.value.response.headers == {}
     assert ex.value.response.mime_type == 'text/html'
     assert '401 Unauthorized' in ex.value.response.data
 
-def test_authentication_handler_http_api_key_query_fail(
+def test_authentication_handler_http_api_key_query_failure_not_HTTP_request(
     setup_ctx, http_api_key_authentication_handler_query):
-    with pytest.raises(RuntimeError) as ex:
+    with pytest.raises(AttributeError) as ex:
         http_api_key_authentication_handler_query()
     
     assert 'not a valid HTTP request' in str(ex.value)
 
+def test_authentication_handler_http_api_key_query_failture_no_query_arg(
+    setup_ctx, http_api_key_authentication_handler_query):
     request.query_args = {} # pylint: disable=assigning-non-slot
 
     with pytest.raises(AuthenticationError) as ex:
@@ -211,7 +223,7 @@ def test_authentication_handler_http_api_key_query_fail(
     assert 'does not have an API key' in str(ex.value)
     assert isinstance(ex.value.response, HTTPResponse)
     assert ex.value.response.status_code == 401
-    assert ex.value.response.headers == {'Content-Type': 'text/html'}
+    assert ex.value.response.headers == {}
     assert ex.value.response.mime_type == 'text/html'
     assert '401 Unauthorized' in ex.value.response.data
 
@@ -226,13 +238,15 @@ def test_authentication_handler_http_basic(
     assert credential.username == 'test'
     assert credential.password == '123£'
 
-def test_authentication_handler_http_basic_fail(
+def test_authentication_handler_http_basic_failure_not_HTTP_request(
     setup_ctx, http_basic_authentication_handler):
-    with pytest.raises(RuntimeError) as ex:
+    with pytest.raises(AttributeError) as ex:
         http_basic_authentication_handler()
     
     assert 'not a valid HTTP request' in str(ex.value)
 
+def test_authentication_handler_http_basic_failure_no_header(
+    setup_ctx, http_basic_authentication_handler):
     request.headers = {} # pylint: disable=assigning-non-slot
 
     with pytest.raises(AuthenticationError) as ex:
@@ -242,12 +256,13 @@ def test_authentication_handler_http_basic_fail(
     assert isinstance(ex.value.response, HTTPResponse)
     assert ex.value.response.status_code == 401
     assert ex.value.response.headers == {
-        'WWW-Authenticate': 'Basic',
-        'Content-Type': 'text/html'
+        'WWW-Authenticate': 'Basic'
     }
     assert ex.value.response.mime_type == 'text/html'
     assert '401 Unauthorized' in ex.value.response.data
 
+def test_authentication_handler_http_basic_failure_wrong_type(
+    setup_ctx, http_basic_authentication_handler):
     request.headers = {  # pylint: disable=assigning-non-slot
         'Authorization': 'Bearer'
     }
@@ -259,12 +274,13 @@ def test_authentication_handler_http_basic_fail(
     assert isinstance(ex.value.response, HTTPResponse)
     assert ex.value.response.status_code == 401
     assert ex.value.response.headers == {
-        'WWW-Authenticate': 'Basic',
-        'Content-Type': 'text/html'
+        'WWW-Authenticate': 'Basic'
     }
     assert ex.value.response.mime_type == 'text/html'
     assert '401 Unauthorized' in ex.value.response.data
 
+def test_authentication_handler_http_basic_failure_corrupted_credential(
+    setup_ctx, http_basic_authentication_handler):
     request.headers = {  # pylint: disable=assigning-non-slot
         'Authorization': 'Basic $ab123'
     }
@@ -276,12 +292,13 @@ def test_authentication_handler_http_basic_fail(
     assert isinstance(ex.value.response, HTTPResponse)
     assert ex.value.response.status_code == 403
     assert ex.value.response.headers == {
-        'WWW-Authenticate': 'Basic',
-        'Content-Type': 'text/html'
+        'WWW-Authenticate': 'Basic'
     }
     assert ex.value.response.mime_type == 'text/html'
     assert '403 Forbidden' in ex.value.response.data
-    
+
+def test_authentication_handler_http_basic_failure_malformed_credential(
+    setup_ctx, http_basic_authentication_handler):
     request.headers = {  # pylint: disable=assigning-non-slot
         'Authorization': 'Basic dGVzdA=='
     }
@@ -293,8 +310,7 @@ def test_authentication_handler_http_basic_fail(
     assert isinstance(ex.value.response, HTTPResponse)
     assert ex.value.response.status_code == 403
     assert ex.value.response.headers == {
-        'WWW-Authenticate': 'Basic',
-        'Content-Type': 'text/html'
+        'WWW-Authenticate': 'Basic'
     }
     assert ex.value.response.mime_type == 'text/html'
     assert '403 Forbidden' in ex.value.response.data
@@ -311,10 +327,70 @@ def test_authentication_handler_http_oauth2_bearer_jwt_header(
 
 @jwt_installed
 @cryptography_installed
-def test_authentication_handler_http_oauth2_bearer_jwt_header_fail(
-    setup_ctx, http_oauth2_bearer_jwt_authentication_handler_header
-):
-    pass
+def test_authentication_handler_http_oauth2_bearer_jwt_header_failure_not_HTTP_request(
+    setup_ctx, http_oauth2_bearer_jwt_authentication_handler_header):
+    with pytest.raises(AttributeError) as ex:
+        http_oauth2_bearer_jwt_authentication_handler_header()
+    
+    assert 'not a valid HTTP request' in str(ex.value)
+
+@jwt_installed
+@cryptography_installed
+def test_authentication_handler_http_oauth2_bearer_jwt_header_failure_no_header(
+    setup_ctx, http_oauth2_bearer_jwt_authentication_handler_header):
+    request.headers = {} # pylint: disable=assigning-non-slot
+
+    with pytest.raises(AuthenticationError) as ex:
+        http_oauth2_bearer_jwt_authentication_handler_header()
+    
+    assert 'does not have an HTTP Authorization request header' in str(ex.value)
+    assert isinstance(ex.value.response, HTTPResponse)
+    assert ex.value.response.status_code == 401
+    assert ex.value.response.headers == {
+        'WWW-Authenticate': 'Bearer'
+    }
+    assert ex.value.response.mime_type == 'text/html'
+    assert '401 Unauthorized' in ex.value.response.data
+
+@jwt_installed
+@cryptography_installed
+def test_authentication_handler_http_oauth2_bearer_jwt_header_failure_wrong_type(
+    setup_ctx, http_oauth2_bearer_jwt_authentication_handler_header):
+    request.headers = {  # pylint: disable=assigning-non-slot
+        'Authorization': 'Basic'
+    }
+
+    with pytest.raises(AuthenticationError) as ex:
+        http_oauth2_bearer_jwt_authentication_handler_header()
+    
+    assert 'does not have an HTTP Authorization request header with the Bearer type' in str(ex.value)
+    assert isinstance(ex.value.response, HTTPResponse)
+    assert ex.value.response.status_code == 401
+    assert ex.value.response.headers == {
+        'WWW-Authenticate': 'Bearer'
+    }
+    assert ex.value.response.mime_type == 'text/html'
+    assert '401 Unauthorized' in ex.value.response.data
+
+@jwt_installed
+@cryptography_installed
+def test_authentication_handler_http_oauth2_bearer_jwt_header_failure_invalid_JWT(
+    setup_ctx, http_oauth2_bearer_jwt_authentication_handler_header):
+    request.headers = {  # pylint: disable=assigning-non-slot
+        'Authorization': 'Bearer $ab123'
+    }
+
+    with pytest.raises(AuthenticationError) as ex:
+        http_oauth2_bearer_jwt_authentication_handler_header()
+    
+    assert 'JWT is not valid' in str(ex.value)
+    assert isinstance(ex.value.response, HTTPResponse)
+    assert ex.value.response.status_code == 403
+    assert ex.value.response.headers == {
+        'WWW-Authenticate': 'Bearer error=invalid_token'
+    }
+    assert ex.value.response.mime_type == 'text/html'
+    assert '403 Forbidden' in ex.value.response.data
 
 @jwt_installed
 @cryptography_installed
@@ -328,5 +404,47 @@ def test_authentication_handler_http_oauth2_bearer_jwt_query(
 
 @jwt_installed
 @cryptography_installed
-def test_authentication_handler_http_oauth2_bearer_jwt_query_fail():
-    pass
+def test_authentication_handler_http_oauth2_bearer_jwt_query_failure_not_HTTP_request(
+    setup_ctx, http_oauth2_bearer_jwt_authentication_handler_query):
+    with pytest.raises(AttributeError) as ex:
+        http_oauth2_bearer_jwt_authentication_handler_query()
+    
+    assert 'not a valid HTTP request' in str(ex.value)
+
+@jwt_installed
+@cryptography_installed
+def test_authentication_handler_http_oauth2_bearer_jwt_query_failure_no_query_arg(
+    setup_ctx, http_oauth2_bearer_jwt_authentication_handler_query):
+    request.query_args = {} # pylint: disable=assigning-non-slot
+
+    with pytest.raises(AuthenticationError) as ex:
+        http_oauth2_bearer_jwt_authentication_handler_query()
+    
+    assert 'does not have an access_token argument' in str(ex.value)
+    assert isinstance(ex.value.response, HTTPResponse)
+    assert ex.value.response.status_code == 401
+    assert ex.value.response.headers == {
+        'WWW-Authenticate': 'Bearer'
+    }
+    assert ex.value.response.mime_type == 'text/html'
+    assert '401 Unauthorized' in ex.value.response.data
+
+@jwt_installed
+@cryptography_installed
+def test_authentication_handler_http_oauth2_bearer_jwt_query_failure_invalid_JWT(
+    setup_ctx, http_oauth2_bearer_jwt_authentication_handler_query):
+    request.query_args = {  # pylint: disable=assigning-non-slot
+        'access_token': '$ab123'
+    }
+
+    with pytest.raises(AuthenticationError) as ex:
+        http_oauth2_bearer_jwt_authentication_handler_query()
+    
+    assert 'JWT is not valid' in str(ex.value)
+    assert isinstance(ex.value.response, HTTPResponse)
+    assert ex.value.response.status_code == 403
+    assert ex.value.response.headers == {   
+        'WWW-Authenticate': 'Bearer error=invalid_token'
+    }
+    assert ex.value.response.mime_type == 'text/html'
+    assert '403 Forbidden' in ex.value.response.data

@@ -42,7 +42,7 @@ class LoggingHandler(Handler):
 
     def __init__(
         self,
-        span_name: Optional[str] = None,
+        span_name: str = 'unspecified_span',
         level: int = logging.INFO,
         fmt: Optional[Dict] = None,
         datefmt: Optional[str] = None,
@@ -79,8 +79,8 @@ class LoggingHandler(Handler):
         if not span_name:
             span_name = endpoint.name
 
-        entering = "Entering {}".format(span_name)
-        exiting = "Exiting {}".format(span_name)
+        entering = "Entering span {}.".format(span_name)
+        exiting = "Exiting span {}.".format(span_name)
 
         logger.info(entering)
         res = super().__call__(*args, **kwargs)
