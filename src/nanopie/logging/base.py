@@ -106,7 +106,7 @@ class LoggingHandler(Handler):
     def getLogger(self, name: str = __name__) -> "logging.Logger":
         """
         """
-        if not name or name == "root":
+        if not name or name == 'root':
             raise ValueError(
                 "To set up the root logger, use " "setup_root_logger method instead."
             )
@@ -131,3 +131,5 @@ class LoggingHandler(Handler):
             logger = logging.getLogger(name)
             logger.propagate = False
             logger.addHandler(logging.StreamHandler())
+        
+        return logging.getLogger()
