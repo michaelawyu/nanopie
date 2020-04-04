@@ -54,10 +54,6 @@ class LoggingHandler(Handler):
         self._default_logger_name = default_logger_name
         self._span_name = span_name
         self._level = level
-        self._fmt = fmt
-        self._datefmt = datefmt
-        self._style = style
-        self._quiet = quiet
         if mode not in LoggingHandlerModes.supported_modes:
             raise ValueError(
                 "mode must be one of the following values: {}".format(
@@ -65,8 +61,15 @@ class LoggingHandler(Handler):
                 )
             )
         self._mode = mode
-        self._log_ctx_extractor = log_ctx_extractor
         self._default_logger = None
+        self._formater = CustomLogRecordFormatter(
+            fmt=fmt,
+            datefmt=datefmt,
+            style=style,
+            flatten=True,
+            log_ctx_extractor=log_ctx_extractor,
+            quiet=quiet,
+        )
 
         super().__init__()
 
@@ -92,14 +95,7 @@ class LoggingHandler(Handler):
         """
         """
         handler = logging.StreamHandler()
-        formatter = CustomLogRecordFormatter(
-            fmt=self._fmt,
-            datefmt=self._datefmt,
-            style=self._style,
-            flatten=True,
-            log_ctx_extractor=self._log_ctx_extractor,
-            quiet=self._quiet,
-        )
+        formatter = self._formater
         handler.setFormatter(formatter)
         logger.addHandler(handler)
         logger.setLevel(self._level)

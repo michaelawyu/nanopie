@@ -73,10 +73,6 @@ class CustomLogRecordFormatter(logging.Formatter):
                     v = self.__fmt[k] % record.__dict__
                 dikt[k] = v
             except KeyError as ex:
-                warning = (
-                    "One or more fields in the format cannot be " "filled ({})."
-                ).format(ex)
-                package_logger.warning(warning)
                 if not self._quiet:
                     raise ex
 
