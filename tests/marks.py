@@ -15,3 +15,7 @@ pycrypto_installed = pytest.mark.skipif(
 ecdsa_installed = pytest.mark.skipif(
     pkgutil.find_loader("ecdsa") == None,
     reason='requires that ecdsa is installed')
+fluentd_installed = pytest.mark.skipif(
+    pkgutil.find_loader("fluent") == None,
+    reason='requires that fluentd is installed'
+)

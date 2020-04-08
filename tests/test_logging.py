@@ -1,11 +1,16 @@
 import ast
 import logging
 import socket
+from unittest.mock import MagicMock
 
 import pytest
 
+from .marks import fluentd_installed
+from nanopie import StringField
+from nanopie.globals import request
 from nanopie.logger import logger as package_logger
-from nanopie.logging import LoggingHandler
+from nanopie.logging import LogContext, LogContextExtractor, LoggingHandler
+from nanopie.logging.fluentd import FLUENT_INSTALLED, FluentdLoggingHandler
 
 DEFAULT_LOGGER_NAME = 'test'
 
@@ -242,8 +247,33 @@ def test_logging_handler_quiet_mode(caplog, capsys, teardown_remove_logger_handl
     assert log_output['logger'] == 'test'
     assert log_output.get('missing_key') == None
 
-def test_logging_handler_log_context_extractor(caplog, capsys):
-    pass
+def test_logging_handler_log_context_extractor(caplog, capsys, setup_ctx, teardown_remove_logger_handlers):
+    class LoggingContext(LogContext):
+        key = StringField()
+    
+    class LoggingContextExtractor(LogContextExtractor):
+        def extract(self, request):
+            value = request.headers.get('key')
+            return LoggingContext(key=value)
+    
+    request.headers = {'key': 'value'}
+    log_ctx_extractor = LoggingContextExtractor()
+
+    logging_handler = LoggingHandler(
+        default_logger_name=DEFAULT_LOGGER_NAME,
+        log_ctx_extractor=log_ctx_extractor
+    )
+    logger = logging_handler.default_logger
+
+    logger.info('This is a test message.')
+
+    assert len(caplog.record_tuples) == 1
+    assert caplog.record_tuples[0] == (DEFAULT_LOGGER_NAME, 20, 'This is a test message.')
+
+    captured = capsys.readouterr()
+    stderr_outputs = captured.err.split('\n')
+    log_output = ast.literal_eval(stderr_outputs[0])
+    assert log_output.get('key') == 'value'
 
 def test_logging_handler_failure_no_style(caplog, capsys, teardown_remove_logger_handlers):
     with pytest.raises(ValueError) as ex:
@@ -251,8 +281,82 @@ def test_logging_handler_failure_no_style(caplog, capsys, teardown_remove_logger
             default_logger_name=DEFAULT_LOGGER_NAME,
             style='^'
         )
+        logger = logging_handler.default_logger
     
     assert 'Style must be one of' in str(ex.value)
 
 def test_logging_handler_failure_unfulfilled_key_in_fmt(caplog, capsys, teardown_remove_logger_handlers):
+    fmt = {
+        'logger': "%(name)s",
+        'missing_key': "%(missing_key)s"
+    }
+    logging_handler = LoggingHandler(
+        default_logger_name=DEFAULT_LOGGER_NAME,
+        fmt=fmt,
+        quiet=False
+    )
+    logger = logging_handler.default_logger
+
+    logger.info('This is a test message.')
+
+    captured = capsys.readouterr()
+    assert 'KeyError' in captured.err
+    assert 'missing_key' in captured.err
+
+def test_logging_handler_failure_log_context_extraction_error(caplog, capsys, setup_ctx, teardown_remove_logger_handlers):
+    class LoggingContextExtractor(LogContextExtractor):
+        def extract(self, request):
+            raise RuntimeError
+
+    log_ctx_extractor = LoggingContextExtractor()
+
+    logging_handler = LoggingHandler(
+        default_logger_name=DEFAULT_LOGGER_NAME,
+        quiet=False,
+        log_ctx_extractor=log_ctx_extractor
+    )
+    logger = logging_handler.default_logger
+    logger.info('This is a test message.')
+
+    captured = capsys.readouterr()
+    assert 'Cannot extract log context' in captured.err
+    assert 'RuntimeError' in captured.err
+
+def test_logging_handler_get_log_ctx():
+    class LoggingContext(LogContext):
+        key = StringField()
+    
+    class LoggingContextExtractor(LogContextExtractor):
+        def extract(self, request):
+            value = request.headers.get('key')
+            return LoggingContext(key=value)
+    
+    request.headers = {'key': 'value'}
+    log_ctx_extractor = LoggingContextExtractor()
+    logging_handler = LoggingHandler(
+        default_logger_name=DEFAULT_LOGGER_NAME,
+        log_ctx_extractor=log_ctx_extractor
+    )
+    log_ctx = logging_handler.get_log_ctx()
+
+    assert log_ctx.key == 'value'
+
+@fluentd_installed
+def test_fluentd_logging_handler():
+    pass
+
+@pytest.mark.skipif(FLUENT_INSTALLED,
+                    reason='requires that fluentd is not installed')
+def test_fluentd_logging_handler_failure_fluentd_not_installed():
+    with pytest.raises(ImportError) as ex:
+        fluentd_logging_handler = FluentdLoggingHandler(
+            default_logger_name=DEFAULT_LOGGER_NAME
+        )
+    
+    assert 'fluent-logger' in str(ex.value)
+
+def test_logstash_logging_handler_tcp():
+    pass
+
+def test_logstash_logging_handler_udp():
     pass

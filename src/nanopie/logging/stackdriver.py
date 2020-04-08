@@ -32,13 +32,6 @@ class StackdriverLoggingHandler(LoggingHandler):
         resource: Optional["stackdriver_logging.resource.Resource"] = None,
         labels: Optional[Dict] = None,
         stream: Optional[Union[TextIO, BinaryIO]] = None,
-        level: int = logging.INFO,
-        fmt: Optional[Dict] = None,
-        datefmt: Optional[str] = None,
-        style: str = "%",
-        quiet: bool = True,
-        mode: int = LoggingHandlerModes.BACKGROUND_THREAD,
-        log_ctx_extractor: Optional["LogContextExtractor"] = None,
         **kwargs
     ):
         """
@@ -59,15 +52,7 @@ class StackdriverLoggingHandler(LoggingHandler):
         self._labels = labels
         self._stream = stream
 
-        super().__init__(
-            level=level,
-            fmt=fmt,
-            datefmt=datefmt,
-            style=style,
-            quiet=quiet,
-            mode=mode,
-            log_ctx_extractor=log_ctx_extractor,
-        )
+        super().__init__(**kwargs)
 
     def _setup_logger(self, logger: "logging.Logger"):
         """

@@ -3,7 +3,7 @@ import logging
 from typing import Dict, List, Optional
 
 from .formatter import CustomLogRecordFormatter
-from ..globals import endpoint
+from ..globals import endpoint, request
 from ..handler import Handler
 from ..model import Model
 from ..services.base import Extractor
@@ -51,6 +51,9 @@ class LoggingHandler(Handler):
     ):
         """
         """
+        self._fmt = fmt
+        self._datefmt = datefmt
+        self._style = style
         self._default_logger_name = default_logger_name
         self._span_name = span_name
         self._level = level
@@ -62,14 +65,8 @@ class LoggingHandler(Handler):
             )
         self._mode = mode
         self._default_logger = None
-        self._formater = CustomLogRecordFormatter(
-            fmt=fmt,
-            datefmt=datefmt,
-            style=style,
-            flatten=True,
-            log_ctx_extractor=log_ctx_extractor,
-            quiet=quiet,
-        )
+        self._log_ctx_extractor = log_ctx_extractor
+        self._quiet = quiet
 
         super().__init__()
 
@@ -89,13 +86,26 @@ class LoggingHandler(Handler):
         res = super().__call__(*args, **kwargs)
         logger.info(exiting)
         return res
+    
+    def get_log_ctx(self):
+        if self._log_ctx_extractor:
+            return self._log_ctx_extractor.extract(request=request)
+        else:
+            raise RuntimeError('log_ctx_extractor is not present.')
 
     def _setup_logger(self,
                       logger: "logging.Logger"):
         """
         """
         handler = logging.StreamHandler()
-        formatter = self._formater
+        formatter = CustomLogRecordFormatter(
+            fmt=self._fmt,
+            datefmt=self._datefmt,
+            style=self._style,
+            flatten=True,
+            log_ctx_extractor=self._log_ctx_extractor,
+            quiet=self._quiet,
+        )
         handler.setFormatter(formatter)
         logger.addHandler(handler)
         logger.setLevel(self._level)

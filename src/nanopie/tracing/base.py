@@ -151,10 +151,13 @@ class OpenTelemetryTracingHandler(Handler):
 
         return self._tracer_source
 
-    def get_tracing_ctx(self):
+    def get_trace_ctx(self):
         """
         """
-        return self._trace_ctx_extractor.extract(request=request_proxy)
+        if self._trace_ctx_extractor:
+            return self._trace_ctx_extractor.extract(request=request_proxy)
+        else:
+            raise RuntimeError('trace_ctx_extractor is not present.')
 
     def get_tracer(self):
         """
@@ -169,7 +172,7 @@ class OpenTelemetryTracingHandler(Handler):
         current_span = tracer.get_current_span()
         if self._propagated:
             if not current_span or not current_span.get_context().is_valid():
-                trace_ctx = self.get_tracing_ctx()
+                trace_ctx = self.get_trace_ctx()
                 try:
                     trace_id = trace_ctx.trace_id
                     span_id = trace_ctx.span_id
@@ -184,12 +187,6 @@ class OpenTelemetryTracingHandler(Handler):
                     )
                     assert current_span.is_valid()
                 except Exception as ex:  # pylint: disable=broad-except
-                    warning = (
-                        "Trace context is not available ({}); "
-                        "starting a new span without "
-                        "propagation instead."
-                    ).format(ex)
-                    logger.warning(warning)
                     if not self._quiet:
                         raise ex
 
