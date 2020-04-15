@@ -35,9 +35,16 @@ class FluentdLoggingHandler(LoggingHandler):
         """
         """
         handler = fluent_handler.FluentHandler(
-            tag=self._tag, host=self._host, port=self._port
+            self._tag, host=self._host, port=self._port
         )
-        formatter = self._formatter
+        formatter = CustomLogRecordFormatter(
+            fmt=self._fmt,
+            datefmt=self._datefmt,
+            style=self._style,
+            flatten=False,
+            log_ctx_extractor=self._log_ctx_extractor,
+            quiet=self._quiet,
+        )
         handler.setFormatter(formatter)
         logger.addHandler(handler)
         logger.setLevel(self._level)

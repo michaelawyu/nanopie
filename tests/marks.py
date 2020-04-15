@@ -19,3 +19,7 @@ fluentd_installed = pytest.mark.skipif(
     pkgutil.find_loader("fluent") == None,
     reason='requires that fluentd is installed'
 )
+docker_installed = pytest.mark.skipif(
+    pkgutil.find_loader("docker") == None,
+    reason='requires that docker is installed'
+)

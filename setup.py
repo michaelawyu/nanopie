@@ -46,8 +46,11 @@ setup(
         'dev': [
             'pylint',
             'pytest',
-            'black',
-            'pyjwt'
+            'black'
+        ],
+        'extras': [
+            'pyjwt',
+            'docker'
         ]
     }
 )

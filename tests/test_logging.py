@@ -1,11 +1,13 @@
 import ast
+import datetime
 import logging
+import time
 import socket
 from unittest.mock import MagicMock
 
 import pytest
 
-from .marks import fluentd_installed
+from .marks import fluentd_installed, docker_installed
 from nanopie import StringField
 from nanopie.globals import request
 from nanopie.logger import logger as package_logger
@@ -25,6 +27,26 @@ def teardown_remove_logger_handlers():
     yield None
     logger = logging.getLogger(DEFAULT_LOGGER_NAME)
     logger.handlers = []
+
+@pytest.fixture
+def fluentd_container():
+    try:
+        import docker
+    except ImportError:
+        raise ImportError(
+            "The docker (https://pypi.org/project/docker/)"
+            "package is required to run this test. To "
+            "install this package, run `pip install docker`."
+        )
+    docker_client = docker.from_env()
+    fluentd_container = docker_client.containers.run(
+        image='nanopie-test/fluentd',
+        ports={24224:24224},
+        detach=True
+    )
+    time.sleep(5)
+    yield fluentd_container
+    fluentd_container.kill()
 
 def test_logging_handler(caplog, capsys, simple_logging_handler):
     with caplog.at_level(logging.INFO):
@@ -256,7 +278,7 @@ def test_logging_handler_log_context_extractor(caplog, capsys, setup_ctx, teardo
             value = request.headers.get('key')
             return LoggingContext(key=value)
     
-    request.headers = {'key': 'value'}
+    request.headers = {'key': 'value'} # pylint: disable=assigning-non-slot
     log_ctx_extractor = LoggingContextExtractor()
 
     logging_handler = LoggingHandler(
@@ -281,7 +303,7 @@ def test_logging_handler_failure_no_style(caplog, capsys, teardown_remove_logger
             default_logger_name=DEFAULT_LOGGER_NAME,
             style='^'
         )
-        logger = logging_handler.default_logger
+        logger = logging_handler.default_logger # pylint: disable=unused-variable
     
     assert 'Style must be one of' in str(ex.value)
 
@@ -331,7 +353,7 @@ def test_logging_handler_get_log_ctx():
             value = request.headers.get('key')
             return LoggingContext(key=value)
     
-    request.headers = {'key': 'value'}
+    request.headers = {'key': 'value'} # pylint: disable=assigning-non-slot
     log_ctx_extractor = LoggingContextExtractor()
     logging_handler = LoggingHandler(
         default_logger_name=DEFAULT_LOGGER_NAME,
@@ -341,15 +363,42 @@ def test_logging_handler_get_log_ctx():
 
     assert log_ctx.key == 'value'
 
+@docker_installed
 @fluentd_installed
-def test_fluentd_logging_handler():
-    pass
+def test_fluentd_logging_handler(teardown_remove_logger_handlers, fluentd_container):
+    assert fluentd_container.status in ['created', 'running']
+
+    time.sleep(5)
+
+    fluentd_logging_handler = FluentdLoggingHandler(
+        default_logger_name=DEFAULT_LOGGER_NAME,
+    )
+    logger = fluentd_logging_handler.default_logger
+    logger.info('This is a test message.')
+
+    time.sleep(20)
+
+    logs = fluentd_container.logs().decode()
+
+    assert 'app' in logs
+    assert 'host' in logs
+    assert socket.gethostname() in logs
+    assert 'logger' in logs
+    assert DEFAULT_LOGGER_NAME in logs
+    assert 'level' in logs
+    assert 'INFO' in logs
+    assert 'module' in logs
+    assert 'test_logging' in logs
+    assert 'func' in logs
+    assert 'test_fluentd_logging_handler' in logs
+    assert 'message' in logs
+    assert 'This is a test message' in logs
 
 @pytest.mark.skipif(FLUENT_INSTALLED,
                     reason='requires that fluentd is not installed')
 def test_fluentd_logging_handler_failure_fluentd_not_installed():
     with pytest.raises(ImportError) as ex:
-        fluentd_logging_handler = FluentdLoggingHandler(
+        fluentd_logging_handler = FluentdLoggingHandler( # pylint: disable=unused-variable
             default_logger_name=DEFAULT_LOGGER_NAME
         )
     
