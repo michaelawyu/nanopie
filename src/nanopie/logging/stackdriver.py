@@ -28,6 +28,7 @@ class StackdriverLoggingHandler(LoggingHandler):
     def __init__(
         self,
         client: "stackdriver_logging.Client",
+        client_args: Dict = {},
         custom_log_name: Optional[str] = None,
         resource: Optional["stackdriver_logging.resource.Resource"] = None,
         labels: Optional[Dict] = None,
@@ -44,7 +45,7 @@ class StackdriverLoggingHandler(LoggingHandler):
                 "install this package, run `pip install google-cloud-logging`."
             )
 
-        self._client = stackdriver_logging.Client(**kwargs)
+        self._client = stackdriver_logging.Client(**client_args)
         self._custom_log_name = (
             custom_log_name if custom_log_name else DEFAULT_LOGGER_NAME
         )
@@ -66,7 +67,7 @@ class StackdriverLoggingHandler(LoggingHandler):
                 labels=self._labels,
                 stream=self._stream,
             )
-        else:
+        elif self.mode == LoggingHandlerModes.BACKGROUND_THREAD:
             handler = StackdriverHandler(
                 client=self._client,
                 name=self._custom_log_name,
@@ -74,12 +75,14 @@ class StackdriverLoggingHandler(LoggingHandler):
                 labels=self._labels,
                 stream=self._stream,
             )
+        else:
+            raise ValueError('Specified mode is not supported.')
 
         formatter = CustomLogRecordFormatter(
             fmt=self._fmt,
             datefmt=self._datefmt,
             style=self._style,
-            flatten=True,
+            flatten=False,
             log_ctx_extractor=self._log_ctx_extractor,
             quiet=self._quiet,
         )

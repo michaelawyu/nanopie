@@ -6,7 +6,7 @@ class LogstashTCPHandler(SocketHandler):
     """
 
     def makePickle(self, record):
-        return self.formatter.format(record) + b"\n"
+        return self.formatter.format(record).encode() + b"\n"
 
 
 class LogstashUDPHandler(DatagramHandler):
@@ -14,4 +14,4 @@ class LogstashUDPHandler(DatagramHandler):
     """
 
     def makePickle(self, record):
-        return self.formatter.format(record) + b"\n"
+        return self.formatter.format(record).encode() + b"\n"

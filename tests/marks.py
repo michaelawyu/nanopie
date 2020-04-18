@@ -23,3 +23,7 @@ docker_installed = pytest.mark.skipif(
     pkgutil.find_loader("docker") == None,
     reason='requires that docker is installed'
 )
+stackdriver_installed = pytest.mark.skipif(
+    pkgutil.find_loader("google.cloud.logging") == None,
+    reason='requires that google-cloud-logging is installed'
+)

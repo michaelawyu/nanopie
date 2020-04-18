@@ -4,15 +4,18 @@ import logging
 import time
 import socket
 from unittest.mock import MagicMock
+import uuid
 
 import pytest
 
-from .marks import fluentd_installed, docker_installed
+from .marks import fluentd_installed, docker_installed, stackdriver_installed
 from nanopie import StringField
 from nanopie.globals import request
 from nanopie.logger import logger as package_logger
-from nanopie.logging import LogContext, LogContextExtractor, LoggingHandler
+from nanopie.logging import LogContext, LogContextExtractor, LoggingHandler, LoggingHandlerModes
 from nanopie.logging.fluentd import FLUENT_INSTALLED, FluentdLoggingHandler
+from nanopie.logging.logstash import LogstashLoggingHandler
+from nanopie.logging.stackdriver import STACKDRIVER_INSTALLED, StackdriverLoggingHandler
 
 DEFAULT_LOGGER_NAME = 'test'
 
@@ -44,9 +47,48 @@ def fluentd_container():
         ports={24224:24224},
         detach=True
     )
-    time.sleep(5)
+    time.sleep(10)
     yield fluentd_container
     fluentd_container.kill()
+
+@pytest.fixture
+def logstash_container():
+    try:
+        import docker
+    except ImportError:
+        raise ImportError(
+            "The docker (https://pypi.org/project/docker/)"
+            "package is required to run this test. To "
+            "install this package, run `pip install docker`."
+        )
+    docker_client = docker.from_env()
+    logstash_container = docker_client.containers.run(
+        image='nanopie-test/logstash',
+        ports={
+            '9600/tcp':9600,
+            '9600/udp':9600
+        },
+        detach=True,
+        environment={'XPACK_MONITORING_ENABLED':'False'}
+    )
+    time.sleep(40)
+    yield logstash_container
+    logstash_container.kill()
+
+@pytest.fixture
+def stackdriver_logging_client():
+    try:
+        from google.cloud import logging
+    except ImportError:
+        raise ImportError(
+            "The google-cloud-logging "
+            "(https://pypi.org/project/google-cloud-logging/)"
+            "package is required to run this test. To "
+            "install this package, run `pip install google-cloud-logging`."
+        )
+    
+    stackdriver_logging_client = logging.Client()
+    return stackdriver_logging_client
 
 def test_logging_handler(caplog, capsys, simple_logging_handler):
     with caplog.at_level(logging.INFO):
@@ -368,7 +410,7 @@ def test_logging_handler_get_log_ctx():
 def test_fluentd_logging_handler(teardown_remove_logger_handlers, fluentd_container):
     assert fluentd_container.status in ['created', 'running']
 
-    time.sleep(5)
+    time.sleep(10)
 
     fluentd_logging_handler = FluentdLoggingHandler(
         default_logger_name=DEFAULT_LOGGER_NAME,
@@ -401,11 +443,166 @@ def test_fluentd_logging_handler_failure_fluentd_not_installed():
         fluentd_logging_handler = FluentdLoggingHandler( # pylint: disable=unused-variable
             default_logger_name=DEFAULT_LOGGER_NAME
         )
-    
+
     assert 'fluent-logger' in str(ex.value)
 
-def test_logstash_logging_handler_tcp():
-    pass
+@docker_installed
+def test_logstash_logging_handler_tcp(teardown_remove_logger_handlers, logstash_container):
+    assert logstash_container.status in ['created', 'running']
 
-def test_logstash_logging_handler_udp():
-    pass
+    time.sleep(10)
+
+    logstash_logging_handler = LogstashLoggingHandler(
+        default_logger_name=DEFAULT_LOGGER_NAME
+    )
+    logger = logstash_logging_handler.default_logger
+    logger.info('This is a test message.')
+
+    time.sleep(20)
+
+    logs = logstash_container.logs().decode()
+
+    assert 'app' in logs
+    assert 'host' in logs
+    assert socket.gethostname() in logs
+    assert 'logger' in logs
+    assert DEFAULT_LOGGER_NAME in logs
+    assert 'level' in logs
+    assert 'INFO' in logs
+    assert 'module' in logs
+    assert 'test_logging' in logs
+    assert 'func' in logs
+    assert 'test_fluentd_logging_handler' in logs
+    assert 'message' in logs
+    assert 'This is a test message' in logs
+
+@docker_installed
+def test_logstash_logging_handler_udp(teardown_remove_logger_handlers, logstash_container):
+    assert logstash_container.status in ['created', 'running']
+
+    time.sleep(10)
+
+    logstash_logging_handler = LogstashLoggingHandler(
+        default_logger_name=DEFAULT_LOGGER_NAME,
+        use_udp=True
+    )
+    logger = logstash_logging_handler.default_logger
+    logger.info('This is a test message.')
+
+    time.sleep(20)
+
+    logs = logstash_container.logs().decode()
+
+    assert 'app' in logs
+    assert 'host' in logs
+    assert socket.gethostname() in logs
+    assert 'logger' in logs
+    assert DEFAULT_LOGGER_NAME in logs
+    assert 'level' in logs
+    assert 'INFO' in logs
+    assert 'module' in logs
+    assert 'test_logging' in logs
+    assert 'func' in logs
+    assert 'test_fluentd_logging_handler' in logs
+    assert 'message' in logs
+    assert 'This is a test message' in logs
+
+@pytest.mark.skipif(STACKDRIVER_INSTALLED,
+                    reason='requires that google-cloud-logging is not installed')
+def test_stackdriver_logging_handler_failure_stackdriver_not_installed():
+    with pytest.raises(ImportError) as ex:
+        stackdriver_logging_handler = StackdriverLoggingHandler(
+            client=None,
+            default_logger_name=DEFAULT_LOGGER_NAME
+        )
+
+    assert 'google-cloud-logging' in str(ex.value)
+
+@stackdriver_installed
+def test_stackdriver_logging_handler_sync(teardown_remove_logger_handlers, stackdriver_logging_client):
+    from google.cloud.logging.resource import Resource
+
+    identifier = str(uuid.uuid4())
+    resource = Resource(
+        type="generic_node",
+        labels={
+            "location": "us-central1-a",
+            "namespace": "default",
+            "node_id": identifier,
+        }
+    )
+
+    stackdriver_logging_handler = StackdriverLoggingHandler(
+        client=stackdriver_logging_client,
+        default_logger_name=DEFAULT_LOGGER_NAME,
+        resource=resource
+    )
+    logger = stackdriver_logging_handler.default_logger
+    logger.info('This is a test message.')
+
+    time.sleep(20)
+
+    _filter = 'resource.type = "generic_node" AND resource.labels.node_id = "{}"'.format(identifier)
+    entries = []
+    for entry in stackdriver_logging_client.list_entries(filter_=_filter):
+        entries.append(entry)
+    
+    assert len(entries) == 1
+    log = str(entries[0])
+    assert 'host' in log
+    assert socket.gethostname() in log
+    assert 'logger' in log
+    assert DEFAULT_LOGGER_NAME in log
+    assert 'level' in log
+    assert 'INFO' in log
+    assert 'module' in log
+    assert 'test_logging' in log
+    assert 'func' in log
+    assert 'test_fluentd_logging_handler' in log
+    assert 'message' in log
+    assert 'This is a test message' in log
+
+@stackdriver_installedidentie
+def test_stackdriver_logging_handler_background_thread():
+    from google.cloud.logging.resource import Resource
+
+    identifier = str(uuid.uuid4())
+    resource = Resource(
+        type="generic_node",
+        labels={
+            "location": "us-central1-a",
+            "namespace": "default",
+            "node_id": identifier,
+        }
+    )
+
+    stackdriver_logging_handler = StackdriverLoggingHandler(
+        client=stackdriver_logging_client,
+        default_logger_name=DEFAULT_LOGGER_NAME,
+        resource=resource,
+        mode=LoggingHandlerModes.BACKGROUND_THREAD
+    )
+    logger = stackdriver_logging_handler.default_logger
+    logger.info('This is a test message.')
+
+    time.sleep(20)
+
+    _filter = 'resource.type = "generic_node" AND resource.labels.node_id = "{}"'.format(identifier)
+    entries = []
+    for entry in stackdriver_logging_client.list_entries(filter_=_filter):
+        entries.append(entry)
+    
+    assert len(entries) == 1
+    log = str(entries[0])
+    assert 'host' in log
+    assert socket.gethostname() in log
+    assert 'logger' in log
+    assert DEFAULT_LOGGER_NAME in log
+    assert 'level' in log
+    assert 'INFO' in log
+    assert 'module' in log
+    assert 'test_logging' in log
+    assert 'func' in log
+    assert 'test_fluentd_logging_handler' in log
+    assert 'message' in log
+    assert 'This is a test message' in log

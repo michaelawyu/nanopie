@@ -122,10 +122,9 @@ class StackdriverHandler(CloudLoggingHandler):
         """
         """
         super().__init__(
-            self,
             client,
             name,
-            transport=transport,
+            transport,
             resource=resource,
             labels=labels,
             stream=stream,
