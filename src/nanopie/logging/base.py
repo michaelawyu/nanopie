@@ -37,10 +37,11 @@ class LoggingHandlerModes:
 class LoggingHandler(Handler):
     """
     """
+
     def __init__(
         self,
         default_logger_name: str = __name__,
-        span_name: str = 'unspecified_span',
+        span_name: str = "unspecified_span",
         level: int = logging.INFO,
         fmt: Optional[Dict] = None,
         datefmt: Optional[str] = None,
@@ -86,15 +87,14 @@ class LoggingHandler(Handler):
         res = super().__call__(*args, **kwargs)
         logger.info(exiting)
         return res
-    
+
     def get_log_ctx(self):
         if self._log_ctx_extractor:
             return self._log_ctx_extractor.extract(request=request)
         else:
-            raise RuntimeError('log_ctx_extractor is not present.')
+            raise RuntimeError("log_ctx_extractor is not present.")
 
-    def _setup_logger(self,
-                      logger: "logging.Logger"):
+    def _setup_logger(self, logger: "logging.Logger"):
         """
         """
         handler = logging.StreamHandler()
@@ -110,12 +110,12 @@ class LoggingHandler(Handler):
         logger.addHandler(handler)
         logger.setLevel(self._level)
 
-    def getLogger(self,
-                  name: Optional[str] = None,
-                  append_handlers: bool = False) -> "logging.Logger":
+    def getLogger(
+        self, name: Optional[str] = None, append_handlers: bool = False
+    ) -> "logging.Logger":
         """
         """
-        if not name or name == 'root':
+        if not name or name == "root":
             raise ValueError(
                 "To set up the root logger, use " "setup_root_logger method instead."
             )
@@ -125,11 +125,13 @@ class LoggingHandler(Handler):
         if len(logger.handlers) == 0 or append_handlers:
             self._setup_logger(logger)
         else:
-            raise RuntimeError('A logger with the given name already exists '
-                               'and has one or more handlers configured.')
+            raise RuntimeError(
+                "A logger with the given name already exists "
+                "and has one or more handlers configured."
+            )
 
         return logger
-    
+
     @property
     def default_logger(self) -> "logging.Logger":
         """
@@ -139,9 +141,9 @@ class LoggingHandler(Handler):
 
         return self._default_logger
 
-    def setup_root_logger(self,
-                          excluded_loggers: List[str],
-                          append_handlers: bool = False):
+    def setup_root_logger(
+        self, excluded_loggers: List[str], append_handlers: bool = False
+    ):
         """
         """
         root_logger = logging.getLogger()
@@ -149,13 +151,14 @@ class LoggingHandler(Handler):
         if len(root_logger.handlers) == 0 or append_handlers:
             self._setup_logger(root_logger)
         else:
-            raise RuntimeError('The root logger already has one or more '
-                               'handlers configured.')
+            raise RuntimeError(
+                "The root logger already has one or more " "handlers configured."
+            )
 
         for name in excluded_loggers:
             logger = logging.getLogger(name)
             logger.propagate = False
             if not logger.hasHandlers():
                 logger.addHandler(logging.lastResort)
-        
+
         return root_logger

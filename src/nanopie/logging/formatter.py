@@ -90,7 +90,7 @@ class CustomLogRecordFormatter(logging.Formatter):
                     dikt[k] = log_ctx[k]
             except Exception as ex:  # pylint: disable=broad-except
                 if not self._quiet:
-                    raise RuntimeError('Cannot extract log context ().'.format(str(ex)))
+                    raise RuntimeError("Cannot extract log context ().".format(str(ex)))
 
         if self._flatten:
             return json.dumps(dikt)

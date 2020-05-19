@@ -1,9 +1,6 @@
-from .logstash import (
-    LogstashTCPHandler,
-    LogstashUDPHandler
-)
+from .logstash import LogstashTCPHandler, LogstashUDPHandler
+
 try:
     from .stackdriver import StackdriverHandler
 except ImportError:
     pass
-

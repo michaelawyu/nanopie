@@ -20,9 +20,11 @@ class Field(ABC):
         """
         """
 
+
 class ModelMetaCls(type):
     """
     """
+
     def __new__(cls, clsname, superclses, attribute_dict):
         """
         """
@@ -30,14 +32,15 @@ class ModelMetaCls(type):
         class PropertyDescriptor:
             """
             """
-            __slots__ = ('name', 'mask')
+
+            __slots__ = ("name", "mask")
 
             def __init__(self, name: str, mask: str):
                 """
                 """
                 self.name = name
                 self.mask = mask
-            
+
             def __get__(self, obj, type=None) -> Any:
                 """
                 """
@@ -86,7 +89,7 @@ class Model(metaclass=ModelMetaCls):
             if skip_validation:
                 setattr(self, mask, p)
                 continue
-            
+
             if p == None:
                 required = self._fields[k].required  # pylint: disable=no-member
                 default = self._fields[k].default  # pylint: disable=no-member
@@ -96,14 +99,12 @@ class Model(metaclass=ModelMetaCls):
                 else:
                     if required:
                         raise RequiredFieldMissingError(
-                            self._fields[k], k # pylint: disable=no-member
+                            self._fields[k], k  # pylint: disable=no-member
                         )
 
             setattr(self, k, p)
 
-    def to_dikt(self,
-                altchar: Optional[str] = None,
-                skip_validation: bool = True):
+    def to_dikt(self, altchar: Optional[str] = None, skip_validation: bool = True):
         """
         """
         if not skip_validation:
@@ -115,11 +116,11 @@ class Model(metaclass=ModelMetaCls):
             if type(data) in [str, int, float, bool]:
                 return data
             elif type(data) == list:
-                return [ helper(item) for item in data ]
+                return [helper(item) for item in data]
             elif isinstance(data, Model):
                 return data.to_dikt(skip_validation=skip_validation)
             else:
-                message = ('The data is of an unsupported type.')
+                message = "The data is of an unsupported type."
                 message = format_error_message(message=message, data=data)
                 raise RuntimeError(message)
 
@@ -127,17 +128,19 @@ class Model(metaclass=ModelMetaCls):
         for k in self._fields:  # pylint: disable=no-member
             v = helper(getattr(self, k))
             if altchar:
-                k = k.replace('_', altchar[0])
+                k = k.replace("_", altchar[0])
             dikt[k] = v
 
         return dikt
 
     @classmethod
-    def from_dikt(cls,
-                  dikt: Dict,
-                  altchar: Optional[str] = None,
-                  skip_validation: bool = True,
-                  type_cast: bool = False):
+    def from_dikt(
+        cls,
+        dikt: Dict,
+        altchar: Optional[str] = None,
+        skip_validation: bool = True,
+        type_cast: bool = False,
+    ):
         """
         """
 
@@ -163,22 +166,22 @@ class Model(metaclass=ModelMetaCls):
             elif issubclass(data_type, Model) and type(data) == dict:
                 return data_type.from_dikt(data)
             else:
-                message = ('The data is not of the type specified in the field'
-                           ', or the field specifies an unsupported type.')
-                message = format_error_message(
-                    message=message, data=data, ref=ref
+                message = (
+                    "The data is not of the type specified in the field"
+                    ", or the field specifies an unsupported type."
                 )
+                message = format_error_message(message=message, data=data, ref=ref)
                 raise RuntimeError(message)
 
         obj = cls(skip_validation=True)
         for k in cls._fields:  # pylint: disable=no-member
-            mask = '_' + k
+            mask = "_" + k
             field = cls._fields[k]  # pylint: disable=no-member
             if altchar:
-                k = k.replace('_', altchar[0])
+                k = k.replace("_", altchar[0])
             v = helper(dikt.get(k), field)
             setattr(obj, mask, v)
-        
+
         if not skip_validation:
             cls.validate(v=obj)
 

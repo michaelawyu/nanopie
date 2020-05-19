@@ -66,7 +66,9 @@ class JWTValidator(CredentialValidator):
 
         if use_pycrypto:
             if algorithm not in PYCRYPTO_SUPPORTED_ALGS:
-                raise ValueError("pycrypto does not support the specified " "algorithm.")
+                raise ValueError(
+                    "pycrypto does not support the specified " "algorithm."
+                )
             if not pkgutil.find_loader("Crypto"):
                 raise ImportError(
                     "The pycrypto "
@@ -79,7 +81,9 @@ class JWTValidator(CredentialValidator):
             from jwt.contrib.algorithms.pycrypto import RSAAlgorithm
 
             jwt.unregister_algorithm(algorithm)
-            jwt.register_algorithm(algorithm, RSAAlgorithm(getattr(RSAAlgorithm, 'SHA' + algorithm[2:])))
+            jwt.register_algorithm(
+                algorithm, RSAAlgorithm(getattr(RSAAlgorithm, "SHA" + algorithm[2:]))
+            )
         elif use_ecdsa:
             if algorithm not in ECDSA_SUPPORTED_ALGS:
                 raise ValueError("ecdsa does not support the specified " "algorithm.")
@@ -94,7 +98,9 @@ class JWTValidator(CredentialValidator):
             from jwt.contrib.algorithms.py_ecdsa import ECAlgorithm
 
             jwt.unregister_algorithm(algorithm)
-            jwt.register_algorithm(algorithm, ECAlgorithm(getattr(ECAlgorithm, 'SHA' + algorithm[2:])))
+            jwt.register_algorithm(
+                algorithm, ECAlgorithm(getattr(ECAlgorithm, "SHA" + algorithm[2:]))
+            )
         elif not pkgutil.find_loader("cryptography"):
             raise ImportError(
                 "The cryptography "
@@ -113,14 +119,10 @@ class JWTValidator(CredentialValidator):
             "verify_iss": False,
             "require_exp": False,
             "require_iat": False,
-            "require_nbf": False
+            "require_nbf": False,
         }
 
-        self._canonical_info = {
-            "audience": None,
-            "issuer": None,
-            "leeway": 0
-        }
+        self._canonical_info = {"audience": None, "issuer": None, "leeway": 0}
 
         for k in kwargs:
             if k in self._validation_options:

@@ -106,7 +106,7 @@ class GenericProxy:
     __oct__ = lambda x: oct(x.wrapped)
     __hex__ = lambda x: hex(x.wrapped)
     __index__ = lambda x: x.wrapped.__index__()
-    __coerce__ = lambda x, o: x.wrapped.__coerce__( # pylint: disable=unnecessary-lambda
+    __coerce__ = lambda x, o: x.wrapped.__coerce__(  # pylint: disable=unnecessary-lambda
         x, o
     )
     __enter__ = lambda x: x.wrapped.__enter__()

@@ -16,7 +16,7 @@ class Handler:
         if self.wrapped:
             return self.wrapped(*args, **kwargs)  # pylint: disable=not-callable
 
-    def wraps(self, handler: 'Handler'):
+    def wraps(self, handler: "Handler"):
         """
         """
         self.wrapped = handler

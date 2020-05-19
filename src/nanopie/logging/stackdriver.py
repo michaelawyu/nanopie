@@ -3,6 +3,7 @@ from typing import BinaryIO, Dict, Optional, TextIO, Union
 
 try:
     from google.cloud import logging as stackdriver_logging
+
     STACKDRIVER_INSTALLED = True
 except ImportError:
     STACKDRIVER_INSTALLED = False
@@ -76,7 +77,7 @@ class StackdriverLoggingHandler(LoggingHandler):
                 stream=self._stream,
             )
         else:
-            raise ValueError('Specified mode is not supported.')
+            raise ValueError("Specified mode is not supported.")
 
         formatter = CustomLogRecordFormatter(
             fmt=self._fmt,

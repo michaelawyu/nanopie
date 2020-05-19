@@ -46,7 +46,7 @@ class HTTPW3CTraceContext(TraceContext):
         version = match.group(1)
         trace_id = match.group(2)
         span_id = match.group(3)
-        trace_options = match.group(4)
+        trace_flags = match.group(4)
 
         if trace_id == "0" * 32 or span_id == "0" * 16:
             return
@@ -59,29 +59,30 @@ class HTTPW3CTraceContext(TraceContext):
 
         self._extras["trace_id"] = int(trace_id, 16)  # pylint: disable=no-member
         self._extras["span_id"] = int(span_id, 16)  # pylint: disable=no-member
-        self._extras["trace_options"] = trace.TraceOptions( # pylint: disable=no-member
-            trace_options
+        self._extras["trace_flags"] = trace.TraceFlags(  # pylint: disable=no-member
+            trace_flags
         )
 
         trace_state = trace.TraceState()
         count = 0
 
-        for kv_pair in re.split(_DELIMITER_FORMAT_RE, self.tracestate):
-            if not kv_pair:
-                continue
+        if self.tracestate:
+            for kv_pair in re.split(_DELIMITER_FORMAT_RE, self.tracestate):
+                if not kv_pair:
+                    continue
 
-            match = _MEMBER_FORMAT_RE.fullmatch(kv_pair)
-            if not match:
-                return
+                match = _MEMBER_FORMAT_RE.fullmatch(kv_pair)
+                if not match:
+                    return
 
-            k, _eq, v = match.groups()
-            if k in trace_state:  # pylint: disable=unsupported-membership-test
-                return
+                k, _eq, v = match.groups()
+                if k in trace_state:  # pylint: disable=unsupported-membership-test
+                    return
 
-            trace_state[k] = v  # pylint: disable=unsupported-assignment-operation
-            count += 1
-            if count > _TRACECONTEXT_MAXIMUM_TRACESTATE_KEYS:
-                return
+                trace_state[k] = v  # pylint: disable=unsupported-assignment-operation
+                count += 1
+                if count > _TRACECONTEXT_MAXIMUM_TRACESTATE_KEYS:
+                    return
 
         self._extras["trace_state"] = trace_state  # pylint: disable=no-member
 
@@ -106,12 +107,12 @@ class HTTPW3CTraceContext(TraceContext):
         return span_id
 
     @property
-    def trace_options(self) -> "TraceOptions":
+    def trace_flags(self) -> "TraceOptions":
         """
         """
         trace_options = self._extras.get("trace_options")  # pylint: disable=no-member
         if not trace_options:
-            return trace.TraceOptions.get_default()
+            return trace.TraceFlags.get_default()
 
         return trace_options
 
@@ -139,4 +140,7 @@ class HTTPW3CTraceContextExtractor(TraceContextExtractor):
 
         traceparent = headers.get("traceparent")
         tracestate = headers.get("tracestate")
-        return HTTPW3CTraceContext(traceparent=traceparent, tracestate=tracestate)
+
+        trace_ctx = HTTPW3CTraceContext(traceparent=traceparent, tracestate=tracestate)
+        trace_ctx.process()
+        return trace_ctx

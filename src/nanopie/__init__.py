@@ -5,7 +5,7 @@ from .fields import (
     FloatField,
     BoolField,
     ArrayField,
-    ObjectField
+    ObjectField,
 )
 from .globals import svc, parsed_request, request, endpoint
 from .handler import Handler, SimpleHandler
@@ -20,7 +20,7 @@ from .auth import (
     HTTPAPIKeyAuthenticationHandler,
     HTTPBasicAuthenticationHandler,
     HTTPOAuth2BearerJWTModes,
-    HTTPOAuth2BearerJWTAuthenticationHandler
+    HTTPOAuth2BearerJWTAuthenticationHandler,
 )
 from .logging import (
     LogContext,
@@ -28,18 +28,10 @@ from .logging import (
     LoggingHandler,
     FluentdLoggingHandler,
     LogstashLoggingHandler,
-    StackdriverLoggingHandler
+    StackdriverLoggingHandler,
 )
-from .serialization import (
-    JSONSerializationHelper,
-    HTTPSerializationHandler
-)
-from .services import (
-    HTTPRequest,
-    HTTPResponse,
-    HTTPMethods,
-    FlaskService
-)
+from .serialization import JSONSerializationHelper, HTTPSerializationHandler
+from .services import HTTPRequest, HTTPResponse, HTTPMethods, FlaskService
 from .tracing import (
     TraceContext,
     TraceContextExtractor,
@@ -47,7 +39,7 @@ from .tracing import (
     HTTPW3CTraceContextExtractor,
     OpenTelemetryTracingHandler,
     JaegerTracingHandler,
-    ZipkinTracingHandler
+    ZipkinTracingHandler,
 )
 
 __version__ = "0.1.0"

@@ -1,9 +1,12 @@
 from abc import abstractmethod
+import json
+import os
 from typing import Dict, Optional
 
 try:
     from opentelemetry import trace
-    from opentelemetry.sdk.trace import TracerSource
+    from opentelemetry.sdk import util
+    from opentelemetry.sdk.trace import TracerProvider
     from opentelemetry.sdk.trace.export import (
         BatchExportSpanProcessor,
         ConsoleSpanExporter,
@@ -41,10 +44,10 @@ class TraceContext(Model):
 
     @property
     @abstractmethod
-    def trace_options(self) -> "TraceOptions":
+    def trace_flags(self) -> "TraceOptions":
         """
         """
-        return trace.TraceOptions.get_default()
+        return trace.TraceFlags.get_default()
 
     @property
     @abstractmethod
@@ -77,7 +80,7 @@ class OpenTelemetryTracingHandler(Handler):
         with_span_name: Optional[str] = None,
         with_span_attributes: Optional[Dict] = None,
         with_span_kind: "SpanKind" = None,
-        with_endpoint_config: bool = True,
+        with_endpoint_config: bool = False,
         with_endpoint_extras: bool = False,
         propagated: bool = False,
         trace_ctx_extractor: Optional["TraceContextExtractor"] = None,
@@ -86,6 +89,7 @@ class OpenTelemetryTracingHandler(Handler):
         with_sampler: Optional["Sampler"] = None,
         probability: Optional[float] = None,
         write_to_console: bool = True,
+        jsonprint: bool = True,
     ):
         """
         """
@@ -108,12 +112,7 @@ class OpenTelemetryTracingHandler(Handler):
             self._with_span_kind = trace.SpanKind.SERVER
         self._with_endpoint_config = with_endpoint_config
         self._with_endpoint_extras = with_endpoint_extras
-
         self._propagated = propagated
-        if propagated and not trace_ctx_extractor:
-            raise ValueError(
-                "trace_ctx_extractor is required " "for enabling propagation."
-            )
         self._trace_ctx_extractor = trace_ctx_extractor
         self._quiet = quiet
 
@@ -123,33 +122,71 @@ class OpenTelemetryTracingHandler(Handler):
 
         self._span_processers = []
         if write_to_console:
-            self._span_processers.insert(0, self._processor(ConsoleSpanExporter))
+            if jsonprint:
+
+                def dump_span_as_dict(span):
+                    if isinstance(span, trace.Span):
+                        return {
+                            "name": "{}".format(span.name),
+                            "context": {
+                                "trace_id": "{}".format(span.context.trace_id),
+                                "span_id": "{}".format(span.context.span_id),
+                                "trace_state": "{}".format(span.context.trace_state),
+                                "is_remote": "{}".format(span.context.is_remote),
+                            },
+                            "kind": "{}".format(span.kind),
+                            "parent": dump_span_as_dict(span.parent),
+                            "start_time": "{}".format(
+                                util.ns_to_iso_str(span.start_time)
+                            )
+                            if span.start_time
+                            else None,
+                            "end_time": "{}".format(util.ns_to_iso_str(span.end_time))
+                            if span.end_time
+                            else None,
+                            "attributes": "{}".format(dict(span.attributes)),
+                        }
+                    elif isinstance(span, trace.SpanContext):
+                        return {
+                            "trace_id": "{}".format(span.trace_id),
+                            "span_id": "{}".format(span.span_id),
+                            "trace_state": "{}".format(span.trace_state),
+                            "is_remote": "{}".format(span.is_remote),
+                        }
+                    else:
+                        return None
+
+                console_exporter = ConsoleSpanExporter(
+                    formatter=lambda span: json.dumps(dump_span_as_dict(span))
+                    + os.linesep
+                )
+            else:
+                console_exporter = ConsoleSpanExporter()
+
+            self._span_processers.insert(0, self._processor(console_exporter))
 
         if with_sampler and probability:
             raise RuntimeError(
                 "with_sampler and probability are " "mutually exclusive."
             )
-        elif not with_sampler and not probability:
+        elif not with_sampler and probability == None:
             self._sampler = trace.sampling.ALWAYS_ON
         else:
             self._sampler = (
                 with_sampler if with_sampler else ProbabilitySampler(rate=probability)
             )
 
-        self._tracer_source = None
+        self._tracer_provider = None
 
         super().__init__()
 
-    def _setup_tracer_source(self):
+    def _setup_tracer_provider(self):
         """
         """
-        if not self._tracer_source:
-            tracer_source = TracerSource(sampler=self._sampler)
-            for processor in self._span_processers:
-                tracer_source.add_span_processor(processor)
-            self._tracer_source = tracer_source
-
-        return self._tracer_source
+        tracer_provider = TracerProvider(sampler=self._sampler)
+        for processor in self._span_processers:
+            tracer_provider.add_span_processor(processor)
+        self._tracer_provider = tracer_provider
 
     def get_trace_ctx(self):
         """
@@ -157,13 +194,14 @@ class OpenTelemetryTracingHandler(Handler):
         if self._trace_ctx_extractor:
             return self._trace_ctx_extractor.extract(request=request_proxy)
         else:
-            raise RuntimeError('trace_ctx_extractor is not present.')
+            raise RuntimeError("trace_ctx_extractor is not present.")
 
     def get_tracer(self):
         """
         """
-        tracer_source = self._setup_tracer_source()
-        return tracer_source.get_tracer(__name__)
+        if not self._tracer_provider:
+            self._setup_tracer_provider()
+        return self._tracer_provider.get_tracer(__name__)
 
     def __call__(self, *args, **kwargs):
         """
@@ -176,26 +214,32 @@ class OpenTelemetryTracingHandler(Handler):
                 try:
                     trace_id = trace_ctx.trace_id
                     span_id = trace_ctx.span_id
-                    trace_options = trace_ctx.trace_options
+                    trace_flags = trace_ctx.trace_flags
                     trace_state = trace_ctx.trace_state
 
                     current_span = trace.SpanContext(
                         trace_id=trace_id,
                         span_id=span_id,
-                        trace_options=trace_options,
+                        trace_flags=trace_flags,
                         trace_state=trace_state,
+                        is_remote=True,
                     )
                     assert current_span.is_valid()
                 except Exception as ex:  # pylint: disable=broad-except
                     if not self._quiet:
                         raise ex
+                    current_span = None
+        else:
+            current_span = None
 
         span_name = self._with_span_name
         if not span_name:
-            span_name = endpoint.name
+            span_name = "unspecified"
 
         span_attributes = {}
-        span_attributes.update(get_flattenable_dikt(self._with_span_attributes))
+        if self._with_span_attributes:
+            span_attributes.update(get_flattenable_dikt(self._with_span_attributes))
+
         if self._with_endpoint_config:
             span_attributes.update(
                 get_flattenable_dikt(
@@ -203,7 +247,13 @@ class OpenTelemetryTracingHandler(Handler):
                 )
             )
         if self._with_endpoint_extras:
-            span_attributes.update(get_flattenable_dikt(endpoint.extras))
+            flattened_extras = get_flattenable_dikt(endpoint.extras)
+            prefixed_flattened_extras = {}
+            for k in flattened_extras:
+                prefixed_flattened_extras[
+                    "endpoint.extras.{}".format(k)
+                ] = flattened_extras[k]
+            span_attributes.update(prefixed_flattened_extras)
 
         span = tracer.start_span(
             span_name,
@@ -212,8 +262,9 @@ class OpenTelemetryTracingHandler(Handler):
             attributes=span_attributes,
         )
         try:
-            with tracer.use_span(span):
-                return super().__call__(*args, **kwargs)
+            with tracer.use_span(span, end_on_exit=True):
+                res = super().__call__(*args, **kwargs)
+            return res
         except:
             span.end()
             raise

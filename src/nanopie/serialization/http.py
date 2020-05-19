@@ -80,7 +80,7 @@ class HTTPSerializationHandler(SerializationHandler):
         headers = None
         if self._headers_cls:
             try:
-                headers = self._headers_cls.from_dikt(headers_dikt, altchar='-')
+                headers = self._headers_cls.from_dikt(headers_dikt, altchar="-")
             except Exception as ex:
                 message = (
                     "The incoming request does not have " "valid headers ({})."

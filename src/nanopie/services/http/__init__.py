@@ -1,6 +1,4 @@
-from .base import (
-    HTTPService
-)
+from .base import HTTPService
 from .io import (
     HTTPEndpoint,
     HTTPRequest,

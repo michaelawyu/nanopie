@@ -59,8 +59,9 @@ class HTTPAPIKeyExtractor(CredentialExtractor):
             try:
                 headers = getattr(request, "headers")
             except AttributeError:
-                raise AttributeError("The incoming request is not a valid "
-                                     "HTTP request.")
+                raise AttributeError(
+                    "The incoming request is not a valid " "HTTP request."
+                )
 
             auth_header = None
             for k in headers:
@@ -78,8 +79,9 @@ class HTTPAPIKeyExtractor(CredentialExtractor):
             try:
                 query_args = getattr(request, "query_args")
             except AttributeError:
-                raise AttributeError("The incoming request is not a valid "
-                                     "HTTP request.")
+                raise AttributeError(
+                    "The incoming request is not a valid " "HTTP request."
+                )
 
             key = query_args.get(self.key_field_name)
             if not key:

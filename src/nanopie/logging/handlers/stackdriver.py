@@ -42,7 +42,7 @@ class PatchedSyncTransport(SyncTransport):
         """
         self.logger.log_struct(
             message,
-            severity=_helpers._normalize_severity( # pylint: disable=protected-access
+            severity=_helpers._normalize_severity(  # pylint: disable=protected-access
                 record.levelno
             ),
             resource=resource,
@@ -69,7 +69,7 @@ class PatchedWorker(_Worker):
         """
         queue_entry = {
             "info": message,
-            "severity": _helpers._normalize_severity( # pylint: disable=protected-access
+            "severity": _helpers._normalize_severity(  # pylint: disable=protected-access
                 record.levelno
             ),
             "resource": resource,
@@ -85,8 +85,8 @@ class PatchedBackgroundThreadTransport(BackgroundThreadTransport):
     """
     """
 
-    def __init__( # pylint: disable=super-init-not-called
-        self,  
+    def __init__(  # pylint: disable=super-init-not-called
+        self,
         client: "google.cloud.logging.client.Client",
         name: str,
         grace_period: Union[int, float] = _DEFAULT_GRACE_PERIOD,
@@ -122,12 +122,7 @@ class StackdriverHandler(CloudLoggingHandler):
         """
         """
         super().__init__(
-            client,
-            name,
-            transport,
-            resource=resource,
-            labels=labels,
-            stream=stream,
+            client, name, transport, resource=resource, labels=labels, stream=stream,
         )
 
     def emit(self, record):

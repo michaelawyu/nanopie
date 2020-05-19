@@ -3,6 +3,7 @@ from typing import Any, Callable, Dict, Optional, Union
 from ..base import RPCEndpoint, RPCParsedRequest, RPCRequest, RPCResponse
 from ...model import Model
 
+
 class HTTPRequest(RPCRequest):
     """
     """
@@ -147,10 +148,11 @@ class HTTPResponse(RPCResponse):
         """
         if headers == None:
             headers = {}
-        
+
         if type(headers) != dict and not isinstance(headers, Model):
-            raise RuntimeError("HTTP Response must have a Model or a dict "
-                               "as headers.")
+            raise RuntimeError(
+                "HTTP Response must have a Model or a dict " "as headers."
+            )
 
         self._headers = headers
 
@@ -181,23 +183,25 @@ class HTTPResponse(RPCResponse):
     @data.setter
     def data(self, data: Optional[Union[str, bytes, "Model"]]):
         """
-        """            
-        if data != None and \
-           type(data) not in [str, bytes] and \
-           not isinstance(data, Model):
+        """
+        if (
+            data != None
+            and type(data) not in [str, bytes]
+            and not isinstance(data, Model)
+        ):
             raise RuntimeError(
                 "HTTP Response must have a str, a bytes or a Model as data."
             )
 
         self._data = data
-    
+
     @property
     def is_processed(self):
         """
         """
         if type(self._headers) != dict or type(self._data) not in [str, bytes]:
             return False
-        
+
         return True
 
 

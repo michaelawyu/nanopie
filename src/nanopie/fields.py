@@ -138,9 +138,7 @@ class FloatField(Field):
             if v == self.minimum and not self.exclusive_minimum:
                 pass
             else:
-                raise NumberMinBelowError(source=self,
-                                          assigned_field_name=name,
-                                          data=v)
+                raise NumberMinBelowError(source=self, assigned_field_name=name, data=v)
 
 
 class IntField(Field):
@@ -202,9 +200,7 @@ class IntField(Field):
             if v == self.minimum and not self.exclusive_minimum:
                 pass
             else:
-                raise NumberMinBelowError(source=self,
-                                          assigned_field_name=name,
-                                          data=v)
+                raise NumberMinBelowError(source=self, assigned_field_name=name, data=v)
 
 
 class BoolField(Field):
