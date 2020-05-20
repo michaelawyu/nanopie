@@ -72,8 +72,6 @@ class HTTPService(RPCService):
 
         if serialization_handler:
             handler = handler.wraps(serialization_handler)
-        elif self.serialization_handler:
-            handler = handler.wraps(self.serialization_handler)
 
         def wrapper(func):
             simple_handler = SimpleHandler(func=func)

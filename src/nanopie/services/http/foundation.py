@@ -28,13 +28,14 @@ class HTTPFoundationHandler(Handler):
     def __call__(self, *args, **kwargs):
         """
         """
-        content_length = getattr(request, "content_length", None)
-        if not content_length:
+        try:
+            content_length = getattr(request, "content_length")
+        except AttributeError:
             raise RuntimeError("The incoming request is not a valid HTTP " "request.")
 
-        if content_length >= self._max_content_length:
+        if content_length and content_length >= self._max_content_length:
             message = "Request is too large."
             message = format_error_message(message, provided_size=content_length)
             raise FoundationError(message, response=REQUEST_TOO_LARGE_RESPONSE)
 
-        return super().__init__(*args, **kwargs)
+        return self.wrapped(*args, **kwargs)

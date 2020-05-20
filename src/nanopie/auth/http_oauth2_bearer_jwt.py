@@ -10,7 +10,7 @@ INVALID_HEADER_RESPONSE = HTTPResponse(
     headers={"WWW-Authenticate": "Bearer"},
     mime_type="text/html",
     data=(
-        "<h2>401 Unauthorized: must include an HTTP Authorization "
+        "<h2>401 Unauthorized: Must include an HTTP Authorization "
         "request header of the Bearer type.</h2>"
     ),
 )
@@ -19,7 +19,7 @@ INVALID_QUERY_ARGS_RESPONSE = HTTPResponse(
     headers={"WWW-Authenticate": "Bearer"},
     mime_type="text/html",
     data=(
-        "<h2>401 Unauthorized: must include an access_token argument "
+        "<h2>401 Unauthorized: Must include an access_token argument "
         "in the URI query string.</h2>"
     ),
 )
@@ -27,7 +27,7 @@ INVALID_TOKEN_RESPONSE = HTTPResponse(
     status_code=403,
     headers={"WWW-Authenticate": "Bearer error=invalid_token"},
     mime_type="text/html",
-    data=("<h2>403 Forbidden: the provided access token is not valid " "</h2>"),
+    data=("<h2>403 Forbidden: The provided access token is not valid " "</h2>"),
 )
 
 

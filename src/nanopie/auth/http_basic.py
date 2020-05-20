@@ -10,7 +10,7 @@ INVALID_HEADER_RESPONSE = HTTPResponse(
     headers={"WWW-Authenticate": "Basic"},
     mime_type="text/html",
     data=(
-        "<h2>401 Unauthorized: must include an HTTP Authorization "
+        "<h2>401 Unauthorized: Must include an HTTP Authorization "
         "request header of the Basic type.</h2>"
     ),
 )
@@ -18,7 +18,7 @@ INVALID_CREDENTIAL_RESPONSE = HTTPResponse(
     status_code=403,
     headers={"WWW-Authenticate": "Basic"},
     mime_type="text/html",
-    data=("<h2>403 Forbidden: the provided user credential is not valid " "</h2>"),
+    data=("<h2>403 Forbidden: The provided user credential is not valid " "</h2>"),
 )
 
 

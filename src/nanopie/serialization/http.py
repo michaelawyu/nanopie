@@ -11,25 +11,25 @@ INVALID_MIME_TYPE_RESPONSE = HTTPResponse(
     status_code=400,
     headers={},
     mime_type="text/html",
-    data=("<h2>400 Bad Request: invalid mime type.</h2>"),
+    data=("<h2>400 Bad Request: Invalid mime type.</h2>"),
 )
 INVALID_HEADERS_RESPONSE = HTTPResponse(
     status_code=400,
     headers={},
     mime_type="text/html",
-    data=("<h2>400 Bad Request: invalid headers.</h2>"),
+    data=("<h2>400 Bad Request: Invalid headers.</h2>"),
 )
 INVALID_QUERY_ARGS_RESPONSE = HTTPResponse(
     status_code=400,
     headers={},
     mime_type="text/html",
-    data=("<h2>400 Bad Request: invalid URI query arguments.</h2>"),
+    data=("<h2>400 Bad Request: Invalid URI query arguments.</h2>"),
 )
 INVALID_DATA_RESPONSE = HTTPResponse(
     status_code=400,
     headers={},
     mime_type="text/html",
-    data=("<h2>400 Bad Request: invalid body data.</h2>"),
+    data=("<h2>400 Bad Request: Invalid body data.</h2>"),
 )
 
 
@@ -68,15 +68,6 @@ class HTTPSerializationHandler(SerializationHandler):
         except AttributeError:
             raise AttributeError("The incoming request is not a valid HTTP " "request.")
 
-        if mime_type.lower() != helper.mime_type.lower():
-            message = "The incoming request does not have the expected " "mime type."
-            message = format_error_message(
-                message=message,
-                provided_mime_type=mime_type,
-                expected_mime_type=helper.mime_type,
-            )
-            raise SerializationError(message, response=INVALID_MIME_TYPE_RESPONSE)
-
         headers = None
         if self._headers_cls:
             try:
@@ -100,6 +91,17 @@ class HTTPSerializationHandler(SerializationHandler):
 
         data = None
         if self._data_cls:
+            if mime_type and mime_type.lower() != helper.mime_type.lower():
+                message = (
+                    "The incoming request does not have the expected " "mime type."
+                )
+                message = format_error_message(
+                    message=message,
+                    provided_mime_type=mime_type,
+                    expected_mime_type=helper.mime_type,
+                )
+                raise SerializationError(message, response=INVALID_MIME_TYPE_RESPONSE)
+
             try:
                 data = self._data_cls.from_dikt(helper.from_data(data=raw_data))
             except Exception as ex:
@@ -133,5 +135,20 @@ class HTTPSerializationHandler(SerializationHandler):
                         "Cannot serialize the data in the response. " "({})"
                     ).format(str(ex))
                     raise SerializationError(message)
+        elif isinstance(res, list):
+            alt_res = []
+            for elem in res:
+                if isinstance(elem, Model):
+                    alt_res.append(elem.to_dikt())
+                else:
+                    raise ValueError(
+                        "One or more of the items in the returned "
+                        "list is not of the Model type."
+                    )
+            res = HTTPResponse(mime_type=helper.mime_type, data=helper.to_data(alt_res))
+        elif isinstance(res, Model):
+            res = HTTPResponse(
+                mime_type=helper.mime_type, data=helper.to_data(res.to_dikt())
+            )
 
         return res

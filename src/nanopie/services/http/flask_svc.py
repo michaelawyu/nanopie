@@ -8,7 +8,9 @@ except ImportError:
     FLASK_INSTALLED = False
 
 from .base import HTTPService
+from ...globals import look_up_attr, svc_ctx
 from .io import HTTPRequest, HTTPResponse
+from ...logger import logger
 from ...misc.errors import ServiceError
 
 
@@ -41,27 +43,36 @@ class FlaskService(HTTPService):
                 url=partial(getattr, flask.request, "url"),
                 headers=partial(getattr, flask.request, "headers"),
                 content_length=partial(getattr, flask.request, "content_length"),
-                mime_type=partial(getattr, flask.request, "mime_type"),
+                mime_type=partial(getattr, flask.request, "mimetype"),
                 query_args=partial(getattr, flask.request, "args"),
                 binary_data=partial(flask.request.get_data),
                 text_data=partial(flask.request.get_data, as_text=True),
             )
-            svc_ctx = {}
-            flask.g._svc_ctx = svc_ctx  # pylint: disable=protected-access
-            svc_ctx["svc"] = svc
-            svc_ctx["endpoint"] = endpoint
-            svc_ctx["request"] = request
+            ctx = {}
+            flask.g._svc_ctx = ctx  # pylint: disable=protected-access
+            svc_ctx.update_proxy_func(
+                partial(look_up_attr, ctx=flask.g, name="_svc_ctx")
+            )
+
+            ctx["svc"] = svc
+            ctx["endpoint"] = endpoint
+            ctx["request"] = request
 
             try:
                 res = endpoint.entrypoint(*args, **kwargs)
             except ServiceError as ex:
                 if ex.response:
                     res = ex.response
+                    logger.error(ex)
                 else:
                     raise ex
 
             if isinstance(res, HTTPResponse):
-                return flask.make_response((res.data, res.status_code, res.headers))
+                flask_res = flask.make_response(
+                    (res.data, res.status_code, res.headers)
+                )
+                flask_res.mimetype = res.mime_type
+                return flask_res
 
             return res
 

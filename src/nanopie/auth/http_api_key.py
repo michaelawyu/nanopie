@@ -8,7 +8,7 @@ INVALID_HEADER_RESPONSE = HTTPResponse(
     headers={},
     mime_type="text/html",
     data=(
-        "<h2>401 Unauthorized: must include an API key in the " "request header.</h2>"
+        "<h2>401 Unauthorized: Must include an API key in the " "request header.</h2>"
     ),
 )
 INVALID_QUERY_ARGS_RESPONSE = HTTPResponse(
@@ -16,14 +16,14 @@ INVALID_QUERY_ARGS_RESPONSE = HTTPResponse(
     headers={},
     mime_type="text/html",
     data=(
-        "<h2>401 Unauthorized: must include an API key " "in the URI query string.</h2>"
+        "<h2>401 Unauthorized: Must include an API key " "in the URI query string.</h2>"
     ),
 )
 INVALID_TOKEN_RESPONSE = HTTPResponse(
     status_code=403,
     headers={},
     mime_type="text/html",
-    data=("<h2>403 Forbidden: the provided API key is not valid " "</h2>"),
+    data=("<h2>403 Forbidden: The provided API key is not valid " "</h2>"),
 )
 
 
