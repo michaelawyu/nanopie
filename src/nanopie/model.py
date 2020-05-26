@@ -93,7 +93,7 @@ class Model(metaclass=ModelMetaCls):
             if p == None:
                 required = self._fields[k].required  # pylint: disable=no-member
                 default = self._fields[k].default  # pylint: disable=no-member
-                if default:
+                if default != None:
                     setattr(self, mask, default)
                     continue
                 else:
@@ -108,7 +108,7 @@ class Model(metaclass=ModelMetaCls):
         """
         """
         if not skip_validation:
-            self.validate(v=self)
+            self.validate()
 
         def helper(data: Union[str, int, float, bool, List, "Model"]):
             """
@@ -140,6 +140,7 @@ class Model(metaclass=ModelMetaCls):
         altchar: Optional[str] = None,
         skip_validation: bool = True,
         type_cast: bool = False,
+        use_default: bool = True
     ):
         """
         """
@@ -180,10 +181,13 @@ class Model(metaclass=ModelMetaCls):
             if altchar:
                 k = k.replace("_", altchar[0])
             v = helper(dikt.get(k), field)
-            setattr(obj, mask, v)
+            if v == None and use_default and field.default != None:
+                setattr(obj, mask, field.default)
+            else:
+                setattr(obj, mask, v)
 
         if not skip_validation:
-            cls.validate(v=obj)
+            cls.validate_instance(v=obj)
 
         return obj
 
@@ -194,7 +198,7 @@ class Model(metaclass=ModelMetaCls):
         return cls
 
     @classmethod
-    def validate(cls, v: "Model"):
+    def validate_instance(cls, v: "Model"):
         """
         """
         if type(v) != cls:
@@ -204,3 +208,8 @@ class Model(metaclass=ModelMetaCls):
             field = v._fields[k]
             val = getattr(v, k)
             field.validate(v=val, name=k)
+    
+    def validate(self):
+        """
+        """
+        self.__class__.validate_instance(self)

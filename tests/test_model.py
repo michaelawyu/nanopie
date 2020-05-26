@@ -128,7 +128,7 @@ def test_simple_model_from_dikt():
     assert s.a == "Long Message"
     assert s.b == 10
     assert s.c == None
-    assert s.d == None
+    assert s.d == True
     assert s.e == [10, 20, 30, 40, 50, 60]
 
     with pytest.raises(ValidationError) as ex:
