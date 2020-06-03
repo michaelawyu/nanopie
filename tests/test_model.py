@@ -25,6 +25,13 @@ class SimpleModel(Model):
     e = ArrayField(item_field=IntField())
 
 
+class SimpleModelAltCharTypeCastCaseInsenstive(Model):
+    a_s = StringField()
+    b_i = IntField()
+    c_f = FloatField()
+    d_b = BoolField()
+
+
 class SimpleModelWithRestraints(Model):
     a = StringField(max_length=5, min_length=2)
     b = IntField(maximum=10, minimum=1, default=4)
@@ -131,8 +138,49 @@ def test_simple_model_from_dikt():
     assert s.d == True
     assert s.e == [10, 20, 30, 40, 50, 60]
 
-    with pytest.raises(ValidationError) as ex:
+    with pytest.raises(ValidationError):
         s = SimpleModelWithRestraints.from_dikt(dikt, skip_validation=False)
+
+
+def test_simple_model_from_dikt_alt_char():
+    dikt = {"a-s": "Test", "b-i": 2}
+
+    s = SimpleModelAltCharTypeCastCaseInsenstive.from_dikt(dikt, altchar="-")
+
+    assert s.a_s == "Test"
+    assert s.b_i == 2
+
+
+def test_simple_model_from_dikt_type_cast():
+    dikt = {
+        "a_s": 2,
+        "b_i": "3",
+        "c_f": "4.5",
+        "d_b": "False",
+    }
+
+    s = SimpleModelAltCharTypeCastCaseInsenstive.from_dikt(dikt, type_cast=True)
+
+    assert s.a_s == "2"
+    assert s.b_i == 3
+    assert s.c_f == 4.5
+    assert s.d_b == False
+
+
+def test_simple_model_from_dikt_case_insensitive():
+    dikt = {
+        "A_S": "Test",
+        "B_I": 3,
+        "C_F": 4.5,
+        "D_B": False,
+    }
+
+    s = SimpleModelAltCharTypeCastCaseInsenstive.from_dikt(dikt, case_insensitive=True)
+
+    assert s.a_s == "Test"
+    assert s.b_i == 3
+    assert s.c_f == 4.5
+    assert s.d_b == False
 
 
 def test_nested_model():

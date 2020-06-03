@@ -2,7 +2,7 @@ import json
 
 import pytest
 
-from .simple_app import app, dummy_storage
+from .simple_app_alt import app, dummy_storage
 
 
 @pytest.fixture

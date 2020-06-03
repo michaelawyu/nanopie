@@ -12,7 +12,7 @@ from nanopie.fields import (
     ObjectField,
 )
 from nanopie.serialization import HTTPSerializationHandler, JSONSerializationHelper
-from nanopie.globals import request, parsed_request
+from nanopie.globals import endpoint, request, parsed_request
 from nanopie.misc.errors import SerializationError
 from nanopie.handler import SimpleHandler
 from nanopie.services.http.io import HTTPResponse
@@ -181,8 +181,9 @@ def test_http_serialization_handler_json_response_parsing(
         return HTTPResponse(status_code=200, headers=simple_model, data=nested_model)
 
     simple_handler = SimpleHandler(func=response_func)
-    http_serialization_handler_json.wraps(simple_handler)
+    http_serialization_handler_json.add_route(name="test", handler=simple_handler)
 
+    endpoint.name = "test"  # pylint: disable=assigning-non-slot
     request.mime_type = (
         http_serialization_handler_json._serialization_helper.mime_type
     )  # pylint: disable=assigning-non-slot
@@ -216,8 +217,9 @@ def test_http_serialization_handler_json_failure_headers_parsing(
         )
 
     simple_handler = SimpleHandler(func=response_func)
-    http_serialization_handler_json.wraps(simple_handler)
+    http_serialization_handler_json.add_route(name="test", handler=simple_handler)
 
+    endpoint.name = "test"  # pylint: disable=assigning-non-slot
     request.mime_type = (
         http_serialization_handler_json._serialization_helper.mime_type
     )  # pylint: disable=assigning-non-slot
@@ -251,8 +253,9 @@ def test_http_serialization_handler_json_failure_payload_parsing(
         )
 
     simple_handler = SimpleHandler(func=response_func)
-    http_serialization_handler_json.wraps(simple_handler)
+    http_serialization_handler_json.add_route(name="test", handler=simple_handler)
 
+    endpoint.name = "test"  # pylint: disable=assigning-non-slot
     request.mime_type = (
         http_serialization_handler_json._serialization_helper.mime_type
     )  # pylint: disable=assigning-non-slot

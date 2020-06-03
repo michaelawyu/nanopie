@@ -23,7 +23,7 @@ INVALID_TOKEN_RESPONSE = HTTPResponse(
     status_code=403,
     headers={},
     mime_type="text/html",
-    data=("<h2>403 Forbidden: The provided API key is not valid " "</h2>"),
+    data=("<h2>403 Forbidden: The provided API key is not valid.</h2>"),
 )
 
 

@@ -71,7 +71,9 @@ class HTTPSerializationHandler(SerializationHandler):
         headers = None
         if self._headers_cls:
             try:
-                headers = self._headers_cls.from_dikt(headers_dikt, altchar="-")
+                headers = self._headers_cls.from_dikt(
+                    headers_dikt, altchar="-", case_insensitive=True, type_cast=True
+                )
             except Exception as ex:
                 message = (
                     "The incoming request does not have " "valid headers ({})."
@@ -81,7 +83,9 @@ class HTTPSerializationHandler(SerializationHandler):
         query_args = None
         if self._query_args_cls:
             try:
-                query_args = self._query_args_cls.from_dikt(query_args_dikt)
+                query_args = self._query_args_cls.from_dikt(
+                    query_args_dikt, type_cast=True
+                )
             except Exception as ex:
                 message = (
                     "The incoming request does not have "

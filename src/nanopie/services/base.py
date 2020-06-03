@@ -58,7 +58,7 @@ class RPCService(ABC):
     ):
         """
         """
-        self.endpoints = []
+        self.endpoints = {}
         self.authn_handler = authn_handler
         self.logging_handler = logging_handler
         self.tracing_handler = tracing_handler

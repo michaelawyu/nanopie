@@ -89,14 +89,14 @@ def test_opentelemetry_tracing_handler(capfd):
 
 
 @opentelemetry_installed
-def test_opentelemetry_tracing_handler_wraps(capfd):
+def test_opentelemetry_tracing_handler_routes(capfd):
     tracing_handler = OpenTelemetryTracingHandler()
 
-    def wrapped(*args, **kwargs):
+    def pseudo_handler(*args, **kwargs):
         time.sleep(1)
         return 0
 
-    tracing_handler.wraps(wrapped)
+    tracing_handler.add_route(name="test", handler=pseudo_handler)
     assert tracing_handler() == 0
 
     out, _ = capfd.readouterr()

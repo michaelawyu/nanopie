@@ -80,7 +80,7 @@ class HTTPParsedRequest(RPCParsedRequest):
     """
     """
 
-    __slots__ = ("headers", "query_args", "data")
+    __slots__ = ("_headers", "_query_args", "_data")
 
     def __init__(
         self,
@@ -90,9 +90,30 @@ class HTTPParsedRequest(RPCParsedRequest):
     ):
         """
         """
-        self.headers = headers
-        self.query_args = query_args
-        self.data = data
+        self._headers = headers
+        self._query_args = query_args
+        self._data = data
+
+    @property
+    def headers(self):
+        if not self._headers:
+            raise ValueError("This endpoint is not configured with a header model.")
+
+        return self._headers
+
+    @property
+    def query_args(self):
+        if not self._query_args:
+            raise ValueError("This endpoint is not configured with a query args model.")
+
+        return self._query_args
+
+    @property
+    def data(self):
+        if not self._data:
+            raise ValueError("This endpoint is not configured with a data model.")
+
+        return self._data
 
 
 class HTTPResponse(RPCResponse):

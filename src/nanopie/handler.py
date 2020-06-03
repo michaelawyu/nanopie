@@ -1,5 +1,7 @@
 from typing import Callable
 
+from .globals import endpoint
+
 
 class Handler:
     """
@@ -8,18 +10,27 @@ class Handler:
     def __init__(self):
         """
         """
-        self.wrapped = None
+        self.routes = {}
 
     def __call__(self, *args, **kwargs):
         """
         """
-        if self.wrapped:
-            return self.wrapped(*args, **kwargs)  # pylint: disable=not-callable
+        if self.routes:
+            name = endpoint.name
+            if self.routes.get(name):
+                return self.routes[name](
+                    *args, **kwargs
+                )  # pylint: disable=not-callable
+            else:
+                raise RuntimeError("Route is not found.")
 
-    def wraps(self, handler: "Handler"):
+    def add_route(self, name: str, handler: "Handler"):
         """
         """
-        self.wrapped = handler
+        if self.routes.get(name):
+            raise RuntimeError("A route with the same name already exists.")
+
+        self.routes[name] = handler
         return handler
 
 

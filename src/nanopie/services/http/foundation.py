@@ -38,4 +38,4 @@ class HTTPFoundationHandler(Handler):
             message = format_error_message(message, provided_size=content_length)
             raise FoundationError(message, response=REQUEST_TOO_LARGE_RESPONSE)
 
-        return self.wrapped(*args, **kwargs)
+        return super().__call__(*args, **kwargs)

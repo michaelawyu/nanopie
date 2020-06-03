@@ -8,7 +8,7 @@ except ImportError:
     FLASK_INSTALLED = False
 
 from .base import HTTPService
-from ...globals import look_up_attr, svc_ctx
+from ...globals import look_up_attr, svc_ctx, endpoint
 from .io import HTTPRequest, HTTPResponse
 from ...logger import logger
 from ...misc.errors import ServiceError
@@ -18,7 +18,7 @@ class FlaskService(HTTPService):
     """
     """
 
-    def __init__(self, app: "flask.Flask", **kwargs):
+    def __init__(self, *args, app: "flask.Flask", **kwargs):
         """
         """
         if not FLASK_INSTALLED:
@@ -31,7 +31,7 @@ class FlaskService(HTTPService):
 
         self._app = app
 
-        super().__init__(**kwargs)
+        super().__init__(*args, **kwargs)
 
     def add_endpoint(self, endpoint: "HTTPEndpoint", **kwargs):
         """
@@ -41,7 +41,9 @@ class FlaskService(HTTPService):
         def view_func(*args, **kwargs):
             request = HTTPRequest(
                 url=partial(getattr, flask.request, "url"),
-                headers=partial(getattr, flask.request, "headers"),
+                headers=partial(
+                    lambda x: dict(x()), partial(getattr, flask.request, "headers")
+                ),
                 content_length=partial(getattr, flask.request, "content_length"),
                 mime_type=partial(getattr, flask.request, "mimetype"),
                 query_args=partial(getattr, flask.request, "args"),
@@ -84,4 +86,7 @@ class FlaskService(HTTPService):
             **kwargs
         )
 
-        self.endpoints.append(endpoint)
+        if self.endpoints.get(endpoint.name) == None:
+            self.endpoints[endpoint.name] = endpoint
+        else:
+            raise RuntimeError("An endpoint with the same name already exists.")

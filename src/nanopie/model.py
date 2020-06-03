@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
 from functools import partialmethod
+import distutils
 from typing import Any, Dict, List, Optional, Union
 
 from .misc import format_error_message
@@ -138,9 +139,10 @@ class Model(metaclass=ModelMetaCls):
         cls,
         dikt: Dict,
         altchar: Optional[str] = None,
+        case_insensitive: bool = False,
         skip_validation: bool = True,
         type_cast: bool = False,
-        use_default: bool = True
+        use_default: bool = True,
     ):
         """
         """
@@ -153,7 +155,10 @@ class Model(metaclass=ModelMetaCls):
             if data_type in [str, int, float, bool]:
                 if type_cast:
                     try:
-                        data = data_type(data)
+                        if data_type != bool:
+                            data = data_type(data)
+                        else:
+                            data = distutils.util.strtobool(data)
                     except:
                         pass
                 return data
@@ -180,7 +185,15 @@ class Model(metaclass=ModelMetaCls):
             field = cls._fields[k]  # pylint: disable=no-member
             if altchar:
                 k = k.replace("_", altchar[0])
-            v = helper(dikt.get(k), field)
+            if case_insensitive:
+                ks = list(dikt.keys())
+                ks_mapping = {}
+                for it in ks:
+                    ks_mapping[it.lower()] = it
+                true_k = ks_mapping.get(k.lower())
+                v = helper(dikt.get(true_k), field)
+            else:
+                v = helper(dikt.get(k), field)
             if v == None and use_default and field.default != None:
                 setattr(obj, mask, field.default)
             else:
@@ -208,7 +221,7 @@ class Model(metaclass=ModelMetaCls):
             field = v._fields[k]
             val = getattr(v, k)
             field.validate(v=val, name=k)
-    
+
     def validate(self):
         """
         """

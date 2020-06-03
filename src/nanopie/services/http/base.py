@@ -16,23 +16,15 @@ class HTTPService(RPCService):
 
     def __init__(
         self,
-        authn_handler: Optional["AuthenticationHandler"] = None,
-        logging_handler: Optional["LoggingHandler"] = None,
-        tracing_handler: Optional["TracingHandler"] = None,
         serialization_helper: Optional[
             "SerializationHelper"
         ] = JSONSerializationHelper(),
-        max_content_length: Optional[int] = 6000,
+        *args,
+        **kwargs
     ):
         """
         """
-        super().__init__(
-            authn_handler=authn_handler,
-            logging_handler=logging_handler,
-            tracing_handler=tracing_handler,
-            serialization_helper=serialization_helper,
-            max_content_length=max_content_length,
-        )
+        super().__init__(*args, serialization_helper=serialization_helper, **kwargs)
 
     @abstractmethod
     def add_endpoint(self, endpoint: "HTTPEndpoint", **kwargs):
@@ -52,30 +44,31 @@ class HTTPService(RPCService):
     ):
         """
         """
-        entrypoint = HTTPFoundationHandler(max_content_length=self.max_content_length)
 
+        entrypoint = HTTPFoundationHandler(max_content_length=self.max_content_length)
         handler = entrypoint
+
         if authn_handler:
-            handler = handler.wraps(authn_handler)
+            handler = handler.add_route(name=name, handler=authn_handler)
         elif self.authn_handler:
-            handler = handler.wraps(self.authn_handler)
+            handler = handler.add_route(name=name, handler=self.authn_handler)
 
         if logging_handler:
-            handler = handler.wraps(logging_handler)
+            handler = handler.add_route(name=name, handler=logging_handler)
         elif self.logging_handler:
-            handler = handler.wraps(self.logging_handler)
+            handler = handler.add_route(name=name, handler=self.logging_handler)
 
         if tracing_handler:
-            handler = handler.wraps(tracing_handler)
+            handler = handler.add_route(name=name, handler=tracing_handler)
         elif self.tracing_handler:
-            handler = handler.wraps(self.tracing_handler)
+            handler = handler.add_route(name=name, handler=self.tracing_handler)
 
         if serialization_handler:
-            handler = handler.wraps(serialization_handler)
+            handler = handler.add_route(name=name, handler=serialization_handler)
 
         def wrapper(func):
             simple_handler = SimpleHandler(func=func)
-            handler.wraps(simple_handler)
+            handler.add_route(name=name, handler=simple_handler)
             endpoint = HTTPEndpoint(
                 name=name,
                 rule=rule,
