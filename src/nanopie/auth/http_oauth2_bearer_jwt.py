@@ -1,3 +1,8 @@
+"""This module includes the handler for HTTP OAuth2 Bearer w/ JWT authentication.
+
+See also RFC 6750, RFC 7519.
+"""
+
 from typing import Optional
 
 from .base import CredentialExtractor, AuthenticationHandler
@@ -32,7 +37,11 @@ INVALID_TOKEN_RESPONSE = HTTPResponse(
 
 
 class HTTPOAuth2BearerJWTModes:
-    """
+    """The modes which HTTP OAuth2 Bearer authentication uses.
+
+    RFC 6750 specifies three places where access tokens may reside. At this
+    moment two places are supported: the headers of the HTTP request
+    (HEADER mode), or the query parameters in the URI (URI_QUERY mode).
     """
 
     HEADER = "HEADER"
@@ -41,7 +50,7 @@ class HTTPOAuth2BearerJWTModes:
 
 
 class HTTPOAuth2BearerJWTExtractor(CredentialExtractor):
-    """
+    """The credential extractor for HTTP OAuth2 Bearer w/ JWT authentication.
     """
 
     def __init__(self, mode: str):
@@ -55,8 +64,14 @@ class HTTPOAuth2BearerJWTExtractor(CredentialExtractor):
             )
         self.mode = mode
 
-    def extract(self, request: "HTTPRequest"):
-        """
+    def extract(self, request: "HTTPRequest") -> "JWT":
+        """Extracts a JWT credential from an HTTP request.
+
+        Args:
+            request (HTTPRequest): An HTTP request.
+
+        Returns:
+            JWT: A JWT credential.
         """
         if self.mode == HTTPOAuth2BearerJWTModes.HEADER:
             try:
@@ -115,7 +130,9 @@ class HTTPOAuth2BearerJWTExtractor(CredentialExtractor):
 
 
 class HTTPOAuth2BearerJWTValidator(JWTValidator):
-    """
+    """The credential validator for HTTP OAuth2 Bearer w/ JWT authentication.
+
+    See also `JWTValidator`.
     """
 
     def validate(self, credential):
@@ -129,7 +146,7 @@ class HTTPOAuth2BearerJWTValidator(JWTValidator):
 
 
 class HTTPOAuth2BearerJWTAuthenticationHandler(AuthenticationHandler):
-    """
+    """The authentication handler for HTTP OAuth2 Bearer w/ JWT authentication.
     """
 
     def __init__(
@@ -141,7 +158,52 @@ class HTTPOAuth2BearerJWTAuthenticationHandler(AuthenticationHandler):
         use_ecdsa: bool = False,
         **kwargs
     ):
-        """
+        """Initializes an HTTP OAuth2 Bearer w/ JWT authentication handler.
+
+        Args:
+            key_or_secret (str): The public key (if using asymmetric encryption,
+                e.g. ES/RS/PS algorithms) or secret (if using symmetric
+                encryption, e.g. HS algorithm) for decrypting JWTs.
+            algorithm (str): The encryption algorithm for encrypting/decrypting
+                JWTs. It must be one of the followings values:
+                - HS256, HS384, or HS512 (HMAC with SHA-256/SHA-384/SHA-512)
+                - RS256, RS384, or RS512 (RSA with SHA-256/SHA-384/SHA-512)
+                - ES256, ES384, or ES512 (ECDSA with SHA-256/SHA-384/SHA-512)
+                - PS256, PS384, or PS512 (PSS with SHA-256/SHA-384/SHA-512)
+            use_pycrypto (bool): If set to True, use the pycrypto package for
+                encryption/decryption instead of the default cryptography
+                package. This package only supports RS algorithms.
+            use_ecdsa (bool): If set to True, use the ecdsa package for
+                encryption/decryption instead of the default cryptography
+                package. This package only supports ES algorithms.
+            **kwargs: Other validation options. Available options are:
+                - verify_signature (bool): If set to False, the JWT signature
+                  will not be validated. Defaults to True.
+                - verify_exp (bool): If set to False, the exp (expiration)
+                  claim of the JWT (if any) will not be validated. Defaults
+                  to True.
+                - verify_nbf (bool): If set to False, the nbf (not before)
+                  claim of the JWT (if any) will not be validated. Defaults
+                  to True.
+                - verify_iat (bool): If set to False, the iat (issued at)
+                  claim of the JWT (if any) will not be validated. Defaults
+                  to True.
+                - verify_aud (bool): If set to True, the aud (audience)
+                  claim of the JWT will be validated. Defaults to False.
+                - verify_iss (bool): If set to True, the iss (issuer)
+                  claim of the JWT will be validated. Defaults to False.
+                - require_exp (bool): If set to True, the exp (expiration)
+                  claim must be present in the JWT. Defaults to False.
+                - require_iat (bool): If set to True, the iat (issued at)
+                  claim must be present in the JWT. Defaults to False.
+                - require_nbf (bool): If set to True, the nbf (not before)
+                  claim must be present in the JWT. Defaults to False.
+                - audience (str, Optional): The expected audience of the JWT.
+                - issuer (str, Optional): The expected issuer of the JWT.
+                - leeway (int): The margin of error for the exp (expiration)
+                  claim. Defaults to 0.
+                See also pyjwt API reference
+                (https://pyjwt.readthedocs.io/en/latest/api.html#jwt.decode).
         """
         credential_extractor = HTTPOAuth2BearerJWTExtractor(mode=mode)
         credential_validator = HTTPOAuth2BearerJWTValidator(

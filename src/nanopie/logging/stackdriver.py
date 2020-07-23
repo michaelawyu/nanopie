@@ -1,3 +1,6 @@
+"""This module includes the logging handler for connecting to Stackdriver.
+"""
+
 import logging
 from typing import BinaryIO, Dict, Optional, TextIO, Union
 
@@ -23,7 +26,7 @@ except:
 
 
 class StackdriverLoggingHandler(LoggingHandler):
-    """
+    """The logging handler for connecting to Stackdriver.
     """
 
     def __init__(
@@ -36,7 +39,20 @@ class StackdriverLoggingHandler(LoggingHandler):
         stream: Optional[Union[TextIO, BinaryIO]] = None,
         **kwargs
     ):
-        """
+        """Initializes a Stackdriver logging handler.
+
+        Args:
+            client ("Client"): A Stackdriver client.
+            client_args (Dict): Keyword arguments for the Stackdriver client.
+                See https://googleapis.dev/python/logging/latest/client.html.
+            custom_log_name (str, Optional): The name of the log entries in
+                Stackdriver Logging. See
+                https://googleapis.dev/python/logging/latest/handlers.html.
+            resource: The resource associated with the logs.
+            labels (Dict, Optional): The labels associated with the logs.
+            stream (Union[TextIO, BinaryIO], Optional): The stream to use.
+            **kwargs: Other keyword arguments for logging handlers. See
+                `LoggingHandler`.
         """
         if not STACKDRIVER_INSTALLED:
             raise ImportError(
@@ -57,7 +73,14 @@ class StackdriverLoggingHandler(LoggingHandler):
         super().__init__(**kwargs)
 
     def _setup_logger(self, logger: "logging.Logger"):
-        """
+        """Sets up a logger.
+
+        The logger is configured with a custom log formatter, which helps
+        format structured logs, and a handler, which transmits logs to
+        Stackdriver.
+
+        Args:
+            logger ("Logger"): A logger.
         """
         if self._mode == LoggingHandlerModes.SYNC:
             handler = StackdriverHandler(
@@ -68,7 +91,7 @@ class StackdriverLoggingHandler(LoggingHandler):
                 labels=self._labels,
                 stream=self._stream,
             )
-        elif self.mode == LoggingHandlerModes.BACKGROUND_THREAD:
+        elif self._mode == LoggingHandlerModes.BACKGROUND_THREAD:
             handler = StackdriverHandler(
                 client=self._client,
                 name=self._custom_log_name,

@@ -1,3 +1,15 @@
+"""This module includes the base classes for tracing handlers and related objects.
+
+A tracing handler enables easy OpenTelemetry based tracing when processing
+requests arriving at an endpoint. Once configured, the tracing handler will
+start a trace (span) automatically when a service begins processing a request
+and it will conclude the trace (span) when the service finishes the work;
+the result trace (span) will then be sent to a source (standard streams,
+Jaeger, Zipkin, etc.). Fuurthermore, tracing handlers support trace context
+propagation, so that traces (spans) across services can be resumed without
+additional setup.
+"""
+
 from abc import abstractmethod
 import json
 import os
@@ -27,52 +39,77 @@ from ..services.base import Extractor
 
 
 class TraceContext(Model):
-    """
+    """The base class for all trace contexts.
+
+    A trace context is a `Model` (see `model.py`) that specifies a number
+    of attributes which tracing handlers require for trace propagation.
     """
 
     @property
     @abstractmethod
     def trace_id(self) -> int:
-        """
+        """Returns the trace ID.
         """
 
     @property
     @abstractmethod
     def span_id(self) -> int:
-        """
+        """Returns the span ID.
         """
 
     @property
     @abstractmethod
     def trace_flags(self) -> "TraceOptions":
-        """
+        """Returns the trace flags.
         """
         return trace.TraceFlags.get_default()
 
     @property
     @abstractmethod
     def trace_state(self) -> "TraceState":
-        """
+        """Returns the trace states.
         """
         return trace.TraceState.get_default()
 
     def process(self):
-        """
+        """Processes the trace context.
+
+        Different services propagate their traces (spans) differently. In many
+        cases, the format of trace contexts in requests are not the same from
+        the one OpenTelemetry uses. If required, one may override this method,
+        call it in the trace context extractor, and do some additional
+        parsing to translate custom trace contexts into OpenTelemetry
+        recommended ones. 
         """
 
 
 class TraceContextExtractor(Extractor):
-    """
+    """The base class for all trace context extractors.
+
+    A trace context extractor extracts a trace context from a request. For
+    example, a trace context extractor for an HTTP microservice/API service
+    may check the W3C Trace Context headers from an HTTP request and parse
+    them into a trace context which tracing handlers can use.
     """
 
     @abstractmethod
     def extract(self, request: "RPCRequest") -> "TraceContext":
-        """
+        """Extracts a trace context from a request.
+
+        Args:
+            request (RPCRequest): A request.
+        
+        Returns:
+            TraceContext: The extracted trace context.
         """
 
 
 class OpenTelemetryTracingHandler(Handler):
-    """
+    """The base class for all tracing handlers.
+
+    This tracing handler can also be used directly if the
+    microservice/API service requires only trace outputs to standard streams
+    (stdout/stderr).
     """
 
     def __init__(
@@ -91,7 +128,37 @@ class OpenTelemetryTracingHandler(Handler):
         write_to_console: bool = True,
         jsonprint: bool = True,
     ):
-        """
+        """Initializes a tracing handler.
+
+        Args:
+            with_span_name (str, Optional): The name of the trace span.
+            with_span_attributes (Dict, Optional): The attributes of the trace
+                span.
+            with_span_kind (str): The kind of the trace span.
+            with_endpoint_config (bool): If set to True, the tracing handler
+                will add the basic information about the current endpoint
+                to the span attributes.
+            with_endpoint_extras (bool): If set to True, the tracing handler
+                will add the user provided extra information about the
+                current endpoint to the span attributes.
+            propagated (bool): If set to True, trace propagation will be
+                enabled.
+            trace_ctx_extractor (TraceContextExtractor, Optional): A
+                trace context extractor.
+            quiet (bool): If set to True, the tracing handlers will run
+                quietly when extracting trace contexts, i.e. it will not
+                report any error should a trace context cannot be extracted
+                or processed.
+            batched (bool): If set to True, trace spans will be sent to
+                sources in batch for better performance.
+            with_sampler (Sampler, Optional): An OpenTelemetry trace sampler.
+            probability (float, Optional): The rate for probability sampling.
+            write_to_console (bool): If set to True, the traces (spans) will
+                be written to standard streams (stdout/stderr) in addition
+                to source transmission.
+            jsonprint (bool): If set to True, the traces (spans) will be
+                output in the JSON format when written to standard
+                streams.
         """
         if not OPENTELEMETRY_INSTALLED:
             raise ImportError(
@@ -167,7 +234,7 @@ class OpenTelemetryTracingHandler(Handler):
 
         if with_sampler and probability:
             raise RuntimeError(
-                "with_sampler and probability are " "mutually exclusive."
+                "with_sampler and probability are mutually exclusive."
             )
         elif not with_sampler and probability == None:
             self._sampler = trace.sampling.ALWAYS_ON
@@ -181,7 +248,7 @@ class OpenTelemetryTracingHandler(Handler):
         super().__init__()
 
     def _setup_tracer_provider(self):
-        """
+        """Sets up a tracer provider.
         """
         tracer_provider = TracerProvider(sampler=self._sampler)
         for processor in self._span_processers:
@@ -189,7 +256,7 @@ class OpenTelemetryTracingHandler(Handler):
         self._tracer_provider = tracer_provider
 
     def get_trace_ctx(self):
-        """
+        """Gets the trace context.
         """
         if self._trace_ctx_extractor:
             return self._trace_ctx_extractor.extract(request=request_proxy)
@@ -197,14 +264,31 @@ class OpenTelemetryTracingHandler(Handler):
             raise RuntimeError("trace_ctx_extractor is not present.")
 
     def get_tracer(self):
-        """
+        """Gets a tracer.
         """
         if not self._tracer_provider:
             self._setup_tracer_provider()
         return self._tracer_provider.get_tracer(__name__)
 
     def __call__(self, *args, **kwargs):
-        """
+        """Runs the handler.
+
+        It performs the following tasks:
+
+        1. Set up a tracer providers (if one has not been set up yet) and
+        get a tracer.
+        2. Set up trace propagation (if a trace context is available).
+        3. Perform additional setup.
+        4. Start a new span.
+        5. Pass the baton to the chained handler.
+        6. End the span.
+
+        Args:
+            *args: Arbitrary positional arguments.
+            **kwargs: Arbitrary named arguments.
+        
+        Returns:
+            Any: Any object.
         """
         tracer = self.get_tracer()
         current_span = tracer.get_current_span()

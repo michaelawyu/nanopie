@@ -8,7 +8,7 @@ from ..logger import logger as package_logger
 
 
 class CustomLogRecordFormatter(logging.Formatter):
-    """
+    """The custom formatter for logging handlers.
     """
 
     def __init__(
@@ -20,7 +20,31 @@ class CustomLogRecordFormatter(logging.Formatter):
         log_ctx_extractor: Optional["LogContextExtractor"] = None,
         quiet: bool = True,
     ):
-        """
+        """Initializes a log formatter.
+
+        Args:
+            fmt (Dict, Optional): The format of the log. It is in the form
+                of a Dict (instead of the default string) where logging
+                handlers will attempt to automatically
+                format the values using Python LogRecord attributes
+                (https://docs.python.org/3/library/logging.html#logrecord-attributes)
+                and extras
+                (https://docs.python.org/3/library/logging.html#logging.Logger.debug)
+                users provide (if any).
+            datefmt (str, Optional): The formate of date and time (if any) in the log.
+                See also
+                https://docs.python.org/3/library/logging.html#logging.Formatter.formatTime.
+            style (str): How the values in the fmt Dict are formatted. It
+                can be one of the three values: `%`, `{`, and `$`.
+                See also
+                https://docs.python.org/3/library/logging.html#logging.Formatter.
+            flatten (bool): If set to True, the formatter will pass a
+                serialized Dict to the handler.
+            log_ctx_extractor (LogContextExtractor, Optional): A log context
+                extractor.
+            quiet (bool): If set to True, the logging handler runs quietly
+                when extracting log contexts, i.e. it will not report any
+                error should a log context cannot be extracted or processed.
         """
         super().__init__(fmt=None, datefmt=datefmt, style=style)
 
@@ -59,7 +83,7 @@ class CustomLogRecordFormatter(logging.Formatter):
         self._log_ctx_extractor = log_ctx_extractor
 
     def format(self, record: "LogRecord"):
-        """
+        """See the method `logging.Formatter.format`.
         """
         super().format(record)
 
@@ -90,7 +114,7 @@ class CustomLogRecordFormatter(logging.Formatter):
                     dikt[k] = log_ctx[k]
             except Exception as ex:  # pylint: disable=broad-except
                 if not self._quiet:
-                    raise RuntimeError("Cannot extract log context ().".format(str(ex)))
+                    raise RuntimeError("Cannot extract log context {}.".format(str(ex)))
 
         if self._flatten:
             return json.dumps(dikt)
@@ -98,7 +122,7 @@ class CustomLogRecordFormatter(logging.Formatter):
         return dikt
 
     def usesTime(self):
-        """
+        """See the method `logging.Formatter.usesTime`.
         """
         if self.__style:
             search = self.__style.asctime_search

@@ -1,3 +1,12 @@
+"""This module includes the fields nanopie provides for modeling data.
+
+Each field has a number of restraints, which developers can specify to
+easily validate data. Many of these restraints come from the OpenAPI 3
+specification.
+
+See also `model.py`.
+"""
+
 import re
 from typing import Any, List, Optional
 
@@ -17,7 +26,7 @@ from .misc.errors import (
 
 
 class StringField(Field):
-    """
+    """A field for string typed data.
     """
 
     def __init__(
@@ -25,12 +34,27 @@ class StringField(Field):
         format: Optional[str] = None,  # pylint: disable=redefined-builtin
         max_length: Optional[int] = None,
         min_length: Optional[int] = None,
-        pattern: Optional[int] = None,
+        pattern: Optional[str] = None,
         required: bool = False,
         default: Optional[str] = None,
-        description: str = "",
+        description: str = "A string field",
     ):
-        """
+        """Initializes the field.
+
+        Args:
+            format (str, Optional): The format of this field, e.g. byte or
+                binary. This restraint is for notation purposes only; nanopie
+                does not validate data against the specified format.
+            max_length (int, Optional): The maximum length of this field.
+            min_length (int, Optional): The minimum length of this field.
+            pattern (str, Optional): The pattern of this field, in the form
+                of a regular expression, e.g. `^[a-z]*$` (any lower case
+                alphabetic string)
+            required (bool): If set to True, this field is required in a model,
+                e.g. it cannot be `None` (an empty string, however, is still
+                valid).
+            default (str, Optional): The default value of this field.
+            description (str): The description of this field.
         """
         self.format = format  # pylint: disable=redefined-builtin
         self.max_length = max_length
@@ -43,12 +67,16 @@ class StringField(Field):
         self.default = default
 
     def get_data_type(self) -> type:
-        """
+        """Returns the data type associated with this field (str).
         """
         return str
 
     def validate(self, v: Any, name: str = "unassigned_field"):
-        """
+        """Validates a piece of data against this field.
+
+        Args:
+            v (Any): a piece of data.
+            name (str): The name of the field in a model (if any).
         """
         if type(v) != str:
             if v == None:
@@ -80,7 +108,7 @@ class StringField(Field):
 
 
 class FloatField(Field):
-    """
+    """A field of float typed data.
     """
 
     def __init__(
@@ -91,9 +119,21 @@ class FloatField(Field):
         exclusive_minimum: bool = False,
         required: bool = False,
         default: Optional[float] = None,
-        description: str = "",
+        description: str = "A float field",
     ):
-        """
+        """Initializes the field.
+
+        Args:
+            maximum (float, Optional): The maximum value of this field.
+            exclusive_maximum (bool): If set to True, the boundary maximum
+                value will be excluded (`>` instead of `>=`).
+            minimum (float, Optional): The minimum value of this field.
+            exclusive_minimum (bool): If set to True, the boundary minimum
+                value will be exclused (`<` instead `<=`).
+            required (bool): If set to True, this field is required in a model,
+                e.g. it cannot be `None`.
+            default (float, Optional): The default value of this field.
+            description (str): The description of this field.
         """
         self.maximum = maximum
         self.exclusive_maximum = exclusive_maximum
@@ -106,12 +146,16 @@ class FloatField(Field):
         self.default = default
 
     def get_data_type(self) -> type:
-        """
+        """Returns the data type associated with this field (float).
         """
         return float
 
     def validate(self, v: Any, name: str = "unassigned_field"):
-        """
+        """Validates a piece of data against this field.
+
+        Args:
+            v (Any): a piece of data.
+            name (str): The name of the field in a model (if any).
         """
         if type(v) != float:
             if v == None:
@@ -142,7 +186,7 @@ class FloatField(Field):
 
 
 class IntField(Field):
-    """
+    """A field of int typed data.
     """
 
     def __init__(
@@ -153,9 +197,21 @@ class IntField(Field):
         exclusive_minimum: bool = False,
         required: bool = False,
         default: Optional[int] = None,
-        description: str = "",
+        description: str = "An int field",
     ):
-        """
+        """Initializes the field.
+
+        Args:
+            maximum (float, Optional): The maximum value of this field.
+            exclusive_maximum (bool): If set to True, the boundary maximum
+                value will be excluded (`>` instead of `>=`).
+            minimum (float, Optional): The minimum value of this field.
+            exclusive_minimum (bool): If set to True, the boundary minimum
+                value will be exclused (`<` instead `<=`).
+            required (bool): If set to True, this field is required in a model,
+                e.g. it cannot be `None`.
+            default (float, Optional): The default value of this field.
+            description (str): The description of this field.
         """
         self.maximum = maximum
         self.exclusive_maximum = exclusive_maximum
@@ -168,12 +224,16 @@ class IntField(Field):
         self.default = default
 
     def get_data_type(self) -> type:
-        """
+        """Returns the data type associated with this field (int).
         """
         return int
 
     def validate(self, v: Any, name: str = "unassigned_field"):
-        """
+        """Validates a piece of data against this field.
+
+        Args:
+            v (Any): a piece of data.
+            name (str): The name of the field in a model (if any).
         """
         if type(v) != int:
             if v == None:
@@ -204,16 +264,22 @@ class IntField(Field):
 
 
 class BoolField(Field):
-    """
+    """A field of bool typed data.
     """
 
     def __init__(
         self,
         required: bool = False,
         default: Optional[bool] = None,
-        description: str = "",
+        description: str = "A bool field",
     ):
-        """
+        """Initializes the field.
+
+        Args:
+            required (bool): If set to True, this field is required in a model,
+                e.g. it cannot be `None`.
+            default (bool, Optional): The default value of this field.
+            description (str): The description of this field.
         """
         self.required = required
         self.description = description
@@ -222,12 +288,16 @@ class BoolField(Field):
         self.default = default
 
     def get_data_type(self) -> type:
-        """
+        """Returns the data type associated with this field (bool).
         """
         return bool
 
     def validate(self, v: Any, name: str = "unassigned_field"):
-        """
+        """Validates a piece of data against this field.
+
+        Args:
+            v (Any): a piece of data.
+            name (str): The name of the field in a model (if any).
         """
         if type(v) != bool:
             if v == None:
@@ -244,7 +314,7 @@ class BoolField(Field):
 
 
 class ArrayField(Field):
-    """
+    """A field of array/list typed data.
     """
 
     def __init__(
@@ -254,9 +324,18 @@ class ArrayField(Field):
         max_items: Optional[int] = None,
         required: bool = False,
         default: Optional[List[Any]] = None,
-        description: str = "",
+        description: str = "An array field",
     ):
-        """
+        """Initializes the field.
+
+        Args:
+            item_field (Field): A field that describes the items in the array.
+            min_items (int, Optional): The minimum number of items in the array.
+            max_items (int, Optional): The maximum number of items in the array.
+            required (bool): If set to True, this field is required in a model,
+                e.g. it cannot be `None`.
+            default (List[Any], Optional): The default value of this field.
+            description (str): The description of this field.
         """
         self.item_field = item_field
         self.min_items = min_items
@@ -268,12 +347,16 @@ class ArrayField(Field):
         self.default = default
 
     def get_data_type(self) -> type:
-        """
+        """Returns the data type associated with this field (list).
         """
         return list
 
     def validate(self, v: List[Any], name: str = "unassigned_field"):
-        """
+        """Validates a piece of data against this field.
+
+        Args:
+            v (Any): a piece of data.
+            name (str): The name of the field in a model (if any).
         """
         if type(v) != list:
             if v == None:
@@ -303,7 +386,7 @@ class ArrayField(Field):
 
 
 class ObjectField(Field):
-    """
+    """A field of object typed data.
     """
 
     def __init__(
@@ -311,9 +394,16 @@ class ObjectField(Field):
         model: "ModelMetaCls",
         required: bool = False,
         default: Optional["Model"] = None,
-        description: str = "",
+        description: str = "An object field",
     ):
-        """
+        """Initializes the field.
+
+        Args:
+            model (ModelMetaCls): A model that describes the object.
+            required (bool): If set to True, this field is required in a model,
+                e.g. it cannot be `None`.
+            default (Model, Optional): The default value of this field.
+            description (str): The description of this field.
         """
         self.model = model
         self.required = required
@@ -323,12 +413,16 @@ class ObjectField(Field):
         self.default = default
 
     def get_data_type(self) -> type:
-        """
+        """Returns the data type associated with this field (a subclass of Model).
         """
         return self.model
 
     def validate(self, v: "Model", name: str = "unassigned_field"):
-        """
+        """Validates a piece of data against this field.
+
+        Args:
+            v (Any): a piece of data.
+            name (str): The name of the field in a model (if any).
         """
         if not issubclass(v.__class__, self.model):
             if v == None:

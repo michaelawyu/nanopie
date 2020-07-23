@@ -1,3 +1,6 @@
+"""This module includes the tracing handler for connecting to the Zipkin service.
+"""
+
 from typing import Optional
 
 try:
@@ -11,7 +14,7 @@ from .base import OpenTelemetryTracingHandler
 
 
 class ZipkinTracingHandler(OpenTelemetryTracingHandler):
-    """
+    """The tracing handler for connecting to Zipkin services.
     """
 
     def __init__(
@@ -26,7 +29,19 @@ class ZipkinTracingHandler(OpenTelemetryTracingHandler):
         retry: bool = False,
         **kwargs
     ):
-        """
+        """Initializes a Zipkin tracing handler.
+
+        Args:
+            service_name (str): The name of the service.
+            host_name (str): The hostname or address of the Zipkin service.
+            port (int): The port of the Zipkin service.
+            endpoint (str, Optional): The endpoint of the Zipkin service.
+            protocol (str, Optional): The protocol to use.
+            ipv4 (str): Primary IPv4 address associated with this connection.
+            ipv6 (str): Primary IPv6 address associated with this connection.
+            retry (bool): If set to True, the exporter will retry upon failure.
+            **kwargs: Other keyword arguments for tracing handlers.
+                See `OpenTelemetryTracingHandler`.
         """
         super().__init__(**kwargs)
 

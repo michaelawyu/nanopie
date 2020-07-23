@@ -1,3 +1,6 @@
+"""This module includes the handler for HTTP Basic authentication (RFC 7617).
+"""
+
 import base64
 
 from .base import CredentialExtractor, AuthenticationHandler
@@ -18,16 +21,22 @@ INVALID_CREDENTIAL_RESPONSE = HTTPResponse(
     status_code=403,
     headers={"WWW-Authenticate": "Basic"},
     mime_type="text/html",
-    data=("<h2>403 Forbidden: The provided user credential is not valid " "</h2>"),
+    data=("<h2>403 Forbidden: The provided user credential is not valid. </h2>"),
 )
 
 
 class HTTPBasicUserCredentialExtractor(CredentialExtractor):
-    """
+    """The credential extractor for HTTP Basic authentication.
     """
 
-    def extract(self, request: "HTTPRequest"):
-        """
+    def extract(self, request: "HTTPRequest") -> "UserCredential":
+        """Extracts a user credential from an HTTP request.
+
+        Args:
+            request (HTTPRequest): An HTTP request.
+        
+        Returns:
+            UserCredential: A user credential.
         """
         try:
             headers = getattr(request, "headers")
@@ -71,11 +80,16 @@ class HTTPBasicUserCredentialExtractor(CredentialExtractor):
 
 
 class HTTPBasicAuthenticationHandler(AuthenticationHandler):
-    """
+    """The authentication handler for HTTP Basic authentication.
     """
 
     def __init__(self, credential_validator: "CredentialValidator"):
-        """
+        """Initializes an HTTP Basic authentication handler.
+
+        Args:
+            credential_validator (CredentialValidator): A credential
+                validator. To prepare a credential validator dynamically at
+                runtime, see the method `before_authentication`.
         """
         credential_extractor = HTTPBasicUserCredentialExtractor()
         super().__init__(

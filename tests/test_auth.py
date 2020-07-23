@@ -107,17 +107,33 @@ def test_authentication_handler_before_authentication_failure_not_callable(
     assert "must decorate a callable" in str(ex.value)
 
 
+def test_authentication_handler_before_authentication_failure_too_little_params(
+    setup_ctx, authentication_handler
+):
+    with pytest.raises(ValueError) as ex:
+
+        @authentication_handler.before_authentication
+        def before_authentication_multi_params(x):  # pylint: disable=unused-variable
+            pass
+
+    assert (
+        "must decorate a callable with two arguments named auth_handler "
+        "and credential"
+    ) in str(ex.value)
+
+
 def test_authentication_handler_before_authentication_failure_too_many_params(
     setup_ctx, authentication_handler
 ):
     with pytest.raises(ValueError) as ex:
 
         @authentication_handler.before_authentication
-        def before_authentication_multi_params(x, y):  # pylint: disable=unused-variable
+        def before_authentication_multi_params(x, y, z):  # pylint: disable=unused-variable
             pass
 
     assert (
-        "must decorate a callable with " "exactly one argument named auth_handler"
+        "must decorate a callable with two arguments named auth_handler "
+        "and credential"
     ) in str(ex.value)
 
 
@@ -127,11 +143,12 @@ def test_authentication_handler_before_authentication_failure_misspelled_param(
     with pytest.raises(ValueError) as ex:
 
         @authentication_handler.before_authentication
-        def before_authentication_wrong_name(x):  # pylint: disable=unused-variable
+        def before_authentication_wrong_name(x, y):  # pylint: disable=unused-variable
             pass
 
     assert (
-        "must decorate a callable with " "exactly one argument named auth_handler"
+        "must decorate a callable with two arguments named auth_handler "
+        "and credential"
     ) in str(ex.value)
 
 
@@ -142,8 +159,9 @@ def test_authentication_handler_before_authentication(
     credential_validator_alt.validate.return_value = None
 
     @authentication_handler.before_authentication
-    def before_authentication(auth_handler):  # pylint: disable=unused-variable
+    def before_authentication(auth_handler, credential):  # pylint: disable=unused-variable
         assert auth_handler == authentication_handler
+        assert credential == credential
         return credential_validator_alt
 
     assert authentication_handler() == None
@@ -159,17 +177,33 @@ def test_authentication_handler_after_authentication_failure_not_callable(
     assert "must decorate a callable" in str(ex.value)
 
 
+def test_authentication_handler_after_authentication_failure_too_little_params(
+    setup_ctx, authentication_handler
+):
+    with pytest.raises(ValueError) as ex:
+
+        @authentication_handler.after_authentication
+        def after_authentication_multi_params(x):  # pylint: disable=unused-variable
+            pass
+
+    assert (
+        "must decorate a callable with two arguments named auth_handler "
+        "and credential"
+    ) in str(ex.value)
+
+
 def test_authentication_handler_after_authentication_failure_too_many_params(
     setup_ctx, authentication_handler
 ):
     with pytest.raises(ValueError) as ex:
 
         @authentication_handler.after_authentication
-        def after_authentication_multi_params(x, y):  # pylint: disable=unused-variable
+        def after_authentication_multi_params(x, y, z):  # pylint: disable=unused-variable
             pass
 
     assert (
-        "must decorate a callable with " "exactly one argument named auth_handler"
+        "must decorate a callable with two arguments named auth_handler "
+        "and credential"
     ) in str(ex.value)
 
 
@@ -179,11 +213,12 @@ def test_authentication_handler_after_authentication_failure_misspelled_param(
     with pytest.raises(ValueError) as ex:
 
         @authentication_handler.after_authentication
-        def after_authentication_wrong_name(x):  # pylint: disable=unused-variable
+        def after_authentication_wrong_name(x, y):  # pylint: disable=unused-variable
             pass
 
     assert (
-        "must decorate a callable with " "exactly one argument named auth_handler"
+        "must decorate a callable with two arguments named auth_handler "
+        "and credential"
     ) in str(ex.value)
 
 
@@ -191,8 +226,9 @@ def test_authentication_handler_after_authentication(setup_ctx, authentication_h
     flag = MagicMock(return_value=None)
 
     @authentication_handler.after_authentication
-    def after_authentication(auth_handler):  # pylint: disable=unused-variable
+    def after_authentication(auth_handler, credential):  # pylint: disable=unused-variable
         assert auth_handler == authentication_handler
+        assert credential == credential
         return flag()
 
     assert authentication_handler() == None

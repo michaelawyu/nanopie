@@ -1,3 +1,6 @@
+"""This module includes the tracing handler for connecting to the Jaeger service.
+"""
+
 from typing import Optional
 
 try:
@@ -11,7 +14,7 @@ from .base import OpenTelemetryTracingHandler
 
 
 class JaegerTracingHandler(OpenTelemetryTracingHandler):
-    """
+    """The tracing handler for connecting to Jaeger services.
     """
 
     def __init__(
@@ -26,7 +29,20 @@ class JaegerTracingHandler(OpenTelemetryTracingHandler):
         password: Optional[str] = None,
         **kwargs
     ):
-        """
+        """Initializes a Jaeger tracing handler.
+
+        Args:
+            service_name (str): The name of the service.
+            agent_host_name (str): The hostname or address of the Jaeger agent.
+            agent_port (int): The port of the Jaeger agent.
+            collector_host_name (str): The hostname or address of the Jaeger
+                collector.
+            collector_port (str): The port of the Jaeger collector.
+            collector_endpoint (str): The endpoint of the Jaeger collector.
+            username (str, Optional): The username.
+            password (str, Optional): The password.
+            **kwargs: Other keyword arguments for tracing handlers.
+                See `OpenTelemetryTracingHandler`.
         """
         super().__init__(**kwargs)
 

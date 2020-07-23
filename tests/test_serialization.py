@@ -83,14 +83,14 @@ def http_serialization_handler_json():
 
 
 def test_http_serialization_handler_json(setup_ctx, http_serialization_handler_json):
-    request.mime_type = (
+    request.mime_type = (  # pylint: disable=assigning-non-slot
         http_serialization_handler_json._serialization_helper.mime_type
-    )  # pylint: disable=assigning-non-slot
+    )
     request.headers = simple_model_data_altchar  # pylint: disable=assigning-non-slot
     request.query_args = simple_model_data  # pylint: disable=assigning-non-slot
-    request.text_data = json.dumps(
+    request.text_data = json.dumps(  # pylint: disable=assigning-non-slot
         nested_model_data
-    )  # pylint: disable=assigning-non-slot
+    )
 
     assert http_serialization_handler_json() == None
     assert parsed_request.headers.str_field == "Test Message"
@@ -184,14 +184,14 @@ def test_http_serialization_handler_json_response_parsing(
     http_serialization_handler_json.add_route(name="test", handler=simple_handler)
 
     endpoint.name = "test"  # pylint: disable=assigning-non-slot
-    request.mime_type = (
+    request.mime_type = (  # pylint: disable=assigning-non-slot
         http_serialization_handler_json._serialization_helper.mime_type
-    )  # pylint: disable=assigning-non-slot
+    )
     request.headers = simple_model_data_altchar  # pylint: disable=assigning-non-slot
     request.query_args = simple_model_data  # pylint: disable=assigning-non-slot
-    request.text_data = json.dumps(
+    request.text_data = json.dumps(  # pylint: disable=assigning-non-slot
         nested_model_data
-    )  # pylint: disable=assigning-non-slot
+    )
 
     res = http_serialization_handler_json()
     assert isinstance(res, HTTPResponse)
@@ -220,14 +220,14 @@ def test_http_serialization_handler_json_failure_headers_parsing(
     http_serialization_handler_json.add_route(name="test", handler=simple_handler)
 
     endpoint.name = "test"  # pylint: disable=assigning-non-slot
-    request.mime_type = (
+    request.mime_type = (  # pylint: disable=assigning-non-slot
         http_serialization_handler_json._serialization_helper.mime_type
-    )  # pylint: disable=assigning-non-slot
+    )
     request.headers = simple_model_data_altchar  # pylint: disable=assigning-non-slot
     request.query_args = simple_model_data  # pylint: disable=assigning-non-slot
-    request.text_data = json.dumps(
+    request.text_data = json.dumps(  # pylint: disable=assigning-non-slot
         nested_model_data
-    )  # pylint: disable=assigning-non-slot
+    )
 
     with pytest.raises(SerializationError) as ex:
         http_serialization_handler_json()
@@ -256,14 +256,14 @@ def test_http_serialization_handler_json_failure_payload_parsing(
     http_serialization_handler_json.add_route(name="test", handler=simple_handler)
 
     endpoint.name = "test"  # pylint: disable=assigning-non-slot
-    request.mime_type = (
+    request.mime_type = (  # pylint: disable=assigning-non-slot
         http_serialization_handler_json._serialization_helper.mime_type
-    )  # pylint: disable=assigning-non-slot
+    )
     request.headers = simple_model_data_altchar  # pylint: disable=assigning-non-slot
     request.query_args = simple_model_data  # pylint: disable=assigning-non-slot
-    request.text_data = json.dumps(
+    request.text_data = json.dumps(  # pylint: disable=assigning-non-slot
         nested_model_data
-    )  # pylint: disable=assigning-non-slot
+    )
 
     with pytest.raises(SerializationError) as ex:
         http_serialization_handler_json()

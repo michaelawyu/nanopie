@@ -15,11 +15,16 @@ from ...misc.errors import ServiceError
 
 
 class FlaskService(HTTPService):
-    """
+    """The class for HTTP services with Flask apps as transport.
     """
 
     def __init__(self, *args, app: "flask.Flask", **kwargs):
-        """
+        """Initializes a Flask based HTTP service.
+
+        Args:
+            app (flask.Flask): A Flask app.
+            *args: Arbitrary positional arguments.
+            **kwargs: Arbitrary keyword arguments.
         """
         if not FLASK_INSTALLED:
             raise ImportError(
@@ -34,7 +39,11 @@ class FlaskService(HTTPService):
         super().__init__(*args, **kwargs)
 
     def add_endpoint(self, endpoint: "HTTPEndpoint", **kwargs):
-        """
+        """Adds an HTTP endpoint.
+
+        Args:
+            endpoint (HTTPEndpoint): An HTTP endpoint.
+            **kwargs: Arbitrary keyword arguments.
         """
         svc = self
 

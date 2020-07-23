@@ -34,7 +34,7 @@ def test_string_field_empty():
     assert f.pattern == None
     assert f.required == False
     assert f.default == None
-    assert f.description == ""
+    assert f.description == "A string field"
 
 
 def test_string_field_data_type():
@@ -90,7 +90,7 @@ def test_float_field_empty():
     assert f.exclusive_minimum == False
     assert f.required == False
     assert f.default == None
-    assert f.description == ""
+    assert f.description == "A float field"
 
 
 def test_float_field_data_type():
@@ -172,7 +172,7 @@ def test_int_field_empty():
     assert f.exclusive_minimum == False
     assert f.required == False
     assert f.default == None
-    assert f.description == ""
+    assert f.description == "An int field"
 
 
 def test_int_field_data_type():
@@ -250,7 +250,7 @@ def test_bool_field_empty():
 
     assert f.required == False
     assert f.default == None
-    assert f.description == ""
+    assert f.description == "A bool field"
 
 
 def test_bool_field_data_type():
@@ -286,7 +286,7 @@ def test_array_field_empty():
     assert f.max_items == None
     assert f.required == False
     assert f.default == None
-    assert f.description == ""
+    assert f.description == "An array field"
 
 
 def test_array_field_data_type():
@@ -358,7 +358,7 @@ def test_object_field():
 
     assert f.model == SimpleModel
     assert f.required == False
-    assert f.description == ""
+    assert f.description == "An object field"
     assert f.default == None
 
 

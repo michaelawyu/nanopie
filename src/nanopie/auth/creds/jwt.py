@@ -1,3 +1,6 @@
+"""This module includes the classes for JWTs and their validation.
+"""
+
 import pkgutil
 
 try:
@@ -15,13 +18,21 @@ ECDSA_SUPPORTED_ALGS = ["ES256", "ES384", "ES512"]
 
 
 class JWT(Credential):
-    """
+    """The class for JWT credentials.
+
+    Attributes:
+        token (str): A JWT token.
+        header (dict): The header of the JWT token.
+        payload (dict): The payload of the JWT token.
     """
 
     __slots__ = ("header", "payload")
 
     def __init__(self, token: str):
-        """
+        """Initializes a JWT.
+
+        Args:
+            token (str): A JWT token.
         """
         if not JWT_INSTALLED:
             raise ImportError(
@@ -40,7 +51,7 @@ class JWT(Credential):
 
 
 class JWTValidator(CredentialValidator):
-    """
+    """The class for validating JWTs.
     """
 
     def __init__(
@@ -51,7 +62,52 @@ class JWTValidator(CredentialValidator):
         use_ecdsa: bool = False,
         **kwargs
     ):
-        """
+        """Initializes a JWT validator.
+
+        Args:
+            key_or_secret (str): The public key (if using asymmetric encryption,
+                e.g. ES/RS/PS algorithms) or secret (if using symmetric
+                encryption, e.g. HS algorithm) for decrypting JWTs.
+            algorithm (str): The encryption algorithm for encrypting/decrypting
+                JWTs. It must be one of the followings values:
+                - HS256, HS384, or HS512 (HMAC with SHA-256/SHA-384/SHA-512)
+                - RS256, RS384, or RS512 (RSA with SHA-256/SHA-384/SHA-512)
+                - ES256, ES384, or ES512 (ECDSA with SHA-256/SHA-384/SHA-512)
+                - PS256, PS384, or PS512 (PSS with SHA-256/SHA-384/SHA-512)
+            use_pycrypto (bool): If set to True, use the pycrypto package for
+                encryption/decryption instead of the default cryptography
+                package. This package only supports RS algorithms.
+            use_ecdsa (bool): If set to True, use the ecdsa package for
+                encryption/decryption instead of the default cryptography
+                package. This package only supports ES algorithms.
+            **kwargs: Other validation options. Available options are:
+                - verify_signature (bool): If set to False, the JWT signature
+                  will not be validated. Defaults to True.
+                - verify_exp (bool): If set to False, the exp (expiration)
+                  claim of the JWT (if any) will not be validated. Defaults
+                  to True.
+                - verify_nbf (bool): If set to False, the nbf (not before)
+                  claim of the JWT (if any) will not be validated. Defaults
+                  to True.
+                - verify_iat (bool): If set to False, the iat (issued at)
+                  claim of the JWT (if any) will not be validated. Defaults
+                  to True.
+                - verify_aud (bool): If set to True, the aud (audience)
+                  claim of the JWT will be validated. Defaults to False.
+                - verify_iss (bool): If set to True, the iss (issuer)
+                  claim of the JWT will be validated. Defaults to False.
+                - require_exp (bool): If set to True, the exp (expiration)
+                  claim must be present in the JWT. Defaults to False.
+                - require_iat (bool): If set to True, the iat (issued at)
+                  claim must be present in the JWT. Defaults to False.
+                - require_nbf (bool): If set to True, the nbf (not before)
+                  claim must be present in the JWT. Defaults to False.
+                - audience (str, Optional): The expected audience of the JWT.
+                - issuer (str, Optional): The expected issuer of the JWT.
+                - leeway (int): The margin of error for the exp (expiration)
+                  claim. Defaults to 0.
+                See also pyjwt API reference
+                (https://pyjwt.readthedocs.io/en/latest/api.html#jwt.decode).
         """
         if not JWT_INSTALLED:
             raise ImportError(
@@ -143,7 +199,10 @@ class JWTValidator(CredentialValidator):
             raise ValueError("No expected audience.")
 
     def validate(self, credential: "JWT"):
-        """
+        """Validates a JWT.
+
+        Args:
+            credential (JWT): A JWT.
         """
         try:
             jwt.decode(

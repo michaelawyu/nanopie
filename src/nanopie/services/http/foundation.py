@@ -1,3 +1,10 @@
+"""This module includes the foundation handler for HTTP services.
+
+Foundation handlers server as entrypoint for handler chains in all endpoints.
+It performs a number of basic functionalities, such as checking the
+content length of the request, and pass the baton to other chained handlers.
+"""
+
 from typing import Optional
 
 from ...globals import request
@@ -15,18 +22,29 @@ REQUEST_TOO_LARGE_RESPONSE = HTTPResponse(
 
 
 class HTTPFoundationHandler(Handler):
-    """
+    """The foundation handler for HTTP services.
     """
 
     def __init__(self, max_content_length: Optional[int] = 6000):
-        """
+        """Initializes an HTTP foundation handler.
+
+        Args:
+            max_content_length (int, Optional): The maximum content length of
+                the request.
         """
         self._max_content_length = max_content_length
 
         super().__init__()
 
     def __call__(self, *args, **kwargs):
-        """
+        """Runs the foundation handler.
+
+         Args:
+            *args: Arbitrary positional arguments.
+            **kwargs: Arbitrary named arguments.
+        
+        Returns:
+            Any: Any object.
         """
         try:
             content_length = getattr(request, "content_length")

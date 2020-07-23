@@ -1,3 +1,8 @@
+"""This module includes the global proxies nanopie provides.
+
+See also `proxy.py`.
+"""
+
 from functools import partial
 from typing import Any, Dict
 
@@ -8,7 +13,13 @@ not_set_error = "Specified object is not available yet."
 
 
 def look_up_attr(ctx: Any, name: str) -> Any:
-    """
+    """Looks up an attribute in an object.
+
+    nanopie uses this function to resolve a reference at runtime.
+
+    Args:
+        ctx (Any): The object where the function looks up an attribute.
+        name (str): The name of the attribute.
     """
     v = getattr(ctx, name, None)
     if v == None:
@@ -17,7 +28,13 @@ def look_up_attr(ctx: Any, name: str) -> Any:
 
 
 def look_up_item(dikt: Dict, name: str) -> Any:
-    """
+    """Looks up an item in a Dict.
+
+    nanopie uses this function to resolve a reference at runtime.
+
+    Args:
+        dikt (Dict): The Dict where the function looks up an item.
+        name (str): The key associated with the item.
     """
     v = dikt.get(name)
     if v == None:

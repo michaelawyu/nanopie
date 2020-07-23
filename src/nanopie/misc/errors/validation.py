@@ -1,3 +1,6 @@
+"""This module includes all the validation related exceptions.
+"""
+
 from typing import Any, List, Optional, Union
 
 from .base import ValidationError
@@ -5,7 +8,8 @@ from .. import format_error_message
 
 
 class ModelTypeNotMatchedError(ValidationError):
-    """
+    """The validation exception for mismatched models, i.e. the input data
+    is of a model type different from the one used for validation.
     """
 
     _message = "Input is not of the given type."
@@ -24,7 +28,7 @@ class ModelTypeNotMatchedError(ValidationError):
 
 
 class RequiredFieldMissingError(ValidationError):
-    """
+    """The validation exception for missing required fields.
     """
 
     _message = "A required field is missing."
@@ -46,7 +50,8 @@ class RequiredFieldMissingError(ValidationError):
 
 
 class FieldTypeNotMatchedError(ValidationError):
-    """
+    """The validation exception for mismatched fields, i.e. the input data
+    is of a data type not associated with the field used for validation.
     """
 
     _message = "Input is not of the given field type."
@@ -72,7 +77,9 @@ class FieldTypeNotMatchedError(ValidationError):
 
 
 class ListItemTypeNotMatchedError(ValidationError):
-    """
+    """The validation exception for mismatched item fields, i.e. one or more
+    items in the input array is of a data type not associated with the
+    item field specified in the array field.
     """
 
     _message = "One or more items in the list is not of the given field type."
@@ -98,7 +105,7 @@ class ListItemTypeNotMatchedError(ValidationError):
 
 
 class StringMaxLengthExceededError(ValidationError):
-    """
+    """The validation exception for strings that are too long.
     """
 
     _message = "Input string is too long."
@@ -124,7 +131,7 @@ class StringMaxLengthExceededError(ValidationError):
 
 
 class StringMinLengthBelowError(ValidationError):
-    """
+    """The validation exception for strings that are too short.
     """
 
     _message = "Input string is too short."
@@ -150,7 +157,9 @@ class StringMinLengthBelowError(ValidationError):
 
 
 class StringPatternNotMatchedError(ValidationError):
-    """
+    """The validation exception for mismatched string patterns, i.e. the
+    input string does not match the pattern (regular expression) specified
+    in the string field.
     """
 
     _message = "Input string does not match the given pattern."
@@ -176,7 +185,7 @@ class StringPatternNotMatchedError(ValidationError):
 
 
 class NumberMaxExceededError(ValidationError):
-    """
+    """The validation exception for numbers that are too large.
     """
 
     _message = "Input number is too large."
@@ -202,7 +211,7 @@ class NumberMaxExceededError(ValidationError):
 
 
 class NumberMinBelowError(ValidationError):
-    """
+    """The validation exception for numbers that are too small.
     """
 
     _message = "Input number is too small."
@@ -226,7 +235,7 @@ class NumberMinBelowError(ValidationError):
 
 
 class ListTooManyItemsError(ValidationError):
-    """
+    """The validation exception for oversized arrays/lists.
     """
 
     _message = "Input list has too many items."
@@ -252,7 +261,7 @@ class ListTooManyItemsError(ValidationError):
 
 
 class ListTooLittleItemsError(ValidationError):
-    """
+    """The validation exception for undersized arrays/lists.
     """
 
     _message = "Input list has too little items."

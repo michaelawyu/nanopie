@@ -1,37 +1,61 @@
+"""This module includes the proxies nanopie uses.
+
+A proxy forwards calls to its wrapped object. nanopie uses proxies to
+provide global access to contextual key data and attributes a
+microservice/API service may use while processing the a request,
+such as the parsed payload and the current active endpoint. For more
+information, see `globals.py`.
+
+The proxies work in the same way as the proxies (request, g, etc.) in
+Flask and quart.
+"""
+
 import copy
 from typing import Any, Callable, Dict
 
 
 class GenericProxy:
-    """
+    """A proxy that simply forwards all the calls to the wrapped object.
     """
 
     __slots__ = "_proxy_func"
 
     def __init__(self, proxy_func: Callable):
-        """
+        """Initializes a GenericProxy.
+
+        Args:
+            proxy_func (Callable): a function or a callable object that the
+                proxy calls to get the wrapped object.
         """
         object.__setattr__(self, "_proxy_func", proxy_func)
 
     def update_proxy_func(self, proxy_func: Callable):
-        """
+        """Updates the proxy_func associated with the proxy.
+
+        Args:
+            proxy_func (Callable): a function or a callable object that the
+                proxy calls to get the wrapped object.
         """
         object.__setattr__(self, "_proxy_func", proxy_func)
 
     @property
     def wrapped(self) -> object:
-        """
+        """Any: the wrapped object.
         """
         return object.__getattribute__(self, "_proxy_func")()
 
     @property
     def __dict__(self) -> Dict[str, Any]:
+        """Calls the __dict__ magic method of the wrapped object.
+        """
         try:
             return self.wrapped.__dict__
         except RuntimeError:
             raise AttributeError("__dict__")
 
     def __repr__(self) -> str:
+        """Calls the __repr__ magic method of the wrapped object.
+        """
         try:
             wrapped = self.wrapped
         except RuntimeError:
@@ -40,30 +64,42 @@ class GenericProxy:
         return repr(wrapped)
 
     def __bool__(self) -> bool:
+        """Calls the __bool__ magic method of the wrapped object.
+        """
         try:
             return bool(self.wrapped)
         except RuntimeError:
             return False
 
     def __dir__(self) -> Any:
+        """Calls the __dir__ magic method of the wrapped object.
+        """
         try:
             return dir(self.wrapped)
         except RuntimeError:
             return []
 
     def __getattr__(self, name: str) -> Any:
+        """Calls the __getattr__ magic method of the wrapped object.
+        """
         if name == "__members":
             return dir(self.wrapped)
 
         return object.__getattribute__(self.wrapped, name)
 
     def __setitem__(self, key: Any, value: Any) -> Any:
+        """Calls the __setitem__ magic method of the wrapped object.
+        """
         self.wrapped[key] = value
 
     def __delitem__(self, key: Any) -> Any:
+        """Calls the __delitem__ magic method of the wrapped object.
+        """
         del self.wrapped[key]
 
     async def __aiter__(self) -> Any:
+        """Calls the __aiter__ magic method of the wrapped object.
+        """
         async for x in self.wrapped:
             yield x
 

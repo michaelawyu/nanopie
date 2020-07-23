@@ -1,3 +1,8 @@
+"""This module includes the classes for supporting W3C trace context propagation.
+
+See also https://www.w3.org/TR/trace-context/.
+"""
+
 import re
 
 try:
@@ -27,14 +32,17 @@ _TRACEPARENT_HEADER_FORMAT_RE = re.compile(_TRACEPARENT_HEADER_FORMAT)
 
 
 class HTTPW3CTraceContext(TraceContext):
-    """
+    """The class for W3C trace context.
     """
 
     traceparent = StringField()
     tracestate = StringField()
 
     def process(self):
-        """
+        """Processes the trace context.
+
+        This method parses the `traceparent` and `tracestate` headers
+        dictated in the W3C spec.
         """
         if not self.traceparent:
             return
@@ -88,7 +96,7 @@ class HTTPW3CTraceContext(TraceContext):
 
     @property
     def trace_id(self) -> int:
-        """
+        """Returns the trace ID.
         """
         trace_id = self._extras.get("trace_id")  # pylint: disable=no-member
         if not trace_id:
@@ -98,7 +106,7 @@ class HTTPW3CTraceContext(TraceContext):
 
     @property
     def span_id(self) -> int:
-        """
+        """Returns the span ID.
         """
         span_id = self._extras.get("span_id")  # pylint: disable=no-member
         if not span_id:
@@ -108,7 +116,7 @@ class HTTPW3CTraceContext(TraceContext):
 
     @property
     def trace_flags(self) -> "TraceOptions":
-        """
+        """Returns the trace flags.
         """
         trace_options = self._extras.get("trace_options")  # pylint: disable=no-member
         if not trace_options:
@@ -118,7 +126,7 @@ class HTTPW3CTraceContext(TraceContext):
 
     @property
     def trace_state(self) -> "TraceState":
-        """
+        """Returns the trace states.
         """
         trace_state = self._extras.get("trace_state")  # pylint: disable=no-member
         if not trace_state:
@@ -128,11 +136,14 @@ class HTTPW3CTraceContext(TraceContext):
 
 
 class HTTPW3CTraceContextExtractor(TraceContextExtractor):
-    """
+    """The class for extracting HTTP W3C trace contexts.
     """
 
     def extract(self, request: "HTTPRequest") -> "HTTPW3CTraceContext":
-        """
+        """Extracts an HTTP W3C trace context from an HTTP request.
+
+        Args:
+            request (HTTPRequest): A request.
         """
         headers = getattr(request, "headers", None)
         if not headers:

@@ -1,5 +1,5 @@
 class HTTPMethods:
-    """
+    """A list of supported HTTP methods.
     """
 
     GET = "GET"

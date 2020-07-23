@@ -14,7 +14,6 @@ class DummyHandler(Handler):
 def test_handler():
     handler = Handler()
 
-    assert handler.routes == {}
     assert handler() == None
 
 
@@ -26,7 +25,6 @@ def test_handler_routes(setup_ctx):
 
     endpoint.name = "dummy_handler"  # pylint: disable=assigning-non-slot
 
-    assert handler.routes == {"dummy_handler": dummy_handler}
     assert handler() == "This is a dummy handler."
 
 
