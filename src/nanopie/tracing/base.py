@@ -291,7 +291,7 @@ class OpenTelemetryTracingHandler(Handler):
             Any: Any object.
         """
         tracer = self.get_tracer()
-        current_span = tracer.get_current_span()
+        current_span = trace.get_current_span()
         if self._propagated:
             if not current_span or not current_span.get_context().is_valid():
                 trace_ctx = self.get_trace_ctx()
