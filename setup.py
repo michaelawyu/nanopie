@@ -44,6 +44,7 @@ setup(
     install_requires=[],
     extras_require={
         "dev": ["pylint", "pytest", "black"],
+        "docs": ["mkdocs", "mkdocs-material"],
         "extras": ["pyjwt", "docker"],
     },
 )
