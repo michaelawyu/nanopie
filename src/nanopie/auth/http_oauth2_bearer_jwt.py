@@ -205,6 +205,10 @@ class HTTPOAuth2BearerJWTAuthenticationHandler(AuthenticationHandler):
                 See also pyjwt API reference
                 (https://pyjwt.readthedocs.io/en/latest/api.html#jwt.decode).
         """
+        self.algorithm = algorithm
+        self.key_or_secret = key_or_secret
+        self.kwargs = kwargs
+
         credential_extractor = HTTPOAuth2BearerJWTExtractor(mode=mode)
         credential_validator = HTTPOAuth2BearerJWTValidator(
             key_or_secret=key_or_secret,

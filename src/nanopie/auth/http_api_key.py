@@ -22,7 +22,7 @@ INVALID_QUERY_ARGS_RESPONSE = HTTPResponse(
         "<h2>401 Unauthorized: Must include an API key in the URI query string.</h2>"
     ),
 )
-INVALID_TOKEN_RESPONSE = HTTPResponse(
+INVALID_KEY_RESPONSE = HTTPResponse(
     status_code=403,
     headers={},
     mime_type="text/html",

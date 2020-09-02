@@ -3,11 +3,11 @@ nav:
   - Home: index.md
   - Services: services.md
   - Data Model: data-model.md
-  - Transport: transport.md
   - Authentication: authentication.md
   - Logging: logging.md
   - Tracing: tracing.md
   - Serialization: serialization.md
+  - Exceptions: exceptions.md
   - About: about.md
 theme:
   name: material
@@ -17,3 +17,6 @@ markdown_extensions:
       use_pygments: true
   - pymdownx.inlinehilite
   - pymdownx.superfences
+  - pymdownx.tabbed
+  - pymdownx.superfences
+  - pymdownx.details

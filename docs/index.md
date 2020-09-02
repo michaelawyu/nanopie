@@ -7,8 +7,8 @@ logging, and tracing, commonly encountered in microservice and API backend
 development.
 
 !!! note
-    nanopie in still in Development. At this moment, nanopie supports RESTful
-    HTTP API services only.
+    nanopie in still in Development. At this moment, nanopie supports only
+    HTTP (RESTful) microservices/API backends.
 
 ## Features
 
@@ -57,7 +57,7 @@ development.
     can automatically parse incoming requests into data model objects,
     and return data model objects as responses in interchangable formats.
 
-* **pluggable authentication, serialization, logging, and tracing solutions**
+* **Pluggable authentication, serialization, logging, and tracing solutions**
 
     nanopie provides a number of solutions for common tasks in microservices and
     API backend development, known as handlers. You can add handlers to the
@@ -96,7 +96,7 @@ pip install nanopie
 
 ### Setup
 
-Install `nanopie` and `flask`, a popular Python web microframework in your
+Install `nanopie` and `flask`, a popular Python web micro-framework in your
 project. A `Flask` app will serve as the transport of your `nanopie`
 microservice in this example:
 
@@ -127,14 +127,14 @@ The `User` model includes two fields, `name`, and `age`, which takes a
 `String` value and a `Integer` value respectively. 
 
 !!! note 
-    Both fields have constraints specified:
+    Both fields have hints and constraints specified:
     
     * The `name` field must be an alphabetic string with a maximum of 20
     characters and a minimum of 1 character.
     * The `age` field must be an integer no smaller than `1` and no greater
     than `100`.
 
-    `nanopie` can use these constraints to validate data.
+    `nanopie` can use these hints and constraints to validate data.
 
 ### Writing the microservice
 
@@ -192,7 +192,7 @@ authentication solutions, known as authentication handlers, that perform
 the authentication of requests automatically; for this project, you will
 enable HTTP OAuth2 Bearer Token with JWT ([RFC 6750](https://tools.ietf.org/html/rfc6750),
 [RFC 7519](https://tools.ietf.org/html/rfc7519)) based authentication in the
-sevice using the
+service using the
 authentication handler `HTTPOAuth2BearerJWTAuthenticationHandler`.
 
 !!! note "If you are unfamiliar with HTTP OAuth2 Bearer Token or JWT"

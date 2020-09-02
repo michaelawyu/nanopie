@@ -16,9 +16,9 @@ class LogstashLoggingHandler(LoggingHandler):
         """Initializes a Logstash logging handler.
 
         Args:
-            host (str): The hostname or address of the Fluentd service.
-            port (int): The port of the Fluentd service.
-            use_udp (bool): If set to up, the logs will be transmitted using
+            host (str): The hostname or address of the Logstash service.
+            port (int): The port of the Logstash service.
+            use_udp (bool): If set to True, the logs will be transmitted using
                 the UDP protocol.
             **kwargs: Other keyword arguments for logging handlers. See
                 `LoggingHandler`.

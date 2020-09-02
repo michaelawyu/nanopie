@@ -157,7 +157,7 @@ class OpenTelemetryTracingHandler(Handler):
                 be written to standard streams (stdout/stderr) in addition
                 to source transmission.
             jsonprint (bool): If set to True, the traces (spans) will be
-                output in the JSON format when written to standard
+                output in the format of JSON strings when written to standard
                 streams.
         """
         if not OPENTELEMETRY_INSTALLED:

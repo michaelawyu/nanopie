@@ -26,6 +26,7 @@ from .logging import (
     LogContext,
     LogContextExtractor,
     LoggingHandler,
+    LoggingHandlerModes,
     FluentdLoggingHandler,
     LogstashLoggingHandler,
     StackdriverLoggingHandler,

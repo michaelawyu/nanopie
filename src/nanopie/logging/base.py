@@ -107,7 +107,7 @@ class LoggingHandler(Handler):
                 names are globally unique; see
                 https://docs.python.org/3/library/logging.html for more
                 information.
-            span_name (str): The name of the `1cä3a2span, usually the processing
+            span_name (str): The name of the span, usually the processing
                 of a request. For example, if you set
                 up a logging handler in an endpoint `get_user`, the span_name
                 can be configured as `get_user` so that the logging
@@ -126,7 +126,7 @@ class LoggingHandler(Handler):
                 and extras
                 (https://docs.python.org/3/library/logging.html#logging.Logger.debug)
                 users provide (if any).
-            datefmt (str): The formate of date and time (if any) in the log.
+            datefmt (str): The format of date and time (if any) in the log.
                 See also
                 https://docs.python.org/3/library/logging.html#logging.Formatter.formatTime.
             style (str): How the values in the fmt Dict are formatted. It
@@ -274,7 +274,7 @@ class LoggingHandler(Handler):
         """Sets up the root logger.
 
         Args:
-            excluded_logger (List[str]): A list of loggers whose propagation
+            excluded_loggers (List[str]): A list of loggers whose propagation
                 will be disabled. This prevents error logs produced by
                 errored handlers themselves being redirected back to these
                 handlers. 
