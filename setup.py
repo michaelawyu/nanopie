@@ -14,7 +14,7 @@ setup(
     url="https://github.com/michaelawyu/nanopie",
     project_urls={
         "Source": "https://github.com/michaelawyu/nanopie",
-        "Documentation": "",
+        "Documentation": "https://nanopie.readthedocs.io",
         "Issue Tracker": "https://github.com/michaelawyu/nanopie/issues",
     },
     license="Apache License 2.0",
@@ -24,6 +24,7 @@ setup(
     maintainer_email="michael.a.w.yu@gmail.com",
     description="A lightweight framework for building Python microservices and API services.",
     long_description=readme,
+    long_description_content_type='text/markdown',
     classifiers=[
         "Development Status :: 3 - Alpha",
         "Environment :: Web Environment",

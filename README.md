@@ -78,7 +78,7 @@ only HTTP (RESTful) microservices/API backends.
     it is authenticated, logged, and traced by respective handlers, with its
     payload deserialized into an object of nanopie data model automatically.
 
-    ![Handlers](docs/images/handlers_alt.png)
+    ![Handlers](https://github.com/michaelawyu/nanopie/blob/master/docs/images/handlers_alt.png?raw=true)
 
 ## Installation
 
