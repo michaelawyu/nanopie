@@ -22,8 +22,7 @@ REQUEST_TOO_LARGE_RESPONSE = HTTPResponse(
 
 
 class HTTPFoundationHandler(Handler):
-    """The foundation handler for HTTP services.
-    """
+    """The foundation handler for HTTP services."""
 
     def __init__(self, max_content_length: Optional[int] = 6000):
         """Initializes an HTTP foundation handler.
@@ -42,7 +41,7 @@ class HTTPFoundationHandler(Handler):
          Args:
             *args: Arbitrary positional arguments.
             **kwargs: Arbitrary named arguments.
-        
+
         Returns:
             Any: Any object.
         """

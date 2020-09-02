@@ -10,9 +10,7 @@ INVALID_HEADER_RESPONSE = HTTPResponse(
     status_code=401,
     headers={},
     mime_type="text/html",
-    data=(
-        "<h2>401 Unauthorized: Must include an API key in the request header.</h2>"
-    ),
+    data=("<h2>401 Unauthorized: Must include an API key in the request header.</h2>"),
 )
 INVALID_QUERY_ARGS_RESPONSE = HTTPResponse(
     status_code=401,
@@ -43,8 +41,7 @@ class HTTPAPIKeyModes:
 
 
 class HTTPAPIKeyExtractor(CredentialExtractor):
-    """The credential extractor for HTTP API key authentication.
-    """
+    """The credential extractor for HTTP API key authentication."""
 
     def __init__(self, mode: str, key_field_name: str):
         """Initializes a credential extractor.
@@ -70,7 +67,7 @@ class HTTPAPIKeyExtractor(CredentialExtractor):
 
         Args:
             request (HTTPRequest): An HTTP request.
-        
+
         Returns:
             Key: The extracted HTTP API key credential.
         """
@@ -121,8 +118,7 @@ class HTTPAPIKeyExtractor(CredentialExtractor):
 
 
 class HTTPAPIKeyAuthenticationHandler(AuthenticationHandler):
-    """The authentication handler for HTTP API key authentication.
-    """
+    """The authentication handler for HTTP API key authentication."""
 
     def __init__(
         self,

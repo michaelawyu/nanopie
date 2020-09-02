@@ -7,8 +7,7 @@ from .handlers.logstash import LogstashTCPHandler, LogstashUDPHandler
 
 
 class LogstashLoggingHandler(LoggingHandler):
-    """The logging handler for connecting to Logstash services.
-    """
+    """The logging handler for connecting to Logstash services."""
 
     def __init__(
         self, host: str = "localhost", port: int = 9600, use_udp: bool = False, **kwargs

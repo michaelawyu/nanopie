@@ -43,8 +43,17 @@ setup(
     python_requires=">3.4",
     install_requires=[],
     extras_require={
-        "dev": ["pylint", "pytest", "black"],
+        "dev": [
+            "pylint",
+            "pytest",
+            "black",
+            "opentelemetry-api",
+            "opentelemetry-sdk",
+            "flask",
+            "pyjwt",
+            "cryptography",
+            "twine",
+        ],
         "docs": ["mkdocs", "mkdocs-material"],
-        "extras": ["pyjwt", "docker"],
     },
 )

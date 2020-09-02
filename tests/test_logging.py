@@ -496,8 +496,10 @@ def test_fluentd_logging_handler(teardown_remove_logger_handlers, fluentd_contai
 @pytest.mark.skipif(FLUENT_INSTALLED, reason="requires that fluentd is not installed")
 def test_fluentd_logging_handler_failure_fluentd_not_installed():
     with pytest.raises(ImportError) as ex:
-        fluentd_logging_handler = FluentdLoggingHandler(  # pylint: disable=unused-variable
-            default_logger_name=DEFAULT_LOGGER_NAME
+        fluentd_logging_handler = (
+            FluentdLoggingHandler(  # pylint: disable=unused-variable
+                default_logger_name=DEFAULT_LOGGER_NAME
+            )
         )
 
     assert "fluent-logger" in str(ex.value)
@@ -574,8 +576,10 @@ def test_logstash_logging_handler_udp(
 )
 def test_stackdriver_logging_handler_failure_stackdriver_not_installed():
     with pytest.raises(ImportError) as ex:
-        stackdriver_logging_handler = StackdriverLoggingHandler(  # pylint: disable=unused-variable
-            client=None, default_logger_name=DEFAULT_LOGGER_NAME
+        stackdriver_logging_handler = (
+            StackdriverLoggingHandler(  # pylint: disable=unused-variable
+                client=None, default_logger_name=DEFAULT_LOGGER_NAME
+            )
         )
 
     assert "google-cloud-logging" in str(ex.value)
@@ -615,8 +619,10 @@ def test_stackdriver_logging_handler_sync(
 
     time.sleep(20)
 
-    _filter = 'resource.type = "generic_node" AND resource.labels.node_id = "{}"'.format(
-        identifier
+    _filter = (
+        'resource.type = "generic_node" AND resource.labels.node_id = "{}"'.format(
+            identifier
+        )
     )
     entries = []
     for entry in stackdriver_logging_client.list_entries(filter_=_filter):
@@ -671,8 +677,10 @@ def test_stackdriver_logging_handler_background_thread():
 
     time.sleep(20)
 
-    _filter = 'resource.type = "generic_node" AND resource.labels.node_id = "{}"'.format(
-        identifier
+    _filter = (
+        'resource.type = "generic_node" AND resource.labels.node_id = "{}"'.format(
+            identifier
+        )
     )
     entries = []
     for entry in stackdriver_logging_client.list_entries(filter_=_filter):

@@ -14,8 +14,7 @@ from .base import OpenTelemetryTracingHandler
 
 
 class JaegerTracingHandler(OpenTelemetryTracingHandler):
-    """The tracing handler for connecting to Jaeger services.
-    """
+    """The tracing handler for connecting to Jaeger services."""
 
     def __init__(
         self,

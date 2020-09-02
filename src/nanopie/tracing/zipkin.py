@@ -14,8 +14,7 @@ from .base import OpenTelemetryTracingHandler
 
 
 class ZipkinTracingHandler(OpenTelemetryTracingHandler):
-    """The tracing handler for connecting to Zipkin services.
-    """
+    """The tracing handler for connecting to Zipkin services."""
 
     def __init__(
         self,

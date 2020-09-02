@@ -26,8 +26,7 @@ except:
 
 
 class StackdriverLoggingHandler(LoggingHandler):
-    """The logging handler for connecting to Stackdriver.
-    """
+    """The logging handler for connecting to Stackdriver."""
 
     def __init__(
         self,

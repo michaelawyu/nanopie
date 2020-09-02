@@ -26,8 +26,7 @@ from .misc.errors import (
 
 
 class StringField(Field):
-    """A field for string typed data.
-    """
+    """A field for string typed data."""
 
     def __init__(
         self,
@@ -67,8 +66,7 @@ class StringField(Field):
         self.default = default
 
     def get_data_type(self) -> type:
-        """Returns the data type associated with this field (str).
-        """
+        """Returns the data type associated with this field (str)."""
         return str
 
     def validate(self, v: Any, name: str = "unassigned_field"):
@@ -108,8 +106,7 @@ class StringField(Field):
 
 
 class FloatField(Field):
-    """A field of float typed data.
-    """
+    """A field of float typed data."""
 
     def __init__(
         self,
@@ -146,8 +143,7 @@ class FloatField(Field):
         self.default = default
 
     def get_data_type(self) -> type:
-        """Returns the data type associated with this field (float).
-        """
+        """Returns the data type associated with this field (float)."""
         return float
 
     def validate(self, v: Any, name: str = "unassigned_field"):
@@ -186,8 +182,7 @@ class FloatField(Field):
 
 
 class IntField(Field):
-    """A field of int typed data.
-    """
+    """A field of int typed data."""
 
     def __init__(
         self,
@@ -224,8 +219,7 @@ class IntField(Field):
         self.default = default
 
     def get_data_type(self) -> type:
-        """Returns the data type associated with this field (int).
-        """
+        """Returns the data type associated with this field (int)."""
         return int
 
     def validate(self, v: Any, name: str = "unassigned_field"):
@@ -264,8 +258,7 @@ class IntField(Field):
 
 
 class BoolField(Field):
-    """A field of bool typed data.
-    """
+    """A field of bool typed data."""
 
     def __init__(
         self,
@@ -288,8 +281,7 @@ class BoolField(Field):
         self.default = default
 
     def get_data_type(self) -> type:
-        """Returns the data type associated with this field (bool).
-        """
+        """Returns the data type associated with this field (bool)."""
         return bool
 
     def validate(self, v: Any, name: str = "unassigned_field"):
@@ -314,8 +306,7 @@ class BoolField(Field):
 
 
 class ArrayField(Field):
-    """A field of array/list typed data.
-    """
+    """A field of array/list typed data."""
 
     def __init__(
         self,
@@ -347,8 +338,7 @@ class ArrayField(Field):
         self.default = default
 
     def get_data_type(self) -> type:
-        """Returns the data type associated with this field (list).
-        """
+        """Returns the data type associated with this field (list)."""
         return list
 
     def validate(self, v: List[Any], name: str = "unassigned_field"):
@@ -386,8 +376,7 @@ class ArrayField(Field):
 
 
 class ObjectField(Field):
-    """A field of object typed data.
-    """
+    """A field of object typed data."""
 
     def __init__(
         self,
@@ -413,8 +402,7 @@ class ObjectField(Field):
         self.default = default
 
     def get_data_type(self) -> type:
-        """Returns the data type associated with this field (a subclass of Model).
-        """
+        """Returns the data type associated with this field (a subclass of Model)."""
         return self.model
 
     def validate(self, v: "Model", name: str = "unassigned_field"):

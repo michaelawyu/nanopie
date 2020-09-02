@@ -45,7 +45,11 @@ def test_string_field_data_type():
 
 def test_string_field_validate():
     f = StringField(
-        format="format", max_length=10, min_length=5, pattern="^He.*d!$", required=True,
+        format="format",
+        max_length=10,
+        min_length=5,
+        pattern="^He.*d!$",
+        required=True,
     )
 
     f.validate("He ld!")
@@ -297,7 +301,11 @@ def test_array_field_data_type():
 
 
 def test_array_field_validate():
-    i = IntField(maximum=10, minimum=2, required=True,)
+    i = IntField(
+        maximum=10,
+        minimum=2,
+        required=True,
+    )
     f = ArrayField(item_field=i, min_items=2, max_items=5, required=True)
 
     f.validate([2, 3, 4])

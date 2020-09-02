@@ -8,33 +8,27 @@ from ..handler import Handler
 
 
 class RPCRequest(ABC):
-    """The base class for all requests.
-    """
+    """The base class for all requests."""
 
 
 class RPCParsedRequest(ABC):
-    """The base class for all parsed requests.
-    """
+    """The base class for all parsed requests."""
 
 
 class Extractor(ABC):
-    """The base class for all extractors.
-    """
+    """The base class for all extractors."""
 
     @abstractmethod
     def extract(self, request: "RPCRequest") -> Any:
-        """Extracts from a request.
-        """
+        """Extracts from a request."""
 
 
 class RPCResponse(ABC):
-    """The base class for all responses.
-    """
+    """The base class for all responses."""
 
 
 class RPCEndpoint(ABC):
-    """The base class for all endpoints.
-    """
+    """The base class for all endpoints."""
 
     def __init__(
         self, name: str, rule: str, entrypoint: Handler, extras: Optional[Dict] = None
@@ -54,8 +48,7 @@ class RPCEndpoint(ABC):
 
 
 class RPCService(ABC):
-    """The base class for all services.
-    """
+    """The base class for all services."""
 
     def __init__(
         self,

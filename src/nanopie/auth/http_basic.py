@@ -26,15 +26,14 @@ INVALID_CREDENTIAL_RESPONSE = HTTPResponse(
 
 
 class HTTPBasicUserCredentialExtractor(CredentialExtractor):
-    """The credential extractor for HTTP Basic authentication.
-    """
+    """The credential extractor for HTTP Basic authentication."""
 
     def extract(self, request: "HTTPRequest") -> "UserCredential":
         """Extracts a user credential from an HTTP request.
 
         Args:
             request (HTTPRequest): An HTTP request.
-        
+
         Returns:
             UserCredential: A user credential.
         """
@@ -80,8 +79,7 @@ class HTTPBasicUserCredentialExtractor(CredentialExtractor):
 
 
 class HTTPBasicAuthenticationHandler(AuthenticationHandler):
-    """The authentication handler for HTTP Basic authentication.
-    """
+    """The authentication handler for HTTP Basic authentication."""
 
     def __init__(self, credential_validator: "CredentialValidator"):
         """Initializes an HTTP Basic authentication handler.

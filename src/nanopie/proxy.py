@@ -15,8 +15,7 @@ from typing import Any, Callable, Dict
 
 
 class GenericProxy:
-    """A proxy that simply forwards all the calls to the wrapped object.
-    """
+    """A proxy that simply forwards all the calls to the wrapped object."""
 
     __slots__ = "_proxy_func"
 
@@ -40,22 +39,19 @@ class GenericProxy:
 
     @property
     def wrapped(self) -> object:
-        """Any: the wrapped object.
-        """
+        """Any: the wrapped object."""
         return object.__getattribute__(self, "_proxy_func")()
 
     @property
     def __dict__(self) -> Dict[str, Any]:
-        """Calls the __dict__ magic method of the wrapped object.
-        """
+        """Calls the __dict__ magic method of the wrapped object."""
         try:
             return self.wrapped.__dict__
         except RuntimeError:
             raise AttributeError("__dict__")
 
     def __repr__(self) -> str:
-        """Calls the __repr__ magic method of the wrapped object.
-        """
+        """Calls the __repr__ magic method of the wrapped object."""
         try:
             wrapped = self.wrapped
         except RuntimeError:
@@ -64,42 +60,36 @@ class GenericProxy:
         return repr(wrapped)
 
     def __bool__(self) -> bool:
-        """Calls the __bool__ magic method of the wrapped object.
-        """
+        """Calls the __bool__ magic method of the wrapped object."""
         try:
             return bool(self.wrapped)
         except RuntimeError:
             return False
 
     def __dir__(self) -> Any:
-        """Calls the __dir__ magic method of the wrapped object.
-        """
+        """Calls the __dir__ magic method of the wrapped object."""
         try:
             return dir(self.wrapped)
         except RuntimeError:
             return []
 
     def __getattr__(self, name: str) -> Any:
-        """Calls the __getattr__ magic method of the wrapped object.
-        """
+        """Calls the __getattr__ magic method of the wrapped object."""
         if name == "__members":
             return dir(self.wrapped)
 
         return object.__getattribute__(self.wrapped, name)
 
     def __setitem__(self, key: Any, value: Any) -> Any:
-        """Calls the __setitem__ magic method of the wrapped object.
-        """
+        """Calls the __setitem__ magic method of the wrapped object."""
         self.wrapped[key] = value
 
     def __delitem__(self, key: Any) -> Any:
-        """Calls the __delitem__ magic method of the wrapped object.
-        """
+        """Calls the __delitem__ magic method of the wrapped object."""
         del self.wrapped[key]
 
     async def __aiter__(self) -> Any:
-        """Calls the __aiter__ magic method of the wrapped object.
-        """
+        """Calls the __aiter__ magic method of the wrapped object."""
         async for x in self.wrapped:
             yield x
 
@@ -142,9 +132,9 @@ class GenericProxy:
     __oct__ = lambda x: oct(x.wrapped)
     __hex__ = lambda x: hex(x.wrapped)
     __index__ = lambda x: x.wrapped.__index__()
-    __coerce__ = lambda x, o: x.wrapped.__coerce__(  # pylint: disable=unnecessary-lambda
+    __coerce__ = lambda x, o: x.wrapped.__coerce__(
         x, o
-    )
+    )  # pylint: disable=unnecessary-lambda
     __enter__ = lambda x: x.wrapped.__enter__()
     __exit__ = lambda x, *a, **kw: x.wrapped.__exit__(*a, **kw)
     __radd__ = lambda x, o: o + x.wrapped

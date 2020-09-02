@@ -13,8 +13,7 @@ from .formatter import CustomLogRecordFormatter
 
 
 class FluentdLoggingHandler(LoggingHandler):
-    """The logging handler for connecting to Fluentd services.
-    """
+    """The logging handler for connecting to Fluentd services."""
 
     def __init__(
         self, host: str = "localhost", port: int = 24224, tag: str = "app", **kwargs

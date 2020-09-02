@@ -9,8 +9,7 @@ from ...model import Model
 
 
 class HTTPRequest(RPCRequest):
-    """The class for HTTP requests.
-    """
+    """The class for HTTP requests."""
 
     __slots__ = (
         "_url",
@@ -66,7 +65,7 @@ class HTTPRequest(RPCRequest):
 
         Args:
             v (Any): A callable or a regular value.
-        
+
         Returns:
             Any: The return value of the callable or the original input.
         """
@@ -77,50 +76,42 @@ class HTTPRequest(RPCRequest):
 
     @property
     def url(self) -> str:
-        """Returns the URL of the request.
-        """
+        """Returns the URL of the request."""
         return self._helper(self._url)
 
     @property
     def headers(self) -> Dict:
-        """Returns the headers of the request.
-        """
+        """Returns the headers of the request."""
         return self._helper(self._headers)
 
     @property
     def content_length(self) -> int:
-        """Returns the content length of the request.
-        """
+        """Returns the content length of the request."""
         return self._helper(self._content_length)
 
     @property
     def mime_type(self) -> str:
-        """Returns the mime type of the request.
-        """
+        """Returns the mime type of the request."""
         return self._helper(self._mime_type)
 
     @property
     def query_args(self) -> Dict:
-        """Returns the query arguments in the URI of the request.
-        """
+        """Returns the query arguments in the URI of the request."""
         return self._helper(self._query_args)
 
     @property
     def binary_data(self) -> bytes:
-        """Returns the binary data payload of the request.
-        """
+        """Returns the binary data payload of the request."""
         return self._helper(self._binary_data)
 
     @property
     def text_data(self) -> str:
-        """Returns the text data payload of the request.
-        """
+        """Returns the text data payload of the request."""
         return self._helper(self._text_data)
 
 
 class HTTPParsedRequest(RPCParsedRequest):
-    """The class for parsed HTTP requests.
-    """
+    """The class for parsed HTTP requests."""
 
     __slots__ = ("_headers", "_query_args", "_data")
 
@@ -147,8 +138,7 @@ class HTTPParsedRequest(RPCParsedRequest):
 
     @property
     def headers(self):
-        """Returns the headers of the request.
-        """
+        """Returns the headers of the request."""
         if not self._headers:
             raise ValueError("This endpoint is not configured with a header model.")
 
@@ -156,8 +146,7 @@ class HTTPParsedRequest(RPCParsedRequest):
 
     @property
     def query_args(self):
-        """Returns the query arguments in the URI of the request.
-        """
+        """Returns the query arguments in the URI of the request."""
         if not self._query_args:
             raise ValueError("This endpoint is not configured with a query args model.")
 
@@ -165,8 +154,7 @@ class HTTPParsedRequest(RPCParsedRequest):
 
     @property
     def data(self):
-        """Returns the data payload of the request.
-        """
+        """Returns the data payload of the request."""
         if not self._data:
             raise ValueError("This endpoint is not configured with a data model.")
 
@@ -174,8 +162,7 @@ class HTTPParsedRequest(RPCParsedRequest):
 
 
 class HTTPResponse(RPCResponse):
-    """The class for HTTP responses.
-    """
+    """The class for HTTP responses."""
 
     __slots__ = ("_status_code", "_headers", "_mime_type", "_data")
 
@@ -208,50 +195,40 @@ class HTTPResponse(RPCResponse):
 
     @property
     def status_code(self) -> int:
-        """Returns the status code of the HTTP response.
-        """
+        """Returns the status code of the HTTP response."""
         return self._status_code
 
     @status_code.setter
     def status_code(self, status_code: int):
-        """Sets the status code of the HTTP response.
-        """
+        """Sets the status code of the HTTP response."""
         if type(status_code) != int:
-            raise RuntimeError(
-                "HTTP Response must have a status code of the int type."
-            )
+            raise RuntimeError("HTTP Response must have a status code of the int type.")
         self._status_code = status_code
 
     @property
     def headers(self) -> [Dict, "Model"]:
-        """Returns the headers of the HTTP response.
-        """
+        """Returns the headers of the HTTP response."""
         return self._headers
 
     @headers.setter
     def headers(self, headers: Optional[Dict]):
-        """Sets the headers of the HTTP response.
-        """
+        """Sets the headers of the HTTP response."""
         if headers == None:
             headers = {}
 
         if type(headers) != dict and not isinstance(headers, Model):
-            raise RuntimeError(
-                "HTTP Response must have a Model or a dict as headers."
-            )
+            raise RuntimeError("HTTP Response must have a Model or a dict as headers.")
 
         self._headers = headers
 
     @property
     def mime_type(self) -> str:
-        """Returns the mime type of the HTTP response.
-        """
+        """Returns the mime type of the HTTP response."""
         return self._mime_type
 
     @mime_type.setter
     def mime_type(self, mime_type: Optional[str]):
-        """Sets the mime type of the HTTP response.
-        """
+        """Sets the mime type of the HTTP response."""
         if mime_type == None:
             mime_type = ""
 
@@ -262,14 +239,12 @@ class HTTPResponse(RPCResponse):
 
     @property
     def data(self) -> Optional[Union[str, bytes, "Model"]]:
-        """Returns the data payload of the HTTP response.
-        """
+        """Returns the data payload of the HTTP response."""
         return self._data
 
     @data.setter
     def data(self, data: Optional[Union[str, bytes, "Model"]]):
-        """Sets the data payload of the HTTP response.
-        """
+        """Sets the data payload of the HTTP response."""
         if (
             data != None
             and type(data) not in [str, bytes]
@@ -283,8 +258,7 @@ class HTTPResponse(RPCResponse):
 
     @property
     def is_processed(self):
-        """Returns True if the headers or data payload are not of the basic data types.
-        """
+        """Returns True if the headers or data payload are not of the basic data types."""
         if type(self._headers) != dict or type(self._data) not in [str, bytes]:
             return False
 
@@ -292,8 +266,7 @@ class HTTPResponse(RPCResponse):
 
 
 class HTTPEndpoint(RPCEndpoint):
-    """The class for HTTP endpoints.
-    """
+    """The class for HTTP endpoints."""
 
     def __init__(self, method: str, **kwargs):
         """Initializes an HTTP endpoint.

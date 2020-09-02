@@ -51,7 +51,7 @@ class LogContextExtractor(Extractor):
 
         Args:
             request (RPCRequest): A request.
-        
+
         Returns:
             LogContext: The extracted log context.
         """
@@ -66,7 +66,7 @@ class LoggingHandlerModes:
     - ASYNC: Transmit logs asynchronously in an event loop. Note that this
         mode is only available when you use logging handlers in an asynchronous
         transport (e.g. quart).
-    
+
     To-Do: These modes have not been implemented in logging handlers. The
     default logging handler (`LoggingHandler`), LogStash logging Handler, and
     Fluentd logging handler work synchronously regardless of the specified
@@ -172,7 +172,7 @@ class LoggingHandler(Handler):
         Args:
             *args: Arbitrary positional arguments.
             **kwargs: Arbitrary named arguments.
-        
+
         Returns:
             Any: Any object.
         """
@@ -235,7 +235,7 @@ class LoggingHandler(Handler):
                 will set up a logger even if the logger already has a
                 handler specified. This may cause duplicate log entries
                 if configured inappropriately.
-        
+
         Returns
             Logger: A logger.
         """
@@ -277,12 +277,12 @@ class LoggingHandler(Handler):
             excluded_loggers (List[str]): A list of loggers whose propagation
                 will be disabled. This prevents error logs produced by
                 errored handlers themselves being redirected back to these
-                handlers. 
+                handlers.
             append_handlers (bool): If set to True, the logging handler
                 will set up the root logger even if it already has a
                 handler specified. This may cause duplicate log entries
                 if configured inappropriately.
-        
+
         Returns:
             Logger: A logger.
         """

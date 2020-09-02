@@ -67,7 +67,9 @@ def test_update_user(capfd, test_client):
     data = json.dumps({"user": user_data_to_update, "masks": masks})
 
     res = test_client.patch(
-        "/users/{}?api_key=123".format(uid), data=data, follow_redirects=True,
+        "/users/{}?api_key=123".format(uid),
+        data=data,
+        follow_redirects=True,
     )
     assert res.status_code == 200
 
@@ -86,7 +88,8 @@ def test_delete_user(capfd, test_client):
     uid = user_data.get("uid")
 
     res = test_client.delete(
-        "/users/{}?api_key=123".format(uid), follow_redirects=True,
+        "/users/{}?api_key=123".format(uid),
+        follow_redirects=True,
     )
     assert res.status_code == 200
 

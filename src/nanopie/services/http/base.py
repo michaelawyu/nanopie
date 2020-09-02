@@ -14,8 +14,7 @@ from ...serialization.helpers import JSONSerializationHelper
 
 
 class HTTPService(RPCService):
-    """The base class for all HTTP services.
-    """
+    """The base class for all HTTP services."""
 
     def __init__(
         self,
@@ -37,8 +36,7 @@ class HTTPService(RPCService):
 
     @abstractmethod
     def add_endpoint(self, endpoint: "HTTPEndpoint", **kwargs):
-        """See the method `RPCService.add_endpoint`.
-        """
+        """See the method `RPCService.add_endpoint`."""
         pass
 
     def _rest_endpoint(
@@ -141,7 +139,7 @@ class HTTPService(RPCService):
             extras (Dict, Optional): Additional information about the endpoint.
             **options: Other keyword arguments for configuring this endpoint.
                 They vary according to the transport used.
-        
+
         Usage:
         ```Python
         @svc.create(name="create_user", rule="/users/", ...)
@@ -210,7 +208,7 @@ class HTTPService(RPCService):
             extras (Dict, Optional): Additional information about the endpoint.
             **options: Other keyword arguments for configuring this endpoint.
                 They vary according to the transport used.
-        
+
         Usage:
         ```Python
         @svc.get(name="get_user", rule="/users/{int:user_id}", ...)
@@ -239,10 +237,10 @@ class HTTPService(RPCService):
     def add_get_endpoint(self, *args, func: Callable, **kwargs):
         """Adds a GET endpoint.
 
-         Args:
-            func (Callable): The function to process the request.
-            *args: Other positional arguments. See the method `get`.
-            **kwargs: Other keyword arguments. See the method `get`.
+        Args:
+           func (Callable): The function to process the request.
+           *args: Other positional arguments. See the method `get`.
+           **kwargs: Other keyword arguments. See the method `get`.
         """
         return self.get(*args, **kwargs)(func)
 
@@ -279,7 +277,7 @@ class HTTPService(RPCService):
             extras (Dict, Optional): Additional information about the endpoint.
             **options: Other keyword arguments for configuring this endpoint.
                 They vary according to the transport used.
-        
+
         Usage:
         ```Python
         @svc.update(name="update_user", rule="/users/{int:user_id}", ...)
@@ -308,10 +306,10 @@ class HTTPService(RPCService):
     def add_update_endpoint(self, *args, func: Callable, **kwargs):
         """Adds an UPDATE endpoint.
 
-         Args:
-            func (Callable): The function to process the request.
-            *args: Other positional arguments. See the method `update`.
-            **kwargs: Other keyword arguments. See the method `update`.
+        Args:
+           func (Callable): The function to process the request.
+           *args: Other positional arguments. See the method `update`.
+           **kwargs: Other keyword arguments. See the method `update`.
         """
         return self.update(*args, **kwargs)(func)
 
@@ -348,7 +346,7 @@ class HTTPService(RPCService):
             extras (Dict, Optional): Additional information about the endpoint.
             **options: Other keyword arguments for configuring this endpoint.
                 They vary according to the transport used.
-        
+
         Usage:
         ```Python
         @svc.delete(name="delete_user", rule="/users/{int:user_id}", ...)
@@ -377,10 +375,10 @@ class HTTPService(RPCService):
     def add_delete_endpoint(self, *args, func: Callable, **kwargs):
         """Adds a DELETE endpoint.
 
-         Args:
-            func (Callable): The function to process the request.
-            *args: Other positional arguments. See the method `delete`.
-            **kwargs: Other keyword arguments. See the method `delete`.
+        Args:
+           func (Callable): The function to process the request.
+           *args: Other positional arguments. See the method `delete`.
+           **kwargs: Other keyword arguments. See the method `delete`.
         """
         return self.delete(*args, **kwargs)(func)
 
@@ -417,7 +415,7 @@ class HTTPService(RPCService):
             extras (Dict, Optional): Additional information about the endpoint.
             **options: Other keyword arguments for configuring this endpoint.
                 They vary according to the transport used.
-        
+
         Usage:
         ```Python
         @svc.list(name="list_users", rule="/users/", ...)
@@ -446,10 +444,10 @@ class HTTPService(RPCService):
     def add_list_endpoint(self, *args, func, **kwargs):
         """Adds a LIST endpoint.
 
-         Args:
-            func (Callable): The function to process the request.
-            *args: Other positional arguments. See the method `list`.
-            **kwargs: Other keyword arguments. See the method `list`.
+        Args:
+           func (Callable): The function to process the request.
+           *args: Other positional arguments. See the method `list`.
+           **kwargs: Other keyword arguments. See the method `list`.
         """
         return self.list(*args, **kwargs)(func)
 
@@ -489,7 +487,7 @@ class HTTPService(RPCService):
             extras (Dict, Optional): Additional information about the endpoint.
             **options: Other keyword arguments for configuring this endpoint.
                 They vary according to the transport used.
-        
+
         Usage:
         ```Python
         @svc.custom(name="verify_user",
@@ -530,11 +528,11 @@ class HTTPService(RPCService):
         )
 
     def add_custom_endpoint(self, *args, func: Callable, **kwargs):
-        """"Adds a custom endpoint.
+        """ "Adds a custom endpoint.
 
-         Args:
-            func (Callable): The function to process the request.
-            *args: Other positional arguments. See the method `custom`.
-            **kwargs: Other keyword arguments. See the method `custom`.
+        Args:
+           func (Callable): The function to process the request.
+           *args: Other positional arguments. See the method `custom`.
+           **kwargs: Other keyword arguments. See the method `custom`.
         """
         self.custom(*args, **kwargs)(func)

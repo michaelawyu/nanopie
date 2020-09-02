@@ -8,8 +8,7 @@ from ..logger import logger as package_logger
 
 
 class CustomLogRecordFormatter(logging.Formatter):
-    """The custom formatter for logging handlers.
-    """
+    """The custom formatter for logging handlers."""
 
     def __init__(
         self,
@@ -83,8 +82,7 @@ class CustomLogRecordFormatter(logging.Formatter):
         self._log_ctx_extractor = log_ctx_extractor
 
     def format(self, record: "LogRecord"):
-        """See the method `logging.Formatter.format`.
-        """
+        """See the method `logging.Formatter.format`."""
         super().format(record)
 
         dikt = {}
@@ -122,8 +120,7 @@ class CustomLogRecordFormatter(logging.Formatter):
         return dikt
 
     def usesTime(self):
-        """See the method `logging.Formatter.usesTime`.
-        """
+        """See the method `logging.Formatter.usesTime`."""
         if self.__style:
             search = self.__style.asctime_search
         else:

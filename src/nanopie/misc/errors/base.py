@@ -5,8 +5,7 @@ from typing import Any, Optional, Union
 
 
 class ServiceError(Exception):
-    """The base class for all nanopie exceptions.
-    """
+    """The base class for all nanopie exceptions."""
 
     def __init__(self, *args, response: Optional["RPCResponse"] = None):
         """Initializes a service error.
@@ -23,18 +22,15 @@ class ServiceError(Exception):
 
 
 class AuthenticationError(ServiceError):
-    """The base class for all authentication related exceptions.
-    """
+    """The base class for all authentication related exceptions."""
 
 
 class SerializationError(ServiceError):
-    """The base class for all serialization related exceptions.
-    """
+    """The base class for all serialization related exceptions."""
 
 
 class ValidationError(ServiceError):
-    """The base class for all data validation related exceptions.
-    """
+    """The base class for all data validation related exceptions."""
 
     def __init__(
         self,
@@ -60,5 +56,4 @@ class ValidationError(ServiceError):
 
 
 class FoundationError(ServiceError):
-    """The base class for all foundation handler related exceptions.
-    """
+    """The base class for all foundation handler related exceptions."""

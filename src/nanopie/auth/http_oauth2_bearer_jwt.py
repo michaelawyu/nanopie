@@ -50,12 +50,10 @@ class HTTPOAuth2BearerJWTModes:
 
 
 class HTTPOAuth2BearerJWTExtractor(CredentialExtractor):
-    """The credential extractor for HTTP OAuth2 Bearer w/ JWT authentication.
-    """
+    """The credential extractor for HTTP OAuth2 Bearer w/ JWT authentication."""
 
     def __init__(self, mode: str):
-        """
-        """
+        """"""
         if mode not in HTTPOAuth2BearerJWTModes.supported_modes:
             raise ValueError(
                 "mode must be one of the following values: {}".format(
@@ -136,8 +134,7 @@ class HTTPOAuth2BearerJWTValidator(JWTValidator):
     """
 
     def validate(self, credential):
-        """
-        """
+        """"""
         try:
             super().validate(credential)
         except AuthenticationError as ex:
@@ -146,8 +143,7 @@ class HTTPOAuth2BearerJWTValidator(JWTValidator):
 
 
 class HTTPOAuth2BearerJWTAuthenticationHandler(AuthenticationHandler):
-    """The authentication handler for HTTP OAuth2 Bearer w/ JWT authentication.
-    """
+    """The authentication handler for HTTP OAuth2 Bearer w/ JWT authentication."""
 
     def __init__(
         self,

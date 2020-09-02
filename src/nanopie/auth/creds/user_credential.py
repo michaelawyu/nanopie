@@ -5,8 +5,7 @@ from ..base import Credential
 
 
 class UserCredential(Credential):
-    """The class for user credentials.
-    """
+    """The class for user credentials."""
 
     __slots__ = ("username", "password")
 

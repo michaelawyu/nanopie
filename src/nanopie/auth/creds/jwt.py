@@ -51,8 +51,7 @@ class JWT(Credential):
 
 
 class JWTValidator(CredentialValidator):
-    """The class for validating JWTs.
-    """
+    """The class for validating JWTs."""
 
     def __init__(
         self,

@@ -37,8 +37,7 @@ INVALID_DATA_RESPONSE = HTTPResponse(
 
 
 class HTTPSerializationHandler(SerializationHandler):
-    """The serialization handler for HTTP services.
-    """
+    """The serialization handler for HTTP services."""
 
     def __init__(
         self,
@@ -71,7 +70,7 @@ class HTTPSerializationHandler(SerializationHandler):
         Args:
             *args: Arbitrary positional arguments.
             **kwargs: Arbitrary keyword arguments.
-        
+
         Returns:
             Any: Any object.
         """
@@ -116,9 +115,7 @@ class HTTPSerializationHandler(SerializationHandler):
         data = None
         if self._data_cls:
             if mime_type and mime_type.lower() != helper.mime_type.lower():
-                message = (
-                    "The incoming request does not have the expected mime type."
-                )
+                message = "The incoming request does not have the expected mime type."
                 message = format_error_message(
                     message=message,
                     provided_mime_type=mime_type,

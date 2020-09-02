@@ -50,8 +50,7 @@ class PatchedSyncTransport(SyncTransport):
         trace: str = None,
         span_id: str = None,
     ):
-        """See the method `google.cloud.logging.handlers.transports.SyncTransport.send`.
-        """
+        """See the method `google.cloud.logging.handlers.transports.SyncTransport.send`."""
         self.logger.log_struct(
             message,
             severity=_helpers._normalize_severity(  # pylint: disable=protected-access
@@ -128,8 +127,7 @@ class PatchedBackgroundThreadTransport(BackgroundThreadTransport):
 
 
 class StackdriverHandler(CloudLoggingHandler):
-    """The logging handler for connecting to Stackdriver.
-    """
+    """The logging handler for connecting to Stackdriver."""
 
     def __init__(
         self,
@@ -155,11 +153,15 @@ class StackdriverHandler(CloudLoggingHandler):
                 uses.
         """
         super().__init__(
-            client, name, transport, resource=resource, labels=labels, stream=stream,
+            client,
+            name,
+            transport,
+            resource=resource,
+            labels=labels,
+            stream=stream,
         )
 
     def emit(self, record):
-        """See the method `google.cloud.logging.handlers.handlers.CloudHandler.emit`.
-        """
+        """See the method `google.cloud.logging.handlers.handlers.CloudHandler.emit`."""
         message = self.formatter.format(record)
         self.transport.send(record, message, resource=self.resource, labels=self.labels)

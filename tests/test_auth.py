@@ -128,7 +128,9 @@ def test_authentication_handler_before_authentication_failure_too_many_params(
     with pytest.raises(ValueError) as ex:
 
         @authentication_handler.before_authentication
-        def before_authentication_multi_params(x, y, z):  # pylint: disable=unused-variable
+        def before_authentication_multi_params(
+            x, y, z
+        ):  # pylint: disable=unused-variable
             pass
 
     assert (
@@ -159,7 +161,9 @@ def test_authentication_handler_before_authentication(
     credential_validator_alt.validate.return_value = None
 
     @authentication_handler.before_authentication
-    def before_authentication(auth_handler, credential):  # pylint: disable=unused-variable
+    def before_authentication(
+        auth_handler, credential
+    ):  # pylint: disable=unused-variable
         assert auth_handler == authentication_handler
         assert credential == credential
         return credential_validator_alt
@@ -198,7 +202,9 @@ def test_authentication_handler_after_authentication_failure_too_many_params(
     with pytest.raises(ValueError) as ex:
 
         @authentication_handler.after_authentication
-        def after_authentication_multi_params(x, y, z):  # pylint: disable=unused-variable
+        def after_authentication_multi_params(
+            x, y, z
+        ):  # pylint: disable=unused-variable
             pass
 
     assert (
@@ -226,7 +232,9 @@ def test_authentication_handler_after_authentication(setup_ctx, authentication_h
     flag = MagicMock(return_value=None)
 
     @authentication_handler.after_authentication
-    def after_authentication(auth_handler, credential):  # pylint: disable=unused-variable
+    def after_authentication(
+        auth_handler, credential
+    ):  # pylint: disable=unused-variable
         assert auth_handler == authentication_handler
         assert credential == credential
         return flag()

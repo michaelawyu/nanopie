@@ -1,6 +1,5 @@
 class HTTPMethods:
-    """A list of supported HTTP methods.
-    """
+    """A list of supported HTTP methods."""
 
     GET = "GET"
     PUT = "PUT"

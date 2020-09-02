@@ -15,12 +15,10 @@ from .globals import endpoint
 
 
 class Handler:
-    """The base class for all handlers.
-    """
+    """The base class for all handlers."""
 
     def __init__(self):
-        """Initializes the handler.
-        """
+        """Initializes the handler."""
         self._routes = {}
 
     def __call__(self, *args, **kwargs):
@@ -61,8 +59,7 @@ class Handler:
 
 
 class SimpleHandler(Handler):
-    """A handler that simply runs a function.
-    """
+    """A handler that simply runs a function."""
 
     def __init__(self, func: Callable):
         """Initializes the handler.

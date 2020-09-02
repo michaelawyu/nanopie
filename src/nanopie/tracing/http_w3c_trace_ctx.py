@@ -32,8 +32,7 @@ _TRACEPARENT_HEADER_FORMAT_RE = re.compile(_TRACEPARENT_HEADER_FORMAT)
 
 
 class HTTPW3CTraceContext(TraceContext):
-    """The class for W3C trace context.
-    """
+    """The class for W3C trace context."""
 
     traceparent = StringField()
     tracestate = StringField()
@@ -96,8 +95,7 @@ class HTTPW3CTraceContext(TraceContext):
 
     @property
     def trace_id(self) -> int:
-        """Returns the trace ID.
-        """
+        """Returns the trace ID."""
         trace_id = self._extras.get("trace_id")  # pylint: disable=no-member
         if not trace_id:
             return 0
@@ -106,8 +104,7 @@ class HTTPW3CTraceContext(TraceContext):
 
     @property
     def span_id(self) -> int:
-        """Returns the span ID.
-        """
+        """Returns the span ID."""
         span_id = self._extras.get("span_id")  # pylint: disable=no-member
         if not span_id:
             return 0
@@ -116,8 +113,7 @@ class HTTPW3CTraceContext(TraceContext):
 
     @property
     def trace_flags(self) -> "TraceOptions":
-        """Returns the trace flags.
-        """
+        """Returns the trace flags."""
         trace_options = self._extras.get("trace_options")  # pylint: disable=no-member
         if not trace_options:
             return trace.TraceFlags.get_default()
@@ -126,8 +122,7 @@ class HTTPW3CTraceContext(TraceContext):
 
     @property
     def trace_state(self) -> "TraceState":
-        """Returns the trace states.
-        """
+        """Returns the trace states."""
         trace_state = self._extras.get("trace_state")  # pylint: disable=no-member
         if not trace_state:
             return trace.TraceState.get_default()
@@ -136,8 +131,7 @@ class HTTPW3CTraceContext(TraceContext):
 
 
 class HTTPW3CTraceContextExtractor(TraceContextExtractor):
-    """The class for extracting HTTP W3C trace contexts.
-    """
+    """The class for extracting HTTP W3C trace contexts."""
 
     def extract(self, request: "HTTPRequest") -> "HTTPW3CTraceContext":
         """Extracts an HTTP W3C trace context from an HTTP request.

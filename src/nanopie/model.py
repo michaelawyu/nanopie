@@ -58,8 +58,7 @@ class Field(ABC):
 
     @abstractmethod
     def get_data_type(self) -> type:
-        """Gets the type of data associated with this field.
-        """
+        """Gets the type of data associated with this field."""
 
     @abstractmethod
     def validate(self, v: Any, name: str = "unassigned_field"):
@@ -72,8 +71,7 @@ class Field(ABC):
 
 
 class ModelMetaCls(type):
-    """The metaclass for the Model class.
-    """
+    """The metaclass for the Model class."""
 
     def __new__(cls, clsname, superclses, attribute_dict):
         """Overides the __new__ magic method of the class.
@@ -85,8 +83,7 @@ class ModelMetaCls(type):
         """
 
         class PropertyDescriptor:
-            """The descriptor class for setting up fields as properties.
-            """
+            """The descriptor class for setting up fields as properties."""
 
             __slots__ = ("name", "mask")
 
@@ -102,13 +99,11 @@ class ModelMetaCls(type):
                 self.mask = mask
 
             def __get__(self, obj, type=None) -> Any:
-                """The getter method of the property.
-                """
+                """The getter method of the property."""
                 return getattr(obj, self.mask)
 
             def __set__(self, obj, value):
-                """The setter method of the property.
-                """
+                """The setter method of the property."""
                 obj._fields[self.name].validate(value, name)
                 setattr(obj, self.mask, value)
 
@@ -134,8 +129,7 @@ class ModelMetaCls(type):
 
 
 class Model(metaclass=ModelMetaCls):
-    """The base class for all models.
-    """
+    """The base class for all models."""
 
     __slots__ = ()
 
@@ -169,7 +163,9 @@ class Model(metaclass=ModelMetaCls):
 
             setattr(self, k, p)
 
-    def to_dikt(self, altchar: Optional[str] = None, skip_validation: bool = True) -> Dict:
+    def to_dikt(
+        self, altchar: Optional[str] = None, skip_validation: bool = True
+    ) -> Dict:
         """Parses the model instance into a Dict.
 
         The name of each field will become a key and the value of each field
@@ -180,7 +176,7 @@ class Model(metaclass=ModelMetaCls):
                 the `_` character in the names of the fields.
             skip_validation (bool): If set to True, this method will not
                 validate the model instance before parsing.
-        
+
         Returns:
             dict: a Dict parsed from the model instance.
         """
@@ -188,8 +184,7 @@ class Model(metaclass=ModelMetaCls):
             self.validate()
 
         def helper(data: Union[str, int, float, bool, List, "Model"]):
-            """A helper method for serializing fields and their values.
-            """
+            """A helper method for serializing fields and their values."""
             if type(data) in [str, int, float, bool]:
                 return data
             elif type(data) == list:
@@ -219,7 +214,7 @@ class Model(metaclass=ModelMetaCls):
         skip_validation: bool = True,
         type_cast: bool = False,
         use_default: bool = True,
-    ) -> 'Model':
+    ) -> "Model":
         """Parses a Dict into a model instance.
 
         This method will match the keys of the Dict with the names of the
@@ -243,14 +238,13 @@ class Model(metaclass=ModelMetaCls):
             use_default (bool): If set to True, this method will assign to
                 each fields that cannot be matched the default value (if any)
                 asscoiated with them.
-        
+
         Returns:
             Model: A model instance parsed from the Dict.
         """
 
         def helper(data: Union[str, int, float, bool, List, "Model"], ref: "Field"):
-            """
-            """
+            """"""
             data_type = ref.get_data_type()
 
             if data_type in [str, int, float, bool]:
@@ -306,7 +300,7 @@ class Model(metaclass=ModelMetaCls):
         return obj
 
     @classmethod
-    def get_data_type(cls) -> 'Model':
+    def get_data_type(cls) -> "Model":
         """Gets the type of data associated with this model (which is itself).
 
         Returns:
@@ -330,6 +324,5 @@ class Model(metaclass=ModelMetaCls):
             field.validate(v=val, name=k)
 
     def validate(self):
-        """Validates the model instance itself.
-        """
+        """Validates the model instance itself."""
         self.__class__.validate_instance(self)

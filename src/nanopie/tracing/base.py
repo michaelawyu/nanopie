@@ -48,27 +48,23 @@ class TraceContext(Model):
     @property
     @abstractmethod
     def trace_id(self) -> int:
-        """Returns the trace ID.
-        """
+        """Returns the trace ID."""
 
     @property
     @abstractmethod
     def span_id(self) -> int:
-        """Returns the span ID.
-        """
+        """Returns the span ID."""
 
     @property
     @abstractmethod
     def trace_flags(self) -> "TraceOptions":
-        """Returns the trace flags.
-        """
+        """Returns the trace flags."""
         return trace.TraceFlags.get_default()
 
     @property
     @abstractmethod
     def trace_state(self) -> "TraceState":
-        """Returns the trace states.
-        """
+        """Returns the trace states."""
         return trace.TraceState.get_default()
 
     def process(self):
@@ -79,7 +75,7 @@ class TraceContext(Model):
         the one OpenTelemetry uses. If required, one may override this method,
         call it in the trace context extractor, and do some additional
         parsing to translate custom trace contexts into OpenTelemetry
-        recommended ones. 
+        recommended ones.
         """
 
 
@@ -98,7 +94,7 @@ class TraceContextExtractor(Extractor):
 
         Args:
             request (RPCRequest): A request.
-        
+
         Returns:
             TraceContext: The extracted trace context.
         """
@@ -233,9 +229,7 @@ class OpenTelemetryTracingHandler(Handler):
             self._span_processers.insert(0, self._processor(console_exporter))
 
         if with_sampler and probability:
-            raise RuntimeError(
-                "with_sampler and probability are mutually exclusive."
-            )
+            raise RuntimeError("with_sampler and probability are mutually exclusive.")
         elif not with_sampler and probability == None:
             self._sampler = trace.sampling.ALWAYS_ON
         else:
@@ -248,24 +242,21 @@ class OpenTelemetryTracingHandler(Handler):
         super().__init__()
 
     def _setup_tracer_provider(self):
-        """Sets up a tracer provider.
-        """
+        """Sets up a tracer provider."""
         tracer_provider = TracerProvider(sampler=self._sampler)
         for processor in self._span_processers:
             tracer_provider.add_span_processor(processor)
         self._tracer_provider = tracer_provider
 
     def get_trace_ctx(self):
-        """Gets the trace context.
-        """
+        """Gets the trace context."""
         if self._trace_ctx_extractor:
             return self._trace_ctx_extractor.extract(request=request_proxy)
         else:
             raise RuntimeError("trace_ctx_extractor is not present.")
 
     def get_tracer(self):
-        """Gets a tracer.
-        """
+        """Gets a tracer."""
         if not self._tracer_provider:
             self._setup_tracer_provider()
         return self._tracer_provider.get_tracer(__name__)
@@ -286,7 +277,7 @@ class OpenTelemetryTracingHandler(Handler):
         Args:
             *args: Arbitrary positional arguments.
             **kwargs: Arbitrary named arguments.
-        
+
         Returns:
             Any: Any object.
         """

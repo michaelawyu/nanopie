@@ -8,8 +8,7 @@ from .base import SerializationHelper
 
 
 class JSONSerializationHelper(SerializationHelper):
-    """The JSON serialization helper.
-    """
+    """The JSON serialization helper."""
 
     def __init__(
         self, load_args: Optional[Dict] = None, dump_args: Optional[Dict] = None
@@ -29,22 +28,18 @@ class JSONSerializationHelper(SerializationHelper):
 
     @property
     def mime_type(self) -> str:
-        """Returns the MIME type associated with the JSON format.
-        """
+        """Returns the MIME type associated with the JSON format."""
         return "application/json"
 
     @property
     def binary(self) -> bool:
-        """Returns False as JSON is not a binary format.
-        """
+        """Returns False as JSON is not a binary format."""
         return False
 
     def from_data(self, data: str) -> Dict:
-        """Deserializes a JSON string into a Dict.
-        """
+        """Deserializes a JSON string into a Dict."""
         return json.loads(data, **self._load_args)
 
     def to_data(self, dikt: Dict) -> str:
-        """Serializes a Dict to a JSON string.
-        """
+        """Serializes a Dict to a JSON string."""
         return json.dumps(dikt, **self._dump_args)

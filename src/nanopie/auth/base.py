@@ -17,8 +17,7 @@ from ..services.base import Extractor
 
 
 class Credential(ABC):
-    """The base class for all credentials.
-    """
+    """The base class for all credentials."""
 
 
 class CredentialExtractor(Extractor):
@@ -35,7 +34,7 @@ class CredentialExtractor(Extractor):
 
         Args:
             request (RPCRequest): A request.
-        
+
         Returns:
             Credential: The extracted credential.
         """
@@ -60,8 +59,7 @@ class CredentialValidator(ABC):
 
 
 class AuthenticationHandler(Handler):
-    """The base class for all authentication handlers.
-    """
+    """The base class for all authentication handlers."""
 
     def __init__(
         self,
@@ -103,25 +101,21 @@ class AuthenticationHandler(Handler):
         Args:
             *args: Arbitrary positional arguments.
             **kwargs: Arbitrary named arguments.
-        
+
         Returns:
             Any: Any object.
         """
         credential = self._credential_extractor.extract(request=request_proxy)
 
         credential_validator = self._before_authentication(
-            auth_handler=self,
-            credential=credential
+            auth_handler=self, credential=credential
         )
         if not credential_validator:
             credential_validator = self._credential_validator
 
         credential_validator.validate(credential=credential)
 
-        self._after_authentication(
-            auth_handler=self,
-            credential=credential
-        )
+        self._after_authentication(auth_handler=self, credential=credential)
 
         return super().__call__(*args, **kwargs)
 
@@ -159,7 +153,7 @@ class AuthenticationHandler(Handler):
 
         An after_authentication method allows developers to do some additional
         work after the authentication completes. A microservice/API service
-        with JWT based authentication and custom JWT claims, for example, 
+        with JWT based authentication and custom JWT claims, for example,
         may set up a after_authentication method that verifies the custom
         claims as it sees fit.
 
@@ -193,9 +187,11 @@ class AuthenticationHandler(Handler):
                 "must decorate a callable."
             )
         parameters = signature(func).parameters
-        if len(parameters) != 2 \
-           or not parameters.get("auth_handler") \
-           or not parameters.get("credential"):
+        if (
+            len(parameters) != 2
+            or not parameters.get("auth_handler")
+            or not parameters.get("credential")
+        ):
             raise ValueError(
                 "before_authentication and after_authentication "
                 "must decorate a callable with two arguments "

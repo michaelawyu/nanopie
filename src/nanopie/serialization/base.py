@@ -15,8 +15,7 @@ from ..handler import Handler
 
 
 class SerializationHandler(Handler):
-    """The base class for all serialization handlers.
-    """
+    """The base class for all serialization handlers."""
 
     def __init__(self, serialization_helper: "SerializationHelper"):
         """Initializes a serialization handler.
@@ -36,7 +35,7 @@ class SerializationHandler(Handler):
         Args:
             *args: Arbitrary positional arguments.
             **kwargs: Arbitrary named arguments.
-        
+
         Returns:
             Any: Any object.
         """

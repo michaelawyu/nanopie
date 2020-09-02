@@ -5,8 +5,7 @@ from ..base import Credential
 
 
 class Key(Credential):
-    """The class for key credentials (e.g. API keys).
-    """
+    """The class for key credentials (e.g. API keys)."""
 
     __slots__ = "key"
 

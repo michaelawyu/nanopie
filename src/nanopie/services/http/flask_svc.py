@@ -15,8 +15,7 @@ from ...misc.errors import ServiceError
 
 
 class FlaskService(HTTPService):
-    """The class for HTTP services with Flask apps as transport.
-    """
+    """The class for HTTP services with Flask apps as transport."""
 
     def __init__(self, *args, app: "flask.Flask", **kwargs):
         """Initializes a Flask based HTTP service.
