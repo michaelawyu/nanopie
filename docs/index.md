@@ -202,7 +202,7 @@ authentication handler `HTTPOAuth2BearerJWTAuthenticationHandler`.
     cryptography algorithms.
 
 To enable authentication, edit `main.py` and create
-an `HTTPAPIKeyAuthenticationHandler` object:
+a `HTTPOAuth2BearerJWTAuthenticationHandler`:
 
 ``` python
 from flask import Flask
@@ -249,7 +249,9 @@ the code snippet. There are many Python packages available for this purpose;
 you can also use [`jwt.io`](https://jwt.io/) to get a token for testing
 purposes interactively. Alternatively, use the token below:
 
-`eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.EpM5XBzTJZ4J8AfoJEcJrjth8pfH28LWdjLo90sYb9g`
+```
+eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.EpM5XBzTJZ4J8AfoJEcJrjth8pfH28LWdjLo90sYb9g
+```
 
 And point your browser to `127.0.0.1/users/1?access_token=YOUR-ACCESS-TOKEN`
 (replace `YOUR-ACCESS-TOKEN` with a token of your own). Your request is now

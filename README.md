@@ -13,8 +13,6 @@ only HTTP (RESTful) microservices/API backends.
 
 ## Features
 
-## Features
-
 * **Bring your own transport**
 
     Python has a large number of web framework + server solutions, such
@@ -128,15 +126,14 @@ class User(Model):
 The `User` model includes two fields, `name`, and `age`, which takes a
 `String` value and a `Integer` value respectively. 
 
-!!! note 
-    Both fields have hints and constraints specified:
+Note that both fields have hints and constraints specified:
     
-    * The `name` field must be an alphabetic string with a maximum of 20
-    characters and a minimum of 1 character.
-    * The `age` field must be an integer no smaller than `1` and no greater
-    than `100`.
+* The `name` field must be an alphabetic string with a maximum of 20
+characters and a minimum of 1 character.
+* The `age` field must be an integer no smaller than `1` and no greater
+than `100`.
 
-    `nanopie` can use these hints and constraints to validate data.
+`nanopie` can use these hints and constraints to validate data.
 
 ### Writing the microservice
 
@@ -197,14 +194,8 @@ enable HTTP OAuth2 Bearer Token with JWT ([RFC 6750](https://tools.ietf.org/html
 service using the
 authentication handler `HTTPOAuth2BearerJWTAuthenticationHandler`.
 
-!!! note "If you are unfamiliar with HTTP OAuth2 Bearer Token or JWT"
-    Very loosely speaking, HTTP OAuth2 Bearer Token allows services to
-    authenticate requests with embedded bearer tokens and JWT is a widely
-    used form of tokens that is self-contained and secured with
-    cryptography algorithms.
-
 To enable authentication, edit `main.py` and create
-an `HTTPAPIKeyAuthenticationHandler` object:
+a `HTTPOAuth2BearerJWTAuthenticationHandler`:
 
 ``` python
 from flask import Flask
@@ -251,7 +242,9 @@ the code snippet. There are many Python packages available for this purpose;
 you can also use [`jwt.io`](https://jwt.io/) to get a token for testing
 purposes interactively. Alternatively, use the token below:
 
-`eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.EpM5XBzTJZ4J8AfoJEcJrjth8pfH28LWdjLo90sYb9g`
+```
+eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.EpM5XBzTJZ4J8AfoJEcJrjth8pfH28LWdjLo90sYb9g
+```
 
 And point your browser to `127.0.0.1/users/1?access_token=YOUR-ACCESS-TOKEN`
 (replace `YOUR-ACCESS-TOKEN` with a token of your own). Your request is now
